@@ -1,0 +1,65 @@
+[
+  {
+    "url": "/assets/1.webp",
+    "index": 1,
+    "name": "Morning Ascent",
+    "location": "Northern Range",
+    "data": "June 12, 1972"
+  },
+  {
+    "url": "/assets/2.webp",
+    "index": 2,
+    "name": "Camp at Dusk",
+    "location": "Base Camp",
+    "data": "September 4, 1974"
+  },
+  {
+    "url": "/assets/3.webp",
+    "index": 3,
+    "name": "Crossing the Valley",
+    "location": "Interior Highlands",
+    "data": "July 19, 1971"
+  },
+  {
+    "url": "/assets/4.webp",
+    "index": 4,
+    "name": "Quiet Plateau",
+    "location": "High Ridge",
+    "data": "May 3, 1976"
+  },
+  {
+    "url": "/assets/5.webp",
+    "index": 5,
+    "name": "Rest Stop",
+    "location": "Rocky Pass",
+    "data": "August 22, 1973"
+  },
+  {
+    "url": "/assets/6.webp",
+    "index": 6,
+    "name": "Evening Descent",
+    "location": "Southern Slope",
+    "data": "September 15, 1975"
+  },
+  {
+    "url": "/assets/7.webp",
+    "index": 7,
+    "name": "Along the Ridge",
+    "location": "Upper Trail",
+    "data": "June 28, 1977"
+  },
+  {
+    "url": "/assets/8.webp",
+    "index": 8,
+    "name": "Shelter from the Wind",
+    "location": "Expedition Route",
+    "data": "July 9, 1970"
+  },
+  {
+    "url": "/assets/9.webp",
+    "index": 9,
+    "name": "Last Light",
+    "location": "Far Horizon",
+    "data": "August 31, 1978"
+  }
+]

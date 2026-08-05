@@ -1,0 +1,38 @@
+---
+import "../styles/index.css"
+
+const { uid, template } = Astro.props
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link
+      rel="preload"
+      href="/fonts/satoshi/Satoshi-Variable.ttf"
+      as="font"
+      type="font/ttf"
+      crossorigin
+    />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="https://tympanus.net/favicon/favicon.svg"
+    />
+    <link rel="shortcut icon" href="https://tympanus.net/favicon/favicon.ico" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="stylesheet" href="https://use.typekit.net/gwa0xin.css" />
+    <title>WebGL Pixel Effect on Scroll with GSAP, Three.js and Astro</title>
+  </head>
+  <body data-barba="wrapper">
+    <div id="app" data-barba="container" data-barba-namespace={uid}>
+      <div id="smooth-content" data-page-template={template}>
+        <slot />
+      </div>
+    </div>
+    <canvas id="webgl"></canvas>
+    <script src="../app/main.ts"></script>
+  </body>
+</html>
