@@ -1,10 +1,107 @@
-@font-face {
-  font-family: "Satoshi";
-  src: url("/fonts/satoshi/Satoshi-Variable.ttf") format("truetype");
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
+@use './global/' as *;
+@use "sass:math";
+
+// globalはその他のフォルダで読み込むだけなのでここで読み込む必要はない。
+@use "./foundation"; 
+@use './layout';
+@use './component';
+@use './project';
+@use './utility';
+@use './external';
+
+
+// SPAのCSSを読み込み
+// htmlをフロックスに
+// Not Equalのcssを読み込む
+// uiフォルダの役立つutilityのcssなどを読み込む
+
+
+/*******************************************************
+
+
+
+********************************************************/
+// @use './global/' as *;
+
+
+/*******************************************************
+
+data属性
+
+********************************************************/
+// @use './global/' as *;
+
+
+[data-transition='container'] {
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
+
+
+
+// ✅ canvas
+
+.c-canvas{
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+
+// ✅ svg
+.c-cursor{
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  pointer-events: none;
+  
+  opacity: 0;
+  // visibility: hidden;
+  transition: opacity .3s ease;
+}
+
+.c-cursor.is-visible{
+  opacity: 1;
+  // visibility: visible;
+  // transition: opacity .3s ease;
+}
+
+.disable-hover{
+  pointer-events: none;
+
+  & .c-cursor{
+    opacity: 0 !important;
+  }
+}
+
+// ✅ webgl
+.fallback{
+  width: 100%;
+  max-width: 500px;
+  height: 300px;
+}
+
+
+
+
+
+/*******************************************************
+
+⭐️もともとのCSS
+
+********************************************************/
+// @use './global/' as *;
+
+// @font-face {
+//   font-family: "Satoshi";
+//   src: url("/fonts/satoshi/Satoshi-Variable.ttf") format("truetype");
+//   font-weight: 100 900;
+//   font-style: normal;
+//   font-display: swap;
+// }
 
 :root {
   font-size: 13px;
@@ -318,6 +415,166 @@ h1 {
 
 
 
-/* graphic  */
 
-/* panel */
+/*******************************************************
+
+⭐️ not-equalから移植
+
+********************************************************/
+// @use './global/' as *;
+
+.graphic {
+  text-align: center;
+
+  @include mq("pc") {
+    text-align: left;
+  }
+
+  &__title {
+    // @include section-title;
+  }
+
+  &__subtitle {
+    // @extend .font-16-20;
+    margin-bottom: 2em;
+  }
+
+  &__inner {
+    // @extend .content-width-narrow;
+  }
+
+  &__more {
+    text-align: right;
+    margin-right: 5%;
+
+    & img{
+      // cssのinvert() 色を反転させる関数
+      // sassのinvertとトランスパイルの際に間違えてしまいエラーとなる
+      // → 今回使いたいのはcssのinvert。
+      //   sassがトランスパイル → 波括弧と""が消える → invertがCSSに変換される
+      filter: #{"invert()"};
+    }
+  }
+}
+
+
+.panel {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6%;
+  text-align: left;
+  // @extend .font-12-14;
+
+  @include mq("pc") {
+    justify-content: space-between;
+  }
+
+  &__item {
+    flex: 0 0 100%;
+
+    @include mq("sp") {
+        flex-basis: 40%;
+    }
+
+    @include mq("pc") {
+        flex-basis: 27%;
+    }
+  }
+
+  &__meta {
+    display: block;
+    margin-top: 1em;
+  }
+
+  &__date {
+    margin-right: 1em;
+  }
+
+  &__title {
+    display: block;
+    font-size: 1.5em;
+    font-weight: 700;
+    margin-top: .2em;
+    margin-bottom: 3em;
+  }
+
+  &__media {
+    display: inline-block;
+    width: 100%;
+    aspect-ratio: 1.34;
+    object-fit: cover;
+  }
+}
+
+
+.more-link {
+  position: relative;
+  font-weight: 700;
+  text-align: left;
+  // font-family: $accent-font;
+  // font-size: to-rem(18px);
+  margin: 1.7em 0;
+  display: inline-block;
+  // color: var(--c-main);
+  width: 7.5em;
+  height: 1em;
+
+  &__text {
+    display: inline-block;
+    position: absolute;
+    top: 50%;
+    left: 20%;
+    transform: translate(-50%, -50%);
+    transform-origin: center center;
+    transition: letter-spacing 0.3s ease;
+  }
+
+  &:hover &__text {
+    letter-spacing: 0.3em;
+  }
+
+  &__circle {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    border-radius: 50%;
+    // border: white 1px solid;
+
+    width: 5em;
+    height: 5em;
+
+    transition: opacity 0.1s ease 0.1s;
+  }
+
+  &:hover &__circle {
+    opacity: 0;
+  }
+
+  &__arrow {
+    display: block;
+    overflow: hidden;
+    position: absolute;
+    width: 26px;
+    height: 16px;
+    top: 50%;
+    right: 2.5em;
+    transform: translate(50%, -50%);
+    pointer-events: none;
+
+    &-body {
+      display: block;
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 76px;
+      height: 16px;
+      transition: transform 0.3s ease;
+    }
+  }
+
+  &:hover &__arrow-body {
+    transform: translateX(50px);
+  }
+}

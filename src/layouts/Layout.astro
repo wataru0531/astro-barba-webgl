@@ -1,5 +1,8 @@
 ---
-import "../styles/index.css"
+// import "../styles/index.css"
+import "../sass/style.scss"
+import Header from "../components/header.astro"
+import Footer from "../components/footer.astro"
 
 const { uid, template } = Astro.props
 ---
@@ -27,11 +30,21 @@ const { uid, template } = Astro.props
     <title>WebGL Pixel Effect on Scroll with GSAP, Three.js and Astro</title>
   </head>
   <body data-barba="wrapper">
+    <!-- 
+      data-barba="container"
+      → ここを削除
+      → 遷移先のページのcontainerを差し込む
+    -->
+    <Header />
+
     <div id="app" data-barba="container" data-barba-namespace={uid}>
       <div id="smooth-content" data-page-template={template}>
         <slot />
       </div>
     </div>
+
+    <Footer />
+
     <canvas id="webgl"></canvas>
     <script src="../app/main.ts"></script>
   </body>

@@ -1,12 +1,13 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import medias from '../data.json';
-import Header from '../components/header.astro';
+// import Header from '../components/header.astro';
 ---
 
 <Layout uid="home" template="home">
   <div data-gallery-container class="container">
-    <Header />
+    <!-- <Header /> -->
+
     <div class="grid-container">
       <div class="grid">
         <h1
@@ -114,6 +115,163 @@ import Header from '../components/header.astro';
       </div>
     </div>
   </div>
+
+  <!-- graphic -->
+    <section class="graphic">
+      <div class="graphic__inner">
+        <h2 class="graphic__title">
+          <!-- <span
+            class="graphic__title-text"
+            data-webgl="distortion-text"
+            data-tex-1="/img/headline/GRAPHIC.png"
+            data-scroll-trigger="progress"
+            data-mouse="highlight"
+            data-mouse-scale="4"
+            >GRAPHIC</span> -->
+        </h2>
+        <p class="graphic__subtitle">エフェクトを追加して、オリジナルのWebサイトを作成しよう。</p>
+        
+        <div class="panel">
+
+          <div class="panel__item">
+            <a class="panel__link" href="">
+              <span class="panel__holder">
+                <span
+                  class="panel__media"
+                  data-webgl="plane-sphere"
+                  data-tex-1="/movie/turtle.mp4"
+                  data-mouse="highlight"
+                  data-scroll-trigger="progress,playVideo"
+                ></span>
+              </span>
+              <span class="panel__content" data-scroll-trigger="fade">
+                <span class="panel__meta">
+                  <span class="panel__date">2022.12.14</span>
+                  <span class="panel__cat">ATTRIBUTE</span>
+                </span>
+                <span class="panel__title">Vertex Shader</span>
+              </span>
+            </a>
+          </div>
+
+          <div class="panel__item">
+            <a class="panel__link" href="">
+              <span class="panel__holder">
+                <img
+                  class="panel__media"
+                  data-webgl="plane-sphere"
+                  data-tex-1="/img/graphic/panel_2.jpg"
+                  data-mouse="highlight"
+                  data-scroll-trigger="progress"
+                />
+              </span>
+              <span class="panel__content" data-scroll-trigger="fade">
+                <span class="panel__meta">
+                  <span class="panel__date">2022.12.14</span>
+                  <span class="panel__cat">UNIFORM</span>
+                </span>
+                <span class="panel__title">Fragment Shader</span>
+              </span>
+            </a>
+          </div>
+          <div class="panel__item">
+            <a class="panel__link" href="">
+              <span class="panel__holder">
+                <img
+                  class="panel__media"
+                  data-webgl="plane-sphere"
+                  data-tex-1="/img/graphic/panel_3.jpg"
+                  data-mouse="highlight"
+                  data-scroll-trigger="progress"
+                />
+              </span>
+              <span class="panel__content" data-scroll-trigger="fade">
+                <span class="panel__meta">
+                  <span class="panel__date">2022.12.14</span>
+                  <span class="panel__cat">VARYING</span>
+                </span>
+                <span class="panel__title">Post Processing</span>
+              </span>
+            </a>
+          </div>
+          <div class="panel__item">
+            <a class="panel__link" href="">
+              <span class="panel__holder">
+                <img
+                  class="panel__media"
+                  data-webgl="plane-sphere"
+                  data-tex-1="/img/graphic/panel_4.jpg"
+                  data-mouse="highlight"
+                  data-scroll-trigger="progress"
+                />
+              </span>
+              <span class="panel__content" data-scroll-trigger="fade">
+                <span class="panel__meta">
+                  <span class="panel__date">2022.12.14</span>
+                  <span class="panel__cat">RAY CASTING</span>
+                </span>
+                <span class="panel__title">Rasterization</span>
+              </span>
+            </a>
+          </div>
+          <div class="panel__item">
+            <a class="panel__link" href="">
+              <span class="panel__holder">
+                <video
+                  class="panel__media"
+                  data-webgl="plane-sphere"
+                  data-tex-1="/movie/beach.mp4"
+                  data-mouse="highlight"
+                  data-scroll-trigger="progress,playVideo"
+                ></video>
+              </span>
+              <span class="panel__content" data-scroll-trigger="fade">
+                <span class="panel__meta">
+                  <span class="panel__date">2022.12.14</span>
+                  <span class="panel__cat">PERLIN</span>
+                </span>
+                <span class="panel__title">Ray Marching</span>
+              </span>
+            </a>
+          </div>
+          <div class="panel__item">
+            <a class="panel__link" href="">
+              <span class="panel__holder">
+                <img
+                  class="panel__media"
+                  data-webgl="plane-sphere"
+                  data-tex-1="/img/graphic/panel_6.jpg"
+                  data-mouse="highlight"
+                  data-scroll-trigger="progress"
+                />
+              </span>
+              <span class="panel__content" data-scroll-trigger="fade">
+                <span class="panel__meta">
+                  <span class="panel__date">2022.12.14</span>
+                  <span class="panel__cat">NORMALIZATION</span>
+                </span>
+                <span class="panel__title">Rendering</span>
+              </span>
+            </a>
+          </div>
+        </div>
+        
+        <div class="graphic__more">
+          <a class="more-link" href="https://not-equal.dev" target="_blank">
+            <span class="more-link__text">MORE</span>
+            <span class="more-link__circle" data-mouse="stuck"> </span>
+            <span class="more-link__arrow">
+              <span class="more-link__arrow-body">
+                <img src="/img/arrow.svg" alt="">
+              </span>
+            </span>
+          </a>
+        </div>
+      </div>
+    </section>
+  <!-- graphic -->
+
+
   <section class="related">
     <p>You might also like</p>
     <div class="relgrid">
@@ -216,4 +374,6 @@ import Header from '../components/header.astro';
       </a>
     </div>
   </section>
+
+
 </Layout>
