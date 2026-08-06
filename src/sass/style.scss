@@ -95,13 +95,14 @@ data属性
 ********************************************************/
 // @use './global/' as *;
 
-// @font-face {
-//   font-family: "Satoshi";
-//   src: url("/fonts/satoshi/Satoshi-Variable.ttf") format("truetype");
-//   font-weight: 100 900;
-//   font-style: normal;
-//   font-display: swap;
-// }
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/satoshi/Satoshi-Variable.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 
 :root {
   font-size: 13px;

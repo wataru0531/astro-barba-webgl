@@ -1,26 +1,29 @@
+
+// text-animation.js
+
 import gsap from "gsap"
 import { SplitText } from "gsap/SplitText"
 
-interface BaseAnimationProps {
-  element: HTMLElement
-  inDuration: number
-  outDuration: number
-  inDelay: number
-}
+// interface BaseAnimationProps {
+//   element: HTMLElement
+//   inDuration: number
+//   outDuration: number
+//   inDelay: number
+// }
 
-interface SplitAnimationProps extends BaseAnimationProps {
-  split: globalThis.SplitText
-  inStagger?: number
-  outStagger?: number
-}
+// interface SplitAnimationProps extends BaseAnimationProps {
+//   split: globalThis.SplitText
+//   inStagger?: number
+//   outStagger?: number
+// }
 
 export default class TextAnimation {
-  elements: HTMLElement[]
-  splitAnimations: SplitAnimationProps[] = []
-  fadeAnimations: BaseAnimationProps[] = []
-  splitTweens: gsap.core.Tween[] = []
-  fadeTweens: gsap.core.Tween[] = []
-  ready: boolean = false
+  // elements: HTMLElement[]
+  // splitAnimations: SplitAnimationProps[] = []
+  // fadeAnimations: BaseAnimationProps[] = []
+  // splitTweens: gsap.core.Tween[] = []
+  // fadeTweens: gsap.core.Tween[] = []
+  // ready: boolean = false
 
   constructor() {}
 
@@ -30,9 +33,7 @@ export default class TextAnimation {
     this.splitAnimations = []
     this.fadeAnimations = []
 
-    this.elements = document.querySelectorAll(
-      "[data-text-animation]",
-    ) as unknown as HTMLElement[]
+    this.elements = document.querySelectorAll("[data-text-animation]");
 
     this.elements.forEach((el) => {
       const inDuration = parseFloat(
@@ -108,7 +109,12 @@ export default class TextAnimation {
           ease: "expo",
           duration: inDuration,
           delay: inDelay + delay,
-        })
+        });
+
+        // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+        // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+        // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+        // console.log(tweenWithScroll);
 
         this.splitTweens.push(tweenWithScroll)
       },

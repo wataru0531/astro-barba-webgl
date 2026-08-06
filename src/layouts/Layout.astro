@@ -5,6 +5,7 @@ import Header from "../components/header.astro"
 import Footer from "../components/footer.astro"
 
 const { uid, template } = Astro.props
+// console.log(uid)
 ---
 
 <!doctype html>
@@ -46,6 +47,6 @@ const { uid, template } = Astro.props
     <Footer />
 
     <canvas id="webgl"></canvas>
-    <script src="../app/main.ts"></script>
+    <script src="../app/main.js"></script>
   </body>
 </html>
