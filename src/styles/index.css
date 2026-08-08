@@ -163,7 +163,7 @@ a {
   z-index: 10;
 }
 
-#webgl {
+#js-canvas {
   position: fixed;
   z-index: 0;
   inset: 0;

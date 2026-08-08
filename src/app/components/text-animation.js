@@ -1,6 +1,9 @@
 
 // text-animation.js
 
+// ✅ TODO
+// DOMは$で。
+
 import gsap from "gsap"
 import { SplitText } from "gsap/SplitText"
 
@@ -25,15 +28,19 @@ export default class TextAnimation {
   // fadeTweens: gsap.core.Tween[] = []
   // ready: boolean = false
 
-  constructor() {}
-
-  init() {
-    this.ready = true
+  constructor() {
+    this.splitTweens = [];
+    this.fadeTweens = [];
 
     this.splitAnimations = []
     this.fadeAnimations = []
 
-    this.elements = document.querySelectorAll("[data-text-animation]");
+    this.elements = [];
+    this.ready = true;
+  }
+
+  init() {
+    this.elements = [...document.querySelectorAll("[data-text-animation]")];
 
     this.elements.forEach((el) => {
       const inDuration = parseFloat(
@@ -110,12 +117,7 @@ export default class TextAnimation {
           duration: inDuration,
           delay: inDelay + delay,
         });
-
-        // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-        // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-        // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-        // console.log(tweenWithScroll);
-
+        
         this.splitTweens.push(tweenWithScroll)
       },
     )

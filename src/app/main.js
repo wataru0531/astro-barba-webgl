@@ -1,7 +1,7 @@
 
 // main.ts
 
-import Canvas from "./components/canvas"
+// import Canvas from "./components/canvas"
 import Scroll from "./components/scroll"
 //@ts-ignore
 import barba from "@barba/core"
@@ -9,14 +9,25 @@ import barba from "@barba/core"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { ScrollSmoother } from "gsap/ScrollSmoother"
 //@ts-ignore
-import { Flip } from "gsap/Flip"
+// import { Flip } from "gsap/Flip"
 import gsap from "gsap"
 // import Media from "./components/media"
 import { SplitText } from "gsap/SplitText"
 import TextAnimation from "./components/text-animation"
-import FontFaceObserver from "fontfaceobserver"
+import FontFaceObserver from "fontfaceobserver";
 
-gsap.registerPlugin(ScrollTrigger, ScrollSmoother, Flip, SplitText)
+import { INode, gui } from "./helper"
+
+gsap.registerPlugin(
+  ScrollTrigger, 
+  ScrollSmoother, 
+  // Flip, SplitText
+)
+
+// ✅ Not Equalの初期化
+// ・デバックモード
+// ・
+// ・
 
 // デバッグ
 // 1 → 開発はデバッグをON。本番ではOFF
@@ -45,19 +56,45 @@ class App {
       history.scrollRestoration = "manual"
     }
 
-    // Not Equalの初期化
-    // ・デバックモード
-    // ・
-    // ・
+    this.$ = {};
+    // ✅ Not Equalプロジェクトを入れる
+    this.$.canvas = INode.getElement("#js-canvas");
+    this.$.pageElement =
+    this.template = this.getCurrentTemplate(); // ページのタイプ
+    // console.log(this.template);
+
+    this.scrollBlocked = false;
+    this.fontLoaded = false;
 
     this.scroll = new Scroll()
-    this.canvas = new Canvas()
+    // this.canvas = new Canvas()
+    // console.log(this.canvas);
     this.textAnimation = new TextAnimation()
+  
+    // let activeLinkImage;
+    this.scrollTop = 0;
+
+    window.addEventListener("resize", this.onResize.bind(this))
+
+    this.render = this.render.bind(this)
+    gsap.ticker.add(this.render)
+
+
+
+    this.init(); // 初期化処理
+  }
+
+  // ✅　初期化処理
+  async init() {
+    if(window.debug) await gui.init();
+
+    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+
     this.loadFont(() => {
       this.textAnimation.init()
-    })
-
-    this.template = this.getCurrentTemplate()
+    });
 
     this.loadImages(() => {
       // this.canvas.createMedias()
@@ -76,9 +113,6 @@ class App {
         })
       }
     })
-
-    // let activeLinkImage;
-    let scrollTop;
 
     // ✅ Barba
     barba.init({
@@ -274,10 +308,6 @@ class App {
       ],
     })
 
-    window.addEventListener("resize", this.onResize.bind(this))
-
-    this.render = this.render.bind(this)
-    gsap.ticker.add(this.render)
   }
 
   getCurrentTemplate() {
