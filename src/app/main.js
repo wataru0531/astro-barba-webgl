@@ -1,6 +1,12 @@
 
 // main.ts
 
+// ⭐️ TODO 
+// astro.config.jsの編集
+// ✅ ローディング画面
+// 各コンポーネント
+
+
 // import Canvas from "./components/canvas"
 import Scroll from "./components/scroll"
 //@ts-ignore
@@ -16,7 +22,11 @@ import { SplitText } from "gsap/SplitText"
 import TextAnimation from "./components/text-animation"
 import FontFaceObserver from "fontfaceobserver";
 
-import { INode, gui } from "./helper"
+import { INode, gui, viewport } from "./helper"
+import loader from "./components/loader";
+import mouse from "./components/mouse"
+import world from "./glsl/world"
+import { menu } from "./components/menu"
 
 gsap.registerPlugin(
   ScrollTrigger, 
@@ -24,10 +34,6 @@ gsap.registerPlugin(
   // Flip, SplitText
 )
 
-// ✅ Not Equalの初期化
-// ・デバックモード
-// ・
-// ・
 
 // デバッグ
 // 1 → 開発はデバッグをON。本番ではOFF
@@ -51,34 +57,33 @@ class App {
   // fontLoaded: boolean = false
 
   // ✅ 初期化処理
+  // 保持しておきたいインスタンスなどはここ
   constructor() {
     if (typeof history !== "undefined" && "scrollRestoration" in history) {
       history.scrollRestoration = "manual"
     }
 
-    this.$ = {};
-    // ✅ Not Equalプロジェクトを入れる
+    this.$ = {}; // DOMを格納
     this.$.canvas = INode.getElement("#js-canvas");
-    this.$.pageElement =
-    this.template = this.getCurrentTemplate(); // ページのタイプ
-    // console.log(this.template);
 
     this.scrollBlocked = false;
     this.fontLoaded = false;
+    this.bgColor = "none"; // シーンの背景色
+
+    this.pageType = this.getCurrentTemplate(); // ページのタイプ
+    // console.log(this.pageType);
+
+
 
     this.scroll = new Scroll()
-    // this.canvas = new Canvas()
-    // console.log(this.canvas);
     this.textAnimation = new TextAnimation()
   
-    // let activeLinkImage;
     this.scrollTop = 0;
 
     window.addEventListener("resize", this.onResize.bind(this))
 
     this.render = this.render.bind(this)
     gsap.ticker.add(this.render)
-
 
 
     this.init(); // 初期化処理
@@ -88,9 +93,69 @@ class App {
   async init() {
     if(window.debug) await gui.init();
 
-    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+    viewport.init(this.$.canvas, 2000, 2500, 4000);
+
+    await loader.loadAllAssets(); // url => テクスチャ の状態でtextureCacheに保持
+
+    await world.init(this.$.canvas, viewport, this.bgColor);
+
+    this.addGui(world);
+
+    // 各ページで使うJSの初期化
+    await import(`./pages/${this.pageType}.js`).then(({ default: init }) => {
+      // import("./pages/home.js").then(d => {
+      // console.log(d); // Module {Symbol(Symbol.toStringTag): 'Module'}default: (...)Symbol(Symbol.toStringTag): "Module"get default: ƒ ()set default: ƒ ()
+
+      // ・default → default exportされているものが渡ってくる。
+      // ・init    → デフォルトエクスポートされた関数をinitという名前の変数に格納
+      //             defaultは予約後のため使えない
+
+      return init({
+        world,
+        mouse,
+        menu,
+        loader,
+        viewport,
+        scroller: this.scroll,
+      });
+    });
+
+    // ⭐️ここから
+    mouse.init();
+
+    // リサイズ処理時に関するコールバックを登録
+    viewport.addResizeAction(() => {
+      // canvasのサイズの更新、メッシュの位置やサイズの更新、カメラのprojectionMatrixの更新
+      world.adjustWorldPosition(viewport);
+
+      mouse.resize(); // マウスカーソルのsvgタグのサイズ更新
+    });
+
+    world.addRenderAction(() => {
+      // renderに渡す。world.jsで実行
+      mouse.render();
+      world.raycast();
+    });
+
+    // registerScrollAnimations(); // スクロールアニメーションの登録、実行
+
+    // menu.init(world, scroller); // メニューの初期化
+
+    world.render();
+
+    // await loader.letsBegin(); // ローディングのアニメーション発火(カウンターの削除、コンテンツを表示)
+
+    mouse.makeVisible(); // 初期表示時にカスタムカーソルを非表示。300ms毎に判定
+
+
+    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+    // Not Equalが移行できたかどうかの確認
+    // コンポーネントの初期化順
+
+
+
 
     this.loadFont(() => {
       this.textAnimation.init()
@@ -174,8 +239,8 @@ class App {
             this.scroll.init()
             this.textAnimation.init()
 
-            const template = this.getCurrentTemplate()
-            this.setTemplate(template)
+            const pageType = this.getCurrentTemplate()
+            this.setPageType(pageType)
 
             this.loadImages(() => {
               // this.canvas.medias = []
@@ -273,8 +338,8 @@ class App {
             detailContainer.innerHTML = ""
             // detailContainer.append(activeLinkImage)
 
-            const template = this.getCurrentTemplate()
-            this.setTemplate(template)
+            const pageType = this.getCurrentTemplate()
+            this.setPageType(pageType);
 
             return new Promise((resolve) => {
               let activeMedia = null
@@ -306,16 +371,17 @@ class App {
           },
         },
       ],
-    })
-
+    });
   }
 
+  // ✅ ページのタイプを取得
   getCurrentTemplate() {
-    return document.querySelector("[data-page-template]")?.getAttribute("data-page-template");
+    return document.querySelector("[data-page-type]")?.getAttribute("data-page-type");
   }
 
-  setTemplate(template) {
-    this.template = template;
+  // ✅ ページのタイプを更新
+  setPageType(pageType) {
+    this.pageType = pageType;
   }
 
   loadImages(callback) {
@@ -365,6 +431,32 @@ class App {
     this.scrollTop = this.scroll?.getScroll() || 0
     this.canvas?.render(this.scrollTop, !this.scrollBlocked)
   }
+
+
+  // guiを初期化、展開
+  addGui(_world) {
+    if (window.debug) {
+      gui.add(_world.addOrbitControlGUI); // OrbitControlの制御
+
+      // 全てのメッシュにguiを追加
+      gui.add((gui) => {
+        // lilGUIがわたってくる
+        gui.close();
+
+        _world.os.forEach((o) => {
+          if (!o.debug) return; // oがデバッグ関数をもったなかったら処理中断
+
+          const type = INode.getDS(o.$.el, "webgl"); // type → フォルダ名
+          // console.log(type)
+          const folder = gui.addFolder(type); // フォルダ追加
+          // console.log(folder)
+          folder.close(); // 非表示。各ファイルで上書きできる
+          o.debug(folder); // フォルダーのインスタンスを渡す
+        });
+      });
+    }
+  }
+
 }
 
 export default new App()

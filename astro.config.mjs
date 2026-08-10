@@ -1,16 +1,21 @@
 // @ts-check
 import { defineConfig } from "astro/config"
 import glsl from "vite-plugin-glsl"
+import glslify from "rollup-plugin-glslify";
 
-// https://astro.build/config
+
 export default defineConfig({
   devToolbar: {
     enabled: false,
   },
+
   vite: {
-    plugins: [glsl()],
+    plugins: [
+      glslify(),
+    ],
   },
+
   server: {
     host: true,
   },
-})
+});

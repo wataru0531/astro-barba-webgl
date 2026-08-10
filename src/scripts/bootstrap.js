@@ -1,13 +1,12 @@
-
 // サイト全体で使うコード
 // importされた時点で、各ファイルの関数以外のトップレベルのコードは実行される
 
 import world from "./glsl/world";
 import { viewport, gui, INode, utils } from "./helper";
 import scroller from "./component/scroller";
-import mouse from "./component/mouse";
-import loader from "./component/loader";
-import { menu } from "./component/menu";
+import mouse from "../app/components/mouse.js";
+import loader from "../app/components/loader.js";
+import { menu } from "../app/components/menu.js";
 import { registerScrollAnimations } from "./component/scroll-animation.js";
 
 // ✅ デバック 1ならデバッグモード
@@ -29,12 +28,12 @@ function enableDebugMode(debug) {
 export async function init() {
   const canvas = INode.getElement("#canvas");
 
-  const pageEl = INode.getElement("#page-container");   // ページタイプを取得
+  const pageEl = INode.getElement("#page-container"); // ページタイプを取得
   // console.log(pageEl)
   const pageType = INode.getDS(pageEl, "page");
   // console.log(pageType); // home sub
 
-  if(window.debug) await gui.init(); // GUIの初期化...本番環境では必要ないのでif文で囲う
+  if (window.debug) await gui.init(); // GUIの初期化...本番環境では必要ないのでif文で囲う
 
   viewport.init(canvas, 2000, 1500, 4000); // ビューポートに関するデータを取得
 
@@ -45,7 +44,7 @@ export async function init() {
   // GPUパフォーマンス測定
   // ここではtierが2, 50fpsでない場合は各index.jsでメッシュの作成をスキップ
   await utils.definePerformanceMode(1, 20);
-  
+
   // 数値のカウントアップ
   const loaderPercent = INode.getElement(".loader-percent");
   // console.log(loaderPercent)
@@ -65,13 +64,13 @@ export async function init() {
 
   // 各ページで使うJSの初期化
   await import(`./pages/${pageType}.js`).then(({ default: init }) => {
-  // import("./pages/home.js").then(d => {
+    // import("./pages/home.js").then(d => {
     // console.log(d); // Module {Symbol(Symbol.toStringTag): 'Module'}default: (...)Symbol(Symbol.toStringTag): "Module"get default: ƒ ()set default: ƒ ()
-    
+
     // ・default → default exportされているものが渡ってくる。
     // ・init    → デフォルトエクスポートされた関数をinitという名前の変数に格納
     //             defaultは予約後のため使えない
-    
+
     return init({
       world,
       mouse,
@@ -93,7 +92,8 @@ export async function init() {
     mouse.resize(); // マウスカーソルのsvgタグのサイズ更新
   });
 
-  world.addRenderAction(() => { // renderに渡す。world.jsで実行
+  world.addRenderAction(() => {
+    // renderに渡す。world.jsで実行
     mouse.render();
     world.raycast();
   });
@@ -110,16 +110,17 @@ export async function init() {
 }
 
 // guiを初期化、展開
-function addGui(_world){
-  if(window.debug) {
+function addGui(_world) {
+  if (window.debug) {
     gui.add(_world.addOrbitControlGUI); // OrbitControlの制御
 
     // 全てのメッシュにguiを追加
-    gui.add((gui) => { // lilGUIがわたってくる
+    gui.add((gui) => {
+      // lilGUIがわたってくる
       gui.close();
 
       _world.os.forEach((o) => {
-        if(!o.debug) return; // oがデバッグ関数をもったなかったら処理中断
+        if (!o.debug) return; // oがデバッグ関数をもったなかったら処理中断
 
         const type = INode.getDS(o.$.el, "webgl"); // type → フォルダ名
         // console.log(type)
@@ -130,5 +131,4 @@ function addGui(_world){
       });
     });
   }
-
 }

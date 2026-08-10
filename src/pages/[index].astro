@@ -17,7 +17,7 @@ export const getStaticPaths = async () => {
 const { media } = Astro.props;
 ---
 
-<Layout uid={`detail-${media.index}`} template="detail">
+<Layout uid={`detail-${media.index}`} pageType="detail">
   <Header />
   <div class="details">
     <div data-text-animation class="details-data">

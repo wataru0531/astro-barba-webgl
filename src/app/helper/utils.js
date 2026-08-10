@@ -11,7 +11,7 @@ import { getGPUTier } from 'detect-gpu';
 
 
 // ✅ GPUのパフォーマンス測定
-// ここでは、fpsがga50以上出る場合はパフォーマンスがいいことにする
+// ここでは、fpsが50以上出る場合はパフォーマンスがいいことにする
 let _isHighPerformanceMode;
 
 async function definePerformanceMode(_tier = 2, _fps = 60){ // あえて低く。通常は2, 60

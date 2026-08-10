@@ -40,15 +40,27 @@ data属性
 
 
 // ✅ canvas
-
-.c-canvas{
-  width: 100vw;
-  height: 100vh;
+.l-canvas {
   position: fixed;
   top: 0;
   left: 0;
   z-index: -1;
+}   
+
+.p-canvas {
+  width: 100vw;
+  height: 100vh;
 }
+
+// ✅ 
+.load-pp {
+  visibility: hidden;
+  pointer-events: none;
+  width: 1px;
+  height: 1px;
+  position: absolute;
+}
+
 
 // ✅ svg
 .c-cursor{

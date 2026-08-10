@@ -1,5 +1,9 @@
 
-// ビューポートに関する処理
+// ✅　TODO 
+// ・クラス化
+
+
+// ✅ ビューポートに関する処理
 // canvasとhtmlの座標のスケールを一致させていて、それらをviewportオブジェクトに保持する
 // → cameraからcanvasまでの距離、幅、高さ、fovなどレンダリングに関するデータを取得して、
 //   world.jsのrenderer、cameraの初期化に用いてhtmlのスケールとWebGLのスケールとを一致させる
@@ -24,8 +28,10 @@ const $ = {};
 const actions = new Set(); // リサイズが発生した時に登録したいコールバックを格納
 let initialized = false;
 
+
 function init(canvas, cameraZ = 2000, near = 1500, far = 4000){
   $.canvas = canvas;
+  // console.log($.canvas);
   const rect = INode.getRect(canvas);
 
   viewport.width = rect.width;
@@ -49,7 +55,7 @@ function init(canvas, cameraZ = 2000, near = 1500, far = 4000){
   return viewport;
 }
 
-// リサイズ ... 初回のローディング時のみ発火させる?
+// イベント関連。リサイズなど
 function _bindEvents(){
   let timerId = null;
 
@@ -73,7 +79,7 @@ function _onResize(){
   // console.log(actions);
 }
 
-// near、far、cameraZの情報を更新
+// ✅ near、far、cameraZの情報を更新
 function _update(){
   const { near, far, cameraZ } = viewport;
 

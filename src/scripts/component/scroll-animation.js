@@ -1,4 +1,3 @@
-
 // スクロールと合わせて変更していく
 
 import gsap from "gsap";
@@ -6,8 +5,7 @@ import { INode, viewport } from "../helper";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import world from "../glsl/world";
 import { initRipplePass } from "../glsl/ripple";
-import mouse from "./mouse";
-
+import mouse from "../../app/components/mouse";
 
 gsap.set(":root", {
   "--c-text": "#dadada",
@@ -26,14 +24,13 @@ const ACTIONS = {
   logoAnimation,
   reversal,
   ripple,
+};
 
-}
-
- // PCかスマホかでscrollTriggerのスタート位置を定義
+// PCかスマホかでscrollTriggerのスタート位置を定義
 let startTrigger = null;
 
 // スクロールアニメションの実行
-function registerScrollAnimations(){
+function registerScrollAnimations() {
   gsap.registerPlugin(ScrollTrigger);
 
   startTrigger = viewport.isMobile() ? "top 80%" : "top 70%";
@@ -42,27 +39,26 @@ function registerScrollAnimations(){
   const els = INode.qsAll("[data-scroll-trigger]");
   // console.log(els); // (6) [span.panel__content, span.panel__content, span.panel__content, span.panel__content, span.panel__content, span.panel__content]
 
-  els.forEach(el => {
+  els.forEach((el) => {
     const key = INode.getDS(el, "scrollTrigger");
     // console.log(key); // progress, progress, playVideo, fade
     const types = key.split(","); // ,で区切り配列に
     // console.log(types); // ['progress'] (2) ['progress', 'playVideo'] ['fade']
 
-    types.forEach(type => {
+    types.forEach((type) => {
       // console.log(type)
       // typeにあうアニメーションを実行していく
       ACTIONS?.[type](el); // ACTIONSに見合ったアニメーションが見つからない場合
-    })
-  })
+    });
+  });
 }
-
 
 // rippleの制御
 // → 反射スライダーではrippleのポストプロセスを切る
-async function ripple(_el){
+async function ripple(_el) {
   // console.log(_el);
 
-  if(viewport.isMobile()) return; // PC以外の時はポストプロセスのrippleを切る
+  if (viewport.isMobile()) return; // PC以外の時はポストプロセスのrippleを切る
   // console.log("done")
 
   // ポストプロセス(rippleのエフェクト)
@@ -76,14 +72,12 @@ async function ripple(_el){
     },
     onLeaveBack: () => {
       addPass();
-    }
-  })
-
+    },
+  });
 }
 
-
 // 背景色を反転　skillセクションで発火
-function reversal(_el){
+function reversal(_el) {
   // console.log(_el);
 
   // 背景のfresnel、ディストーションのタイトル色も更新
@@ -92,8 +86,8 @@ function reversal(_el){
   const skillTitle = world.getObjByEl(".skill__title-text");
   const graphicTitle = world.getObjByEl(".graphic__title-text");
 
-  const reversal = { value: 0 }
-  function onUpdate(){
+  const reversal = { value: 0 };
+  function onUpdate() {
     // console.log("onUpdate")
     fresnel && (fresnel.uniforms.uReversal.value = reversal.value);
     skillTitle && (skillTitle.uniforms.uReversal.value = reversal.value);
@@ -121,7 +115,7 @@ function reversal(_el){
       gsap.to(reversal, {
         value: 1,
         onUpdate: onUpdate,
-      })
+      });
     },
     onLeaveBack: () => {
       gsap.to(":root", {
@@ -134,14 +128,13 @@ function reversal(_el){
       gsap.to(reversal, {
         value: 0,
         onUpdate: onUpdate,
-      })
-    }
-  })
-
+      });
+    },
+  });
 }
 
 // ✅ ロゴ
-function logoAnimation(_el){
+function logoAnimation(_el) {
   // gsap.registerPlugin(ScrollTrigger);
 
   ScrollTrigger.create({
@@ -153,17 +146,17 @@ function logoAnimation(_el){
     onLeaveBack: () => {
       // console.log("onLeaveBack")
       _el.classList.remove("inview");
-    }
-  })
+    },
+  });
 }
 
 // ✅ video
-function playVideo(_el){
+function playVideo(_el) {
   // gsap.registerPlugin(ScrollTrigger);
 
   const o = world.getObjByEl(_el);
   // console.log(o)
-  if(!o) return;
+  if (!o) return;
   const video = o.uniforms.tex1.value.source.data;
   // console.log(video); // videoタグ
 
@@ -172,25 +165,28 @@ function playVideo(_el){
     start: startTrigger,
     onEnter: () => {
       // console.log("onEnter")
-      video.paused && video?.play();     
+      video.paused && video?.play();
     },
-    onEnterBack: () => { //
+    onEnterBack: () => {
+      //
       // console.log("onEnterBack");
-      video.paused && video?.play(); 
+      video.paused && video?.play();
     },
-    onLeave: () => { // 
+    onLeave: () => {
+      //
       // console.log("onLeave");
       video?.pause();
     },
-    onLeaveBack: () => { //
+    onLeaveBack: () => {
+      //
       // console.log("onLeaveBack");
       video?.pause();
-    }
-  })
+    },
+  });
 }
 
 // ✅ カールノイズのエフェクト
-function progressParticles(_el){
+function progressParticles(_el) {
   ScrollTrigger.create({
     trigger: _el,
     start: "center center",
@@ -198,22 +194,22 @@ function progressParticles(_el){
 
     onEnter: () => {
       const o = world.getObjByEl(_el);
-      if(!o) return;
+      if (!o) return;
       // console.log(o);
       o.goTo(1);
     },
-    onEnterBack: () => { // 一度入ってきて出て、再度入ってきた時に発火
+    onEnterBack: () => {
+      // 一度入ってきて出て、再度入ってきた時に発火
       // console.log("onEnterBack");
       const o = world.getObjByEl(_el);
-      if(!o) return;
+      if (!o) return;
       o.goTo(0);
     },
-
-  })
+  });
 }
 
 // ✅ progress
-function progress(_el){
+function progress(_el) {
   // console.log(_el);
 
   ScrollTrigger.create({
@@ -222,29 +218,27 @@ function progress(_el){
     onEnter: () => {
       const o = world.getObjByEl(_el);
       // console.log(o); // default {$: {…}, texes: Map(1), rect: DOMRect, defines: {…}, uniforms: {…}, …}
-      
-      if(!o) return;
+
+      if (!o) return;
       gsap.to(o.uniforms.uProgress, {
         value: 1,
         duration: 1,
-      })
+      });
     },
     onLeaveBack: () => {
       const o = world.getObjByEl(_el);
-      if(!o) return;
+      if (!o) return;
       gsap.to(o.uniforms.uProgress, {
         value: 0,
         duration: 1,
-      })
-    }
-  })
-
+      });
+    },
+  });
 }
 
-
-// ✅ fadeのアニメーション 
+// ✅ fadeのアニメーション
 // CSSに定義 _commonに定義
-function fade(_el){
+function fade(_el) {
   ScrollTrigger.create({
     trigger: _el,
     start: startTrigger,
@@ -253,12 +247,8 @@ function fade(_el){
     },
     onLeaveBack: () => {
       _el.classList.remove("inview");
-    }
+    },
   });
 }
 
-
-export {
-  registerScrollAnimations,
-
-}
+export { registerScrollAnimations };

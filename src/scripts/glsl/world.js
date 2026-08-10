@@ -11,13 +11,12 @@ import {
   Raycaster,
   AxesHelper,
   Color,
-
 } from "three";
 import Stats from "stats-js";
 
 import { Ob } from "./Ob";
 import { utils, INode } from "../helper";
-import mouse from "../component/mouse";
+import mouse from "../../app/components/mouse";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import gsap from "gsap";
@@ -49,9 +48,9 @@ let stats = null;
 
 // ✅ 初期化
 async function init(_canvas, _viewport, _background = "none") {
-  
-  world.renderer = new WebGLRenderer({ // レンダラー
-    canvas: _canvas, 
+  world.renderer = new WebGLRenderer({
+    // レンダラー
+    canvas: _canvas,
     // context,
     antialias: true,
     debug: window.debug, // 本番環境では停止。bootstrap.jsのdebugと同期さsる
@@ -62,24 +61,26 @@ async function init(_canvas, _viewport, _background = "none") {
   world.renderer.setPixelRatio(_viewport.devicePixelRatio); // ピクセル密度を設定
   world.renderer.setClearColor(0x000000, 0);
   world.scene = new Scene(); // シーン
-  world.scene.background = _background === "none" ? "none" : new Color(_background);
+  world.scene.background =
+    _background === "none" ? "none" : new Color(_background);
   world.camera = _setupPerspectiveCamera(_viewport); // カメラの設定
 
   // ポストプロセスを考慮してレンダリング
   world.composer = new EffectComposer(world.renderer); // ✅ ポストプロセシング
-  const renderPass = new RenderPass(world.scene, world.camera); 
+  const renderPass = new RenderPass(world.scene, world.camera);
   // 通常のレンダリングしたい描画データは始めにRenderPassに渡す必要がある
   world.composer.addPass(renderPass);
-   // → このcomposerにエフェクトを格納していき、最終的な描画データをカメラに映す
+  // → このcomposerにエフェクトを格納していき、最終的な描画データをカメラに映す
 
-  await _initObj(_viewport);  // メッシュ生成
+  await _initObj(_viewport); // メッシュ生成
 
-  if(window.debug){ // デバックモードの時のみパフォーマンスを測定
+  if (window.debug) {
+    // デバックモードの時のみパフォーマンスを測定
     // console.log("debug")
 
     stats = new Stats();
     // stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom。設定しない場合はfpsが表示
-    document.body.appendChild( stats.dom );
+    document.body.appendChild(stats.dom);
   }
 
   _bindEvents(); // iOSの時だけ画面をレンダリングする
@@ -95,7 +96,7 @@ async function _initObj(_viewport) {
 
     const type = INode.getDS(el, "webgl");
     // console.log(type) // normal  gray
-    
+
     // ✅ Obクラス初期化 //////////////////////////////////////////////
     // ダイナミックインポートで初期化したいglslファイルを取得
     // import → Promiseを返す → thenで受ける
@@ -119,12 +120,12 @@ async function _initObj(_viewport) {
   _os.forEach((o) => {
     // console.log(o); // default {$: {…}, texes: Map(3), rect: DOMRect, defines: {…}, uniforms: {…}, …}
     // meshがなければ処理中断
-    if(!o.mesh) return;
+    if (!o.mesh) return;
 
-    addObj(o);  // シーン、os配列に追加
+    addObj(o); // シーン、os配列に追加
   });
 
-  await adjustWorldPosition(_viewport);  // リサイズ処理、canvas、メッシュ、カメラの更新
+  await adjustWorldPosition(_viewport); // リサイズ処理、canvas、メッシュ、カメラの更新
 
   const afterPrms = world.os.map((o) => o.afterInit()); // 初期化が終わった後に実行したい処理
   // console.log(afterPrms); // (2) [Promise, Promise]
@@ -134,12 +135,12 @@ async function _initObj(_viewport) {
 
 // iOSデバイス(iPhone、iPad)の時だけ画面をレンダリングする
 // 別タブで開いて戻ってきたタイミングで実行。→ iOSでエフェクトの残像が残るため
-function _bindEvents(){
+function _bindEvents() {
   // focus → ブラウザウィンドウがユーザーのアクティブな状態に戻ったときに発生するイベント
   window.addEventListener("focus", () => {
     // console.log("focus");
-    if(utils.isIOS()) window.location.reload();
-  })
+    if (utils.isIOS()) window.location.reload();
+  });
 }
 
 // メッシュをシーンとosに追加する関数
@@ -151,19 +152,20 @@ function addObj(_o) {
 // 必要無くなったオブジェクトを削除
 // dispose...シーンから削除したいだけの場合もあるので、条件分岐させる。
 function removeObj(o, dispose = true) {
-  if(!(o instanceof Ob)){ // セレクタ文字列で渡ってきた場合など
+  if (!(o instanceof Ob)) {
+    // セレクタ文字列で渡ってきた場合など
     o = world.getObjByEl(o);
-    if(!o) return;
+    if (!o) return;
   }
 
   // console.log(o);
   world.scene.remove(o.mesh); // シーンから削除
-  const idx = world.os.indexOf(o);  // world.osの何番目のものを削除するかのインデックス
-  world.os.splice(idx, 1);  // インデックスから1つ要素を削除
+  const idx = world.os.indexOf(o); // world.osの何番目のものを削除するかのインデックス
+  world.os.splice(idx, 1); // インデックスから1つ要素を削除
 
   // dispose()...使わないものを削除することになるので余計なメモリを使わなくていい
   // meshはsceneから削除したとしても、meshの内部で保持されているmaterialやgeometryはメモリに残るので削除
-  if(dispose) {
+  if (dispose) {
     o.mesh.material.dispose();
     o.mesh.geometry.dispose();
   }
@@ -175,7 +177,7 @@ function getObjByEl(_selector) {
   // console.log(_selector) .load-pp
   // console.log(_selector instanceof Ob)
   // 万が一、セレクタ文字列がObクラスのインスタンスだった場合はそのままセレクタを返す
-  if(_selector instanceof Ob) return _selector;
+  if (_selector instanceof Ob) return _selector;
 
   const targetEl = INode.getElement(_selector); // DOM取得
   // console.log(targetEl)
@@ -203,7 +205,7 @@ async function adjustWorldPosition(_viewport) {
   world.renderer.setSize(_viewport.width, _viewport.height, false);
 
   // メッシュの位置とサイズを変更
-  const promiseResizes = world.os.map(o => o.resize()); 
+  const promiseResizes = world.os.map((o) => o.resize());
   // console.log(promiseResizes); // (4) [Promise, Promise, Promise, Promise]
 
   // カメラの更新
@@ -247,16 +249,17 @@ function render() {
 
   world.tick++;
 
-  for(let i = world.os.length - 1; i >= 0; i--) { // 逆ループ
+  for (let i = world.os.length - 1; i >= 0; i--) {
+    // 逆ループ
     const o = world.os[i];
 
     o.scroll(); // スクロール処理...位置関係を取得
     o.render(world.tick);
   }
-  
+
   // 他のコンポーネントのrenderに関する関数を実行
   // console.log(world.renderActions); // Set(1) {ƒ}
-  world.renderActions.forEach(action => action?.(world));
+  world.renderActions.forEach((action) => action?.(world));
   world.composer.render(); // ✅ メインのrendererをレンダリング
 
   window.debug && stats?.end(); // パフォーマンス測定終了
@@ -266,13 +269,14 @@ function render() {
 function raycast() {
   // タッチデバイス、Raycasting対象のmeshがない時、スクロール中はスキップ
   // console.log(world.raycastingMeshes)
-  // console.log(utils.isTouchDevices); 
+  // console.log(utils.isTouchDevices);
   // console.log(scroller.scrolling)
-  if(
-    utils.isTouchDevices
-    || world.raycastingMeshes.length === 0
-    || scroller.scrolling // スクロール中はレイキャストをさせない
-  ) return; 
+  if (
+    utils.isTouchDevices ||
+    world.raycastingMeshes.length === 0 ||
+    scroller.scrolling // スクロール中はレイキャストをさせない
+  )
+    return;
 
   const clipPos = mouse.getClipPos(); // クリップ座標(-1〜1)取得
 
@@ -284,20 +288,22 @@ function raycast() {
   const intersects = world.raycaster.intersectObjects(meshes); // 光線でぶつかったメッシュが手前側に近い順に配列で格納
   const intersect = intersects[0]; // ぶつかった最も手前側の要素を取得
   // console.log(meshes)
-  // console.log(intersects); 
+  // console.log(intersects);
   // console.log(intersect)
-  
-  for (let i = meshes.length - 1; i >= 0; i--) { // 逆ループ
+
+  for (let i = meshes.length - 1; i >= 0; i--) {
+    // 逆ループ
     const _mesh = meshes[i];
     // console.log(_mesh)
 
-    if(!_mesh.material?.uniforms) continue; // uniformsを持っていないmeshはスキップして次のループ(axesHelperなど)
-    
+    if (!_mesh.material?.uniforms) continue; // uniformsを持っていないmeshはスキップして次のループ(axesHelperなど)
+
     // 光線とぶつかった要素のみ色を変更
     const uHover = _mesh.material.uniforms.uHover; // uHoverの初期値は0
-    if(intersect?.object === _mesh) { // ぶつかった手前側のオブジェクトと、レイキャスティングの対象オブジェクトが合致
-      // console.log(_mesh); 
-      
+    if (intersect?.object === _mesh) {
+      // ぶつかった手前側のオブジェクトと、レイキャスティングの対象オブジェクトが合致
+      // console.log(_mesh);
+
       _mesh.material.uniforms.uMouse.value = intersect.uv; // 初期値: Vector2(0.5, 0.5)
       uHover._endValue = 1; // uHoverは適当なプロパティ。
     } else {
@@ -309,14 +315,15 @@ function raycast() {
 }
 
 // Raycastingの対象となるmeshを格納(各ページで格納)
-function addRaycastingTarget(_selector){
+function addRaycastingTarget(_selector) {
   const o = world.getObjByEl(_selector);
   // console.log(o);
-  
-  if(o.mesh.children.length === 0 ){ // 通常のo
-    world.raycastingMeshes.push(o.mesh);
 
-  } else {  // groupメッシュを使っていて、その子要素をレイキャスティングの監視対象に渡したい時
+  if (o.mesh.children.length === 0) {
+    // 通常のo
+    world.raycastingMeshes.push(o.mesh);
+  } else {
+    // groupメッシュを使っていて、その子要素をレイキャスティングの監視対象に渡したい時
     world.raycastingMeshes.push(...o.mesh.children);
   }
 }
@@ -330,20 +337,23 @@ function addOrbitControlGUI(_gui) {
   // trueの時がOrbitControlsが有効
   const isActive = { value: false };
 
-  _gui.add(isActive, "value").name('OrbitControl').onChange(() => {
-    if(isActive.value) {
-      // AxesHelperを追加
-      axesHelper = new AxesHelper(1000);
-      world.scene.add(axesHelper);
+  _gui
+    .add(isActive, "value")
+    .name("OrbitControl")
+    .onChange(() => {
+      if (isActive.value) {
+        // AxesHelperを追加
+        axesHelper = new AxesHelper(1000);
+        world.scene.add(axesHelper);
 
-      _attachOrbitControl();
-    } else {
-      world.scene.remove(axesHelper);
-      axesHelper?.dispose(); // リソースの削除(バッファから削除)
+        _attachOrbitControl();
+      } else {
+        world.scene.remove(axesHelper);
+        axesHelper?.dispose(); // リソースの削除(バッファから削除)
 
-      _detachOrbitControl();
-    }
-  });
+        _detachOrbitControl();
+      }
+    });
 }
 
 // OrbitControls
@@ -357,7 +367,7 @@ function _attachOrbitControl() {
     // console.log(module); // Module {Symbol(Symbol.toStringTag): 'Module'}
     orbitControl = new module.OrbitControls(
       world.camera,
-      world.renderer.domElement
+      world.renderer.domElement,
     );
 
     // domElement ... canvas要素。
@@ -375,24 +385,23 @@ function _detachOrbitControl() {
 }
 
 // ✅ composerにパスを追加する処理
-function addPass(_pass){
+function addPass(_pass) {
   world.composer.addPass(_pass);
 }
 
 // ✅ composerからパスを削除する処理
-function removePass(_pass){
+function removePass(_pass) {
   world.composer.removePass(_pass);
 }
 
 // renderに関する関数を格納する処理
-function addRenderAction(_callback){
+function addRenderAction(_callback) {
   world.renderActions.add(_callback);
 }
 
 // renderに関する関数を削除する処理
-function removeRenderAction(_callback){
+function removeRenderAction(_callback) {
   world.renderActions.remove(_callback);
 }
-
 
 export default world;

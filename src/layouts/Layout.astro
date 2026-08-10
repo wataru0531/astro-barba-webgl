@@ -4,7 +4,7 @@ import "../sass/style.scss"
 import Header from "../components/header.astro"
 import Footer from "../components/footer.astro"
 
-const { uid, template } = Astro.props
+const { uid, pageType } = Astro.props
 // console.log(uid)
 ---
 
@@ -31,22 +31,27 @@ const { uid, template } = Astro.props
     <title>WebGL Pixel Effect on Scroll with GSAP, Three.js and Astro</title>
   </head>
   <body data-barba="wrapper">
-    <!-- 
-      data-barba="container"
-      → ここを削除
-      → 遷移先のページのcontainerを差し込む
-    -->
-    <Header />
+    <div class="global-container" id="js-global-container">
+      <!-- 
+        data-barba="container"
+        → ここを削除
+        → 遷移先のページのcontainerを差し込む
+      -->
+      <Header />
 
-    <div id="app" data-barba="container" data-barba-namespace={uid}>
-      <div id="smooth-content" data-page-template={template}>
-        <slot />
+      <!-- ✅ ローディングアニメーションのdistort。loading - post - process  -->
+      <div class="load-pp" data-webgl="distortion-text"></div>
+
+      <div id="app" data-barba="container" data-barba-namespace={uid}>
+        <div id="smooth-content" data-page-type={pageType}>
+          <slot />
+        </div>
       </div>
+
+      <Footer />
     </div>
 
-    <Footer />
-
-    <canvas id="js-canvas"></canvas>
+    <canvas class="l-canvas p-canvas" id="js-canvas"></canvas>
     <script src="../app/main.js"></script>
   </body>
 </html>
