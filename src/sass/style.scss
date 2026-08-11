@@ -107,13 +107,20 @@ data属性
 ********************************************************/
 // @use './global/' as *;
 
+
+// /fonts/satoshi/Satoshi-Variable.ttf というフォントファイルがあります。
+// これを Satoshi という名前で使えるようにしてください」ということ
+// ブラウザはsatoshiだけでは理解できない。
 @font-face {
   font-family: "Satoshi";
   src: url("/fonts/satoshi/Satoshi-Variable.ttf") format("truetype");
-  font-weight: 100 900;
+  font-weight: 100 900; // 100から900のfont-weight
   font-style: normal;
-  font-display: swap;
+  font-display: swap; // フォントの読み込みが終わるまで文字を表示しないのではなく、
+                      // まず代替フォントを表示して、読み込みが終わったらSatoshiに切り
+                      // 替えてください
 }
+
 
 
 :root {
@@ -142,7 +149,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
   overflow-y: scroll;
   font-family:
-    "Satoshi",
+    "Inter",
+    // "Satoshi",
     system-ui,
     -apple-system,
     "Segoe UI",

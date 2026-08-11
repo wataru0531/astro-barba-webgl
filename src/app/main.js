@@ -4,7 +4,8 @@
 // ⭐️ TODO 
 // astro.config.jsの編集
 // ✅ ローディング画面
-// 各コンポーネント
+// 各コンポーネントの初期化順
+// 各コンポーネントのクラス化
 
 
 // import Canvas from "./components/canvas"
@@ -128,7 +129,7 @@ class App {
       // canvasのサイズの更新、メッシュの位置やサイズの更新、カメラのprojectionMatrixの更新
       world.adjustWorldPosition(viewport);
 
-      mouse.resize(); // マウスカーソルのsvgタグのサイズ更新
+      mouse.resize(); // マウスカーソルのsvgのサイズ更新
     });
 
     world.addRenderAction(() => {
@@ -139,27 +140,26 @@ class App {
 
     // registerScrollAnimations(); // スクロールアニメーションの登録、実行
 
-    // menu.init(world, scroller); // メニューの初期化
+    // menu.init(world, scroller); // ✅ メニューの初期化
 
     world.render();
 
     // await loader.letsBegin(); // ローディングのアニメーション発火(カウンターの削除、コンテンツを表示)
 
-    mouse.makeVisible(); // 初期表示時にカスタムカーソルを非表示。300ms毎に判定
+    mouse.makeVisible(); // 初期表示時にカスタムカーソルを非表示。300ms毎に判定。
+                         //  → 全ての処理が終わったら発火させる
 
+
+    // フォントのロード後にアニメーション発火
+    this.loadFont(() => {
+      this.textAnimation.init()
+    });
 
     // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
     // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
     // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
     // Not Equalが移行できたかどうかの確認
-    // コンポーネントの初期化順
-
-
-
-
-    this.loadFont(() => {
-      this.textAnimation.init()
-    });
+    // コンポーネントの初期化順 ... loadFont、mouseなど。
 
     this.loadImages(() => {
       // this.canvas.createMedias()
@@ -412,11 +412,15 @@ class App {
     ScrollTrigger.refresh()
   }
 
-  loadFont(onLoaded) {
-    const satoshi = new FontFaceObserver("Satoshi")
+  // ✅ フォントのロードが終わればコールバックを発火
+  loadFont(_callback) {
+    const satoshi = new FontFaceObserver("Inter")
+    // const satoshi = new FontFaceObserver("Satoshi")
+    // console.log(satoshi);
 
     satoshi.load().then(() => {
-      onLoaded()
+      _callback();
+
       this.fontLoaded = true
       window.dispatchEvent(new Event("fontLoaded"))
     })

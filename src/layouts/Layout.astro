@@ -13,21 +13,33 @@ const { uid, pageType } = Astro.props
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
-    <link
+    <!-- 
+      preloadでフォントを早い段階で読み込むようにする 
+      → この記述だけでは読み込めない。cssで読み込む
+    -->
+    <!-- <link
       rel="preload"
       href="/fonts/satoshi/Satoshi-Variable.ttf"
       as="font"
       type="font/ttf"
       crossorigin
-    />
+    /> -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+
+
+
     <link
       rel="icon"
       type="image/svg+xml"
       href="https://tympanus.net/favicon/favicon.svg"
     />
-    <link rel="shortcut icon" href="https://tympanus.net/favicon/favicon.ico" />
+    <link rel="shortcut icon" href="" />
     <meta name="generator" content={Astro.generator} />
-    <link rel="stylesheet" href="https://use.typekit.net/gwa0xin.css" />
+
+    <!-- <link rel="stylesheet" href="https://use.typekit.net/gwa0xin.css" /> -->
     <title>WebGL Pixel Effect on Scroll with GSAP, Three.js and Astro</title>
   </head>
   <body data-barba="wrapper">

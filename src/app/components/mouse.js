@@ -309,7 +309,7 @@ function removeMousemoveActions(_callback) {
 
 // ✅ リサイズ → bootstrap.jsでリサイズに関する処理をまとめて渡す。リサイズはworld.js
 function resize() {
-  if (!mouse.applyStyle) return; // タッチデバイスなら処理を止める
+  if(!mouse.applyStyle) return;
 
   $.svg.setAttribute("width", viewport.width);
   $.svg.setAttribute("height", viewport.height);
@@ -321,11 +321,10 @@ function resize() {
 function makeVisible() {
   const intervalId = setInterval(() => {
     // console.log(intervalId)
-    // タッチデバイス、もしくはsvgカスタムカーソルを挿入しない場合は処理を止める
-    if (!mouse.applyStyle) return clearInterval(intervalId);
+    if(!mouse.applyStyle) return clearInterval(intervalId);
 
     // console.log(isUpdate());
-    if (!isUpdate()) return; // カーソルが動いていないなら処理を止める
+    if(!isUpdate()) return; // カーソルが動いていないなら処理を止める
     // console.log("isUpdate done!!");
 
     $.svg.style.opacity = 1;
@@ -342,10 +341,12 @@ function isUpdate() {
   // currentとtargetの値の差が0.0001以上の場合trueを返すように修正
   // console.log(1e-4); // 0.0001
   // console.log(Math.abs(current.x - target.x) > .001);
-  return (
-    Math.abs(current.x - target.x) > 1e-4 ||
-    Math.abs(current.y - target.y) > 1e-4
-  );
+  // return (
+  //   Math.abs(current.x - target.x) > 1e-4 ||
+  //   Math.abs(current.y - target.y) > 1e-4
+  // );
+  return current.x !== target.x || current.y !== target.y;
+
 }
 
 export default mouse;
