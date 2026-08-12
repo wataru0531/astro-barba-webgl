@@ -6,6 +6,7 @@
 // ✅ ローディング画面
 // 各コンポーネントの初期化順
 // 各コンポーネントのクラス化
+// メニューの実装
 
 
 // import Canvas from "./components/canvas"
@@ -28,6 +29,7 @@ import loader from "./components/loader";
 import mouse from "./components/mouse"
 import world from "./glsl/world"
 import { menu } from "./components/menu"
+import { computeKernel } from "three/tsl"
 
 gsap.registerPlugin(
   ScrollTrigger, 
@@ -57,14 +59,13 @@ class App {
   // textAnimation: TextAnimation
   // fontLoaded: boolean = false
 
-  // ✅ 初期化処理
-  // 保持しておきたいインスタンスなどはここ
+  // ✅ 初期化処理 → 保持しておきたいインスタンスなどはここ
   constructor() {
     if (typeof history !== "undefined" && "scrollRestoration" in history) {
       history.scrollRestoration = "manual"
     }
 
-    this.$ = {}; // DOMを格納
+    this.$ = {}; // DOM
     this.$.canvas = INode.getElement("#js-canvas");
 
     this.scrollBlocked = false;
@@ -81,6 +82,7 @@ class App {
   
     this.scrollTop = 0;
 
+    // → viewport.addResizeActionに持っていく
     window.addEventListener("resize", this.onResize.bind(this))
 
     this.render = this.render.bind(this)
@@ -121,7 +123,6 @@ class App {
       });
     });
 
-    // ⭐️ここから
     mouse.init();
 
     // リサイズ処理時に関するコールバックを登録
@@ -140,44 +141,43 @@ class App {
 
     // registerScrollAnimations(); // スクロールアニメーションの登録、実行
 
-    // menu.init(world, scroller); // ✅ メニューの初期化
+    // menu.init(world, scroller); // ✅ メニューの初期化。
 
     world.render();
 
     // await loader.letsBegin(); // ローディングのアニメーション発火(カウンターの削除、コンテンツを表示)
 
-    mouse.makeVisible(); // 初期表示時にカスタムカーソルを非表示。300ms毎に判定。
-                         //  → 全ての処理が終わったら発火させる
-
 
     // フォントのロード後にアニメーション発火
     this.loadFont(() => {
-      this.textAnimation.init()
+      // console.log("init")
+      this.textAnimation.init();
+      ScrollTrigger.refresh(); // DOMのサイズや位置が変わった後に呼ぶ
+                               // → initでテキストを分割させるのでinitの次で発火させる  
+
+      this.textAnimation.animateIn()
     });
 
-    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-    // Not Equalが移行できたかどうかの確認
-    // コンポーネントの初期化順 ... loadFont、mouseなど。
 
-    this.loadImages(() => {
-      // this.canvas.createMedias()
+    // ⭐️ loadImagesはやめて、loadFontのみで行く
+    // this.loadImages(() => {
+    //   // this.canvas.createMedias()
 
-      if (this.fontLoaded) {
-        this.textAnimation.init()
-        this.textAnimation.animateIn()
-      } else {
-        window.addEventListener("fontLoaded", () => {
-          gsap.delayedCall(0, () => {
-            gsap.delayedCall(0, () => {
-              this.textAnimation.init()
-              this.textAnimation.animateIn({ delay: 0.3 })
-            })
-          })
-        })
-      }
-    })
+    //   if(this.fontLoaded) {
+    //     this.textAnimation.init()
+    //     this.textAnimation.animateIn()
+    //   } else {
+    //     // fontLoadedをここで登録 → dispatchで発火させる
+    //     window.addEventListener("fontLoaded", () => { 
+    //       gsap.delayedCall(0, () => {
+    //         gsap.delayedCall(0, () => {
+    //           this.textAnimation.init()
+    //           this.textAnimation.animateIn({ delay: 0.3 })
+    //         });
+    //       });
+    //     });
+    //   }
+    // });
 
     // ✅ Barba
     barba.init({
@@ -242,6 +242,7 @@ class App {
             const pageType = this.getCurrentTemplate()
             this.setPageType(pageType)
 
+            // TODO → 変更
             this.loadImages(() => {
               // this.canvas.medias = []
               // this.canvas.createMedias()
@@ -372,6 +373,9 @@ class App {
         },
       ],
     });
+
+    mouse.makeVisible(); // 初期表示時にカスタムカーソルを非表示。300ms毎に判定。
+                         //  → 全ての処理が終わったら発火させる
   }
 
   // ✅ ページのタイプを取得
@@ -384,29 +388,32 @@ class App {
     this.pageType = pageType;
   }
 
-  loadImages(callback) {
+  // ※ テクスチャの読み込みはloadAllAssetsを使うのでこれは使わない
+  loadImages(_callback) {
     const medias = document.querySelectorAll("img")
     let loadedImages = 0
     const totalImages = medias.length
 
     medias.forEach((img) => {
-      if (img.complete) {
+      // console.log(img)
+      if(img.complete) {
         loadedImages++
       } else {
         img.addEventListener("load", () => {
           loadedImages++
           if (loadedImages === totalImages) {
-            this.onReady(callback)
+            this.onReady(_callback)
           }
         })
       }
     })
 
     if (loadedImages === totalImages) {
-      this.onReady(callback)
+      this.onReady(_callback)
     }
   }
 
+  //　
   onReady(callback) {
     if (callback) callback()
     ScrollTrigger.refresh()
@@ -414,17 +421,23 @@ class App {
 
   // ✅ フォントのロードが終わればコールバックを発火
   loadFont(_callback) {
-    const satoshi = new FontFaceObserver("Inter")
-    // const satoshi = new FontFaceObserver("Satoshi")
-    // console.log(satoshi);
+    const inter = new FontFaceObserver("Inter")
 
-    satoshi.load().then(() => {
+    inter.load().then(() => {
+      this.fontLoaded = true;
+      
       _callback();
-
-      this.fontLoaded = true
-      window.dispatchEvent(new Event("fontLoaded"))
+      window.dispatchEvent(new Event("fontLoaded")); // 発火させる
     })
   }
+
+  // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+  // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+  // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+   // scroll.jsとtext-animation.jsのコードの確認
+  // リサイズ処理　→ viewport.addResizeAction に
+  // render処理　→ world.addRenderAction に
+ 
 
   onResize() {
     this.textAnimation?.onResize()

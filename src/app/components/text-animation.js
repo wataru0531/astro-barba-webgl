@@ -135,10 +135,10 @@ export default class TextAnimation {
         ease: "power2.out",
         duration: inDuration,
         delay: inDelay + delay,
-      })
+      });
 
-      this.fadeTweens.push(fadeTween)
-    })
+      this.fadeTweens.push(fadeTween);
+    });
     return gsap.timeline()
   }
 
@@ -175,8 +175,9 @@ export default class TextAnimation {
     return tl
   }
 
+  // ✅ リサイズ処理 → viewport.addResizeActionに
   onResize() {
-    if (!this.ready) return
+    if(!this.ready) return
 
     this.destroy()
     this.init()
