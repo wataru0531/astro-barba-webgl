@@ -105,6 +105,7 @@ function loadAnimation(_tl){
   // gsap.to(mesh.position, { z: z, duration: 2 })
 
   const distortionProgress = { value: 0 };
+
   // タイムラインに追加。スタート時のアニメーションが終わってから実行するため
   _tl.to(distortionProgress, {
     value: 1,

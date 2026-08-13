@@ -274,8 +274,7 @@ function raycast() {
   if (
     utils.isTouchDevices ||
     world.raycastingMeshes.length === 0 
-  )
-    return;
+  ) return;
   // if (
   //   utils.isTouchDevices ||
   //   world.raycastingMeshes.length === 0 ||

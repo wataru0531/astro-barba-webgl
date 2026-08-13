@@ -108,85 +108,46 @@ data属性
 // @use './global/' as *;
 
 
-// /fonts/satoshi/Satoshi-Variable.ttf というフォントファイルがあります。
-// これを Satoshi という名前で使えるようにしてください」ということ
-// ブラウザはsatoshiだけでは理解できない。
-@font-face {
-  font-family: "Satoshi";
-  src: url("/fonts/satoshi/Satoshi-Variable.ttf") format("truetype");
-  font-weight: 100 900; // 100から900のfont-weight
-  font-style: normal;
-  font-display: swap; // フォントの読み込みが終わるまで文字を表示しないのではなく、
-                      // まず代替フォントを表示して、読み込みが終わったらSatoshiに切り
-                      // 替えてください
-}
+// // /fonts/satoshi/Satoshi-Variable.ttf というフォントファイルがあります。
+// // これを Satoshi という名前で使えるようにしてください」ということ
+// // ブラウザはsatoshiだけでは理解できない。
+// @font-face {
+//   font-family: "Satoshi";
+//   src: url("/fonts/satoshi/Satoshi-Variable.ttf") format("truetype");
+//   font-weight: 100 900; // 100から900のfont-weight
+//   font-style: normal;
+//   font-display: swap; // フォントの読み込みが終わるまで文字を表示しないのではなく、
+//                       // まず代替フォントを表示して、読み込みが終わったらSatoshiに切り
+//                       // 替えてください
+// }
 
 
 
-:root {
-  font-size: 13px;
-  --color-text: #000000;
-  --color-white: #ffffff;
-  --color-bg: #ffffff;
-  --color-link: #000000;
-  --color-link-hover: #000000;
-  --page-padding: 2rem;
-}
+// a {
+//   text-decoration: none;
+//   /* color: var(--color-link); */
+//   outline: none;
+//   cursor: pointer;
 
-*,
-*::before,
-*::after {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+//   &:hover {
+//     text-decoration: none;
+//     color: var(--color-link-hover);
+//   }
 
-body {
-  margin: 0;
-  color: var(--color-text);
-  background-color: var(--color-bg);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  overflow-y: scroll;
-  font-family:
-    "Inter",
-    // "Satoshi",
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    "Helvetica Neue",
-    Arial,
-    "Noto Sans",
-    "Liberation Sans",
-    sans-serif;
-}
+//   &:focus {
+//     outline: none;
+//     background: lightgrey;
 
-a {
-  text-decoration: none;
-  /* color: var(--color-link); */
-  outline: none;
-  cursor: pointer;
+//     &:not(:focus-visible) {
+//       background: transparent;
+//     }
 
-  &:hover {
-    text-decoration: none;
-    color: var(--color-link-hover);
-  }
-
-  &:focus {
-    outline: none;
-    background: lightgrey;
-
-    &:not(:focus-visible) {
-      background: transparent;
-    }
-
-    &:focus-visible {
-      outline: 2px solid red;
-      background: transparent;
-    }
-  }
-}
+//     &:focus-visible {
+//       outline: 2px solid red;
+//       background: transparent;
+//     }
+//   }
+// }
 
 .p-header {
   padding: 1rem var(--page-padding);
@@ -281,14 +242,14 @@ a {
   z-index: 10;
 }
 
-#webgl {
-  position: fixed;
-  z-index: 0;
-  inset: 0;
-  top: 0;
-  left: 0;
-  pointer-events: none;
-}
+// #webgl {
+//   position: fixed;
+//   z-index: 0;
+//   inset: 0;
+//   top: 0;
+//   left: 0;
+//   pointer-events: none;
+// }
 
 h1 {
   font-size: clamp(2rem, 5vw, 5rem);
@@ -330,7 +291,7 @@ h1 {
 
 .container img {
   width: 100%;
-  opacity: 0;
+  // opacity: 0;
 }
 
 .details {
@@ -352,7 +313,7 @@ h1 {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0;
+  // opacity: 0;
 }
 
 .details-data {
@@ -598,4 +559,11 @@ h1 {
   &:hover &__arrow-body {
     transform: translateX(50px);
   }
+}
+
+
+// 確認用のWebGL
+.vision__fallback {
+  width: 500px;
+  height: 300px;
 }

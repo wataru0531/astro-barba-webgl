@@ -21,6 +21,7 @@ export default class extends Ob {
   }
 
   setupUniforms() {
+    // console.log("fresnel")
     const uniforms = {
       uProgress: { value: 0 },
       uTick: { value: 0 },

@@ -74,6 +74,7 @@ export default class extends Ob{
   }
 
   render(tick){ // world.jsのrender()で実行される
+    // console.log(tick)
     super.render(tick);
     
     // 不要な時はこのrenderを呼ばない。ホバーされた時のみ実行させる

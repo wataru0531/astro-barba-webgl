@@ -2,6 +2,7 @@
 // main.ts
 
 // ⭐️ TODO 
+// WebGLコードの編集
 // astro.config.jsの編集
 // ✅ ローディング画面
 // 各コンポーネントの初期化順
@@ -106,7 +107,7 @@ class App {
 
     // 各ページで使うJSの初期化
     await import(`./pages/${this.pageType}.js`).then(({ default: init }) => {
-      // import("./pages/home.js").then(d => {
+      // await import(`./pages/${this.pageType}.js`).then(d => {
       // console.log(d); // Module {Symbol(Symbol.toStringTag): 'Module'}default: (...)Symbol(Symbol.toStringTag): "Module"get default: ƒ ()set default: ƒ ()
 
       // ・default → default exportされているものが渡ってくる。

@@ -5,6 +5,18 @@
 ***************************************************************/
 @use '../global/' as *;
 
+
+:root {
+  font-size: 13px;
+  --color-text: #000000;
+  --color-white: #ffffff;
+  --color-bg: #ffffff;
+  --color-link: #000000;
+  --color-link-hover: #000000;
+  --page-padding: 2rem;
+}
+
+
 /* リキッドレイアウト対応 */
 html {
 	// 375px~787px
@@ -35,7 +47,22 @@ html {
   // }
 }
 
-/* Set core body defaults */
+
+// /fonts/satoshi/Satoshi-Variable.ttf というフォントファイルがあります。
+// これを Satoshi という名前で使えるようにしてください」ということ
+// ブラウザはsatoshiだけでは理解できない。
+// @font-face {
+//   font-family: "Satoshi";
+//   src: url("/fonts/satoshi/Satoshi-Variable.ttf") format("truetype");
+//   font-weight: 100 900; // 100から900のfont-weight
+//   font-style: normal;
+//   font-display: swap; // フォントの読み込みが終わるまで文字を表示しないのではなく、
+//                       // まず代替フォントを表示して、読み込みが終わったらSatoshiに切り
+//                       // 替えてください
+// }
+
+
+
 body {
 	font-family: $font-family-base;
 	font-weight: $font-weight-base;
@@ -93,11 +120,6 @@ a {
   text-decoration: none;
   color: inherit;
   transition: all 0.3s;
-  // @include mq("tab") {
-  //   &:hover {
-  //     opacity: 0.7;
-  //   }
-  // }
 }
 
 *,

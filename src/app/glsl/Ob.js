@@ -36,10 +36,7 @@ class Ob {
     if (!this.rect.width || !this.rect.height) {
       // 幅・高さがない場合はエラーログ
       if (window.debug) {
-        console.log(
-          "要素に幅と高さの設定がないため、meshの作成をスキップ",
-          this.$.el,
-        );
+        console.log("要素に幅と高さの設定がないため、meshの作成をスキップ", this.$.el);
       }
       return {};
     }
@@ -259,10 +256,7 @@ class Ob {
     // → fixedで画面に固定したまま。home.jsで指定
     if (this.fixed) return;
 
-    const {
-      $: { el },
-      mesh,
-    } = this;
+    const { $: { el }, mesh } = this;
     // console.log(el)
     const rect = INode.getRect(el);
     // console.log(rect)

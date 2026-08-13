@@ -8,6 +8,13 @@ import medias from '../data.json';
   <div data-gallery-container class="container">
     <!-- <Header /> -->
 
+    <!-- Meshの表示確認用 -->
+    <div 
+      class="vision__fallback"
+      data-webgl="gray-pic"
+      data-tex-1="/img/slider/slider_1.jpg"
+    ></div>
+
     <div class="grid-container">
       <div class="grid">
         <h1
@@ -23,6 +30,7 @@ import medias from '../data.json';
         </h1>
         <a class="grid__item" href="/1" style="--r: 1; --c: 1; --s: 4">
           <img loading="eager" src={medias[0].url} alt="" />
+          <!-- <img loading="eager" src="/img/slider/slider_1.jpg" alt="" /> -->
           <p data-text-animation>
             {medias[0].name}
           </p>

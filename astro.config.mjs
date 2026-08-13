@@ -1,3 +1,9 @@
+
+// ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+// ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+// ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+
+
 // @ts-check
 import { defineConfig } from "astro/config"
 import glsl from "vite-plugin-glsl"
@@ -19,3 +25,4 @@ export default defineConfig({
     host: true,
   },
 });
+
