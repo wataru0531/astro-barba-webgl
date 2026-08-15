@@ -177,7 +177,8 @@ export default class TextAnimation {
 
   // ✅ リサイズ処理 → viewport.addResizeActionに
   onResize() {
-    if(!this.ready) return
+    // console.log("onResize init");
+    if(!this.ready) return;
 
     this.destroy()
     this.init()

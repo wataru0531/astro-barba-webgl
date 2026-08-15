@@ -51,8 +51,9 @@ class Ob {
       this.vertexShader = this.setupVertex();
       this.fragmentShader = this.setupFragment();
       this.material = this.setupMaterial();
+      // console.log(this.material);
       this.geometry = this.setupGeometry();
-      this.mesh = this.setupMesh();
+      this.mesh = this.d();
       this.disableOriginalElem(); // ドラッグ時の挙動の処理
       this.mesh.__marker = type; // typeを渡せばどの位置でエラーとなったかが分かるようにtypeを渡す
       // this.afterInit();
@@ -181,7 +182,7 @@ class Ob {
     return uniforms;
   }
 
-  setupMesh() {
+  d() {
     return new Mesh(this.geometry, this.material); // Pointなど違うメッシュを使いたい場合は、子クラスでオーバーライド
   }
 

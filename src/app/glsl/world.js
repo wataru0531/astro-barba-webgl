@@ -49,9 +49,7 @@ let stats = null;
 // ✅ 初期化
 async function init(_canvas, _viewport, _background = "none") {
   world.renderer = new WebGLRenderer({
-    // レンダラー
     canvas: _canvas,
-    // context,
     antialias: true,
     debug: window.debug, // 本番環境では停止。bootstrap.jsのdebugと同期さsる
     // エフェクトで個別に設定する場合 → setupMaterial、glslファイル内で
@@ -217,7 +215,7 @@ async function adjustWorldPosition(_viewport) {
   // → ここで並列処理させることでadjustWorldPositionの処理が終わる
 }
 
-// カメラの更新
+// ✅ カメラの更新
 // asyncのキーワードをつけるとPromiseオブジェクトが返されるが、ここではPromiseをreturnしているので別につけなくてもいい
 // → わかりやすいのでつけているだけ
 async function updateCamera(viewport) {
@@ -249,9 +247,10 @@ function render() {
 
   world.tick++;
 
-  for (let i = world.os.length - 1; i >= 0; i--) {
+  for(let i = world.os.length - 1; i >= 0; i--) {
     // 逆ループ
     const o = world.os[i];
+    // console.log(o)
 
     o.scroll(); // スクロール処理...位置関係を取得
     o.render(world.tick);
@@ -345,6 +344,7 @@ function addOrbitControlGUI(_gui) {
     .add(isActive, "value")
     .name("OrbitControl")
     .onChange(() => {
+      // console.log(isActive.value);
       if (isActive.value) {
         // AxesHelperを追加
         axesHelper = new AxesHelper(1000);
@@ -387,6 +387,11 @@ function _detachOrbitControl() {
 
   world.renderer.domElement.style.zIndex = -1;
 }
+
+
+
+
+
 
 // ✅ composerにパスを追加する処理
 function addPass(_pass) {

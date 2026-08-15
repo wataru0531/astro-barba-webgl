@@ -50,16 +50,6 @@ function enableDebugMode(debug) {
 }
 
 class App {
-  // canvas: Canvas
-  // scroll: Scroll
-  // template: "home" | "detail"
-
-  // mediaHomeState: Flip.FlipState
-  // scrollBlocked: boolean = false
-  // scrollTop: number
-  // textAnimation: TextAnimation
-  // fontLoaded: boolean = false
-
   // ✅ 初期化処理 → 保持しておきたいインスタンスなどはここ
   constructor() {
     if (typeof history !== "undefined" && "scrollRestoration" in history) {
@@ -71,24 +61,19 @@ class App {
 
     this.scrollBlocked = false;
     this.fontLoaded = false;
-    this.bgColor = "none"; // シーンの背景色
+    this.bgColor = ""; // シーンの背景色
 
     this.pageType = this.getCurrentTemplate(); // ページのタイプ
     // console.log(this.pageType);
 
-
-
     this.scroll = new Scroll()
-    this.textAnimation = new TextAnimation()
+    this.textAnimation = null;
   
     this.scrollTop = 0;
 
     // → viewport.addResizeActionに持っていく
-    window.addEventListener("resize", this.onResize.bind(this))
-
-    this.render = this.render.bind(this)
-    gsap.ticker.add(this.render)
-
+    // window.addEventListener("resize", this.onResize.bind(this))
+    // this.render = this.render.bind(this)
 
     this.init(); // 初期化処理
   }
@@ -97,15 +82,17 @@ class App {
   async init() {
     if(window.debug) await gui.init();
 
-    viewport.init(this.$.canvas, 2000, 2500, 4000);
+    viewport.init(this.$.canvas);
 
     await loader.loadAllAssets(); // url => テクスチャ の状態でtextureCacheに保持
+    // console.log(textureCache);
 
     await world.init(this.$.canvas, viewport, this.bgColor);
 
     this.addGui(world);
 
     // 各ページで使うJSの初期化
+    // console.log(this.pageType);
     await import(`./pages/${this.pageType}.js`).then(({ default: init }) => {
       // await import(`./pages/${this.pageType}.js`).then(d => {
       // console.log(d); // Module {Symbol(Symbol.toStringTag): 'Module'}default: (...)Symbol(Symbol.toStringTag): "Module"get default: ƒ ()set default: ƒ ()
@@ -125,19 +112,23 @@ class App {
     });
 
     mouse.init();
-
+    
     // リサイズ処理時に関するコールバックを登録
     viewport.addResizeAction(() => {
       // canvasのサイズの更新、メッシュの位置やサイズの更新、カメラのprojectionMatrixの更新
       world.adjustWorldPosition(viewport);
 
       mouse.resize(); // マウスカーソルのsvgのサイズ更新
+
+      this.textAnimation?.onResize();
     });
 
     world.addRenderAction(() => {
       // renderに渡す。world.jsで実行
       mouse.render();
       world.raycast();
+
+      this.scrollTop = this.scroll?.getScroll() || 0; // ⭐️ 要確認
     });
 
     // registerScrollAnimations(); // スクロールアニメーションの登録、実行
@@ -148,8 +139,7 @@ class App {
 
     // await loader.letsBegin(); // ローディングのアニメーション発火(カウンターの削除、コンテンツを表示)
 
-
-    // フォントのロード後にアニメーション発火
+    // フォントのロード後に処理したい処理を渡す
     this.loadFont(() => {
       // console.log("init")
       this.textAnimation.init();
@@ -424,9 +414,14 @@ class App {
   loadFont(_callback) {
     const inter = new FontFaceObserver("Inter")
 
-    inter.load().then(() => {
+    // ※ Interが使われるのを検知するので、「FontFaceObserverが待っているフォント」
+    //   と「実際にSplitTextするテキストが使っているフォント」を一致させる
+    inter.load().then(async () => {
       this.fontLoaded = true;
       
+      // await document.fonts.ready;
+      this.textAnimation = new TextAnimation();
+
       _callback();
       window.dispatchEvent(new Event("fontLoaded")); // 発火させる
     })
@@ -436,19 +431,6 @@ class App {
   // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
   // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
    // scroll.jsとtext-animation.jsのコードの確認
-  // リサイズ処理　→ viewport.addResizeAction に
-  // render処理　→ world.addRenderAction に
- 
-
-  onResize() {
-    this.textAnimation?.onResize()
-    this.canvas?.onResize()
-  }
-
-  render() {
-    this.scrollTop = this.scroll?.getScroll() || 0
-    this.canvas?.render(this.scrollTop, !this.scrollBlocked)
-  }
 
 
   // guiを初期化、展開

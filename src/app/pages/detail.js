@@ -1,5 +1,5 @@
 
-// トップページの実装
+// detailページの実装
 
 import { INode } from "../helper/INode.js";
 // import { mountNavBtnHandler, mountScrollHandler, mountSkillBtnHandler } from "../component/slide-hangler";

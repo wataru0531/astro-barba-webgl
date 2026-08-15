@@ -39,6 +39,7 @@ export default class Scroll {
 
   getScroll() {
     this.scroll = this.s?.scrollTop() || 0
+    // console.log(this.scroll);
 
     return this.scroll
   }

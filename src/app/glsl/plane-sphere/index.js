@@ -53,7 +53,7 @@ export default class extends Ob{
 
   setupMesh(){
     this.plane = super.setupMesh(); // 親クラスの平面のmeshを代入
-    // console.log(plane); // 
+    console.log(this.plane); // 
 
     // Obクラスのスクロールでmeshの位置が反映されるのはこのgroup
     // → this.planeはGroupで囲うことで、Obクラスのスクロール処理での位置変更が加わらなくなる。
@@ -92,7 +92,6 @@ export default class extends Ob{
     // this.uniforms.uHover.value → 初期は0で最大値は1。初期は0なので動かない
     this.plane.position.x = (this.uniforms.uMouse.value.x - 0.5) * 50. * this.uniforms.uHover.value;
     this.plane.position.y = (this.uniforms.uMouse.value.y - 0.5) * 50. * this.uniforms.uHover.value;
-
     this.plane.position.z = 100 * this.uniforms.uHover.value; // z軸手前に拡大
 
     // マウスに対する面の傾きを定義。回転 x, yにはuv座標の0から1が渡ってくる
