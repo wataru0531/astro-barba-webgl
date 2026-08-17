@@ -30,7 +30,7 @@ import loader from "./components/loader";
 import mouse from "./components/mouse"
 import world from "./glsl/world"
 import { menu } from "./components/menu"
-import { computeKernel } from "three/tsl"
+import { registerScrollAnimations } from "./components/scroll-animation"
 
 gsap.registerPlugin(
   ScrollTrigger, 
@@ -131,7 +131,11 @@ class App {
       this.scrollTop = this.scroll?.getScroll() || 0; // ⭐️ 要確認
     });
 
-    // registerScrollAnimations(); // スクロールアニメーションの登録、実行
+    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+    // ・スクロール系のアニメーションの確認
+    registerScrollAnimations(); // スクロールアニメーションの登録、実行
 
     // menu.init(world, scroller); // ✅ メニューの初期化。
 

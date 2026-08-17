@@ -37,7 +37,7 @@ export default class extends Ob{
 
     const plane = new PlaneGeometry(this.rect.width, this.rect.height, wSeg, hSeg);
     const sphere = new SphereGeometry(radius, wSeg, hSeg);
-    
+
     // プログレスが進んだとしても0.5の位置が中央に来る
     sphere.rotateY(Math.PI * 3 / 2); // 270°
     sphere.translate(0, 0, - radius); // 球体を少し奥方向に移動
@@ -46,21 +46,19 @@ export default class extends Ob{
     plane.setAttribute('sphere', sphere.getAttribute('position'));
     // ほうせん...面に対して垂直な直線
     plane.setAttribute("sphereNormal", sphere.getAttribute("normal"));
-    // console.log(plane)
-
+    // console.log(plane);
     return plane;
   }
 
   setupMesh(){
     this.plane = super.setupMesh(); // 親クラスの平面のmeshを代入
-    console.log(this.plane); // 
+    // console.log(this.plane); // 
 
     // Obクラスのスクロールでmeshの位置が反映されるのはこのgroup
     // → this.planeはGroupで囲うことで、Obクラスのスクロール処理での位置変更が加わらなくなる。
     const group = new Group(); 
-                              //  
     // console.log(group)
-
+    
     group.add(this.plane);
     // console.log(group); // Group {isObject3D: true, uuid: '1d25b5da-e460-4a58-931a-718b1237cd5a', name: '', type: 'Group', parent: null, …}
     return group; // このgroupはthis.meshに設定される

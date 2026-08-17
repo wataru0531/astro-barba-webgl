@@ -88,12 +88,11 @@ async function init(_canvas, _viewport, _background = "none") {
 async function _initObj(_viewport) {
   const els = INode.qsAll("[data-webgl]");
   // console.log(els) // NodeList(2) [div#div1, div#div2]
-
   const prms = [...els].map((el) => {
     // console.log(el); // HTMLの要素
 
     const type = INode.getDS(el, "webgl");
-    // console.log(type) // normal  gray
+    // console.log(type) // normal gray
 
     // ✅ Obクラス初期化 //////////////////////////////////////////////
     // ダイナミックインポートで初期化したいglslファイルを取得
@@ -118,7 +117,7 @@ async function _initObj(_viewport) {
   _os.forEach((o) => {
     // console.log(o); // default {$: {…}, texes: Map(3), rect: DOMRect, defines: {…}, uniforms: {…}, …}
     // meshがなければ処理中断
-    if (!o.mesh) return;
+    if(!o.mesh) return;
 
     addObj(o); // シーン、os配列に追加
   });
@@ -274,6 +273,7 @@ function raycast() {
     utils.isTouchDevices ||
     world.raycastingMeshes.length === 0 
   ) return;
+
   // if (
   //   utils.isTouchDevices ||
   //   world.raycastingMeshes.length === 0 ||
@@ -288,6 +288,7 @@ function raycast() {
 
   // raycastingの監視対象を決定
   const meshes = world.raycastingMeshes;
+  // console.log(meshes);
   const intersects = world.raycaster.intersectObjects(meshes); // 光線でぶつかったメッシュが手前側に近い順に配列で格納
   const intersect = intersects[0]; // ぶつかった最も手前側の要素を取得
   // console.log(meshes)
@@ -303,6 +304,7 @@ function raycast() {
 
     // 光線とぶつかった要素のみ色を変更
     const uHover = _mesh.material.uniforms.uHover; // uHoverの初期値は0
+    // console.log(uHover);
     if (intersect?.object === _mesh) {
       // ぶつかった手前側のオブジェクトと、レイキャスティングの対象オブジェクトが合致
       // console.log(_mesh);
@@ -317,7 +319,7 @@ function raycast() {
   }
 }
 
-// Raycastingの対象となるmeshを格納(各ページで格納)
+// ✅ Raycastingの対象となるmeshを格納(各ページで格納)
 function addRaycastingTarget(_selector) {
   const o = world.getObjByEl(_selector);
   // console.log(o);
@@ -371,10 +373,9 @@ function _attachOrbitControl() {
     // console.log(module); // Module {Symbol(Symbol.toStringTag): 'Module'}
     orbitControl = new module.OrbitControls(
       world.camera,
-      world.renderer.domElement,
+      world.renderer.domElement, // domElement ... canvas要素。
     );
 
-    // domElement ... canvas要素。
     // canvas要素のデフォルトのz-indexは-1なので、OrbitControlsが動かせないために設定
     world.renderer.domElement.style.zIndex = 1;
   });

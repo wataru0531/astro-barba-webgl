@@ -23,6 +23,11 @@ export default async function({
   _world = world;
   // console.log(world); // {os: Array(3), raycaster: Raycaster, init: ƒ, adjustWorldPosition: ƒ, render: ƒ, …}addObj: ƒ addObj(_o)addOrbitControlGUI: ƒ addOrbitControlGUI(_gui)addPass: ƒ addPass(_pass)addRenderAction: ƒ addRenderAction(_callback)adjustWorldPosition: async ƒ adjustWorldPosition(_viewport)camera: PerspectiveCamera {isObject3D: true, uuid: 'e7176dd0-d1fb-445a-bc93-9174abdefe78', name: '', type: 'PerspectiveCamera', parent: null, …}composer: EffectComposer {renderer: WebGLRenderer, _pixelRatio: 1, _width: 1146, _height: 938, renderTarget1: WebGLRenderTarget, …}getObjByEl: ƒ getObjByEl(_selector)init: async ƒ init(canvas, viewport)os: (3) [default, default, default]raycast: ƒ raycast()raycaster: Raycaster {ray: Ray, near: 0, far: Infinity, camera: PerspectiveCamera, layers: Layers, …}removeObj: ƒ removeObj(o, dispose = true)removePass: ƒ removePass(_pass)removeRenderAction: ƒ removeRenderAction(_callback)render: ƒ render()renderActions: Set(1) {ƒ}renderer: WebGLRenderer {isWebGLRenderer: true, domElement: canvas#canvas, debug: {…}, autoClear: true, autoClearColor: true, …}scene: Scene {isObject3D: true, uuid: '301893ec-b449-4449-871d-cb46da8ce662', name: '', type: 'Scene', parent: null, …}tick: 252[[Prototype]]: Object
 
+  // const fallbackElement = INode.getElement(".vision__fallback");
+  // console.log(fallbackElement);
+
+  // _world.addRaycastingTarget(fallbackElement);
+
   // ✅ Raycastingの対象を格納
   const planeEls = INode.qsAll(".panel__media");
   // console.log(planeEls);
