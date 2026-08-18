@@ -3,11 +3,13 @@
 
 // ⭐️ TODO 
 // WebGLコードの編集
-// astro.config.jsの編集
+// astro.config.jsの編集。本番環境の設定など
 // ✅ ローディング画面
 // 各コンポーネントの初期化順
 // 各コンポーネントのクラス化
 // メニューの実装
+// ScrollTriggerの統一(コンポーネントごとに初期化されている可能性あり)
+// 
 
 
 // import Canvas from "./components/canvas"

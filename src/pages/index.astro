@@ -1,10 +1,22 @@
 ---
+
+
 import Layout from '../layouts/Layout.astro';
 import medias from '../data.json';
 // import Header from '../components/header.astro';
+
+
+
 ---
 
-<Layout uid="home" pageType="home">
+<Layout 
+  uid="home" 
+  pageType="home"
+  title="yのポートフォリオサイトです。"
+  description="homeのdescription。"
+  image="/ogp/home.avif"
+  type="website"
+>
   <div data-gallery-container class="container">
     <!-- <Header /> -->
 
@@ -139,7 +151,6 @@ import medias from '../data.json';
       <p class="graphic__subtitle">エフェクトを追加して、オリジナルのWebサイトを作成しよう。</p>
       
       <div class="panel">
-
         <div class="panel__item">
           <a class="panel__link" href="">
             <span class="panel__holder">

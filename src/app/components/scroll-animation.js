@@ -47,8 +47,7 @@ function registerScrollAnimations() {
 
     types.forEach((type) => {
       // console.log(type)
-      // typeにあうアニメーションを実行していく
-      ACTIONS?.[type](el); // ACTIONSに見合ったアニメーションが見つからない場合
+      ACTIONS?.[type](el); // typeにあうアニメーションを実行。progress(el);
     });
   });
 }
@@ -76,7 +75,7 @@ async function ripple(_el) {
   });
 }
 
-// 背景色を反転　skillセクションで発火
+// ✅ 背景色を反転　skillセクションで発火
 function reversal(_el) {
   // console.log(_el);
 
@@ -150,7 +149,7 @@ function logoAnimation(_el) {
   });
 }
 
-// ✅ video
+// ✅ videoの再生、停止
 function playVideo(_el) {
   // gsap.registerPlugin(ScrollTrigger);
 
@@ -168,17 +167,14 @@ function playVideo(_el) {
       video.paused && video?.play();
     },
     onEnterBack: () => {
-      //
       // console.log("onEnterBack");
       video.paused && video?.play();
     },
     onLeave: () => {
-      //
       // console.log("onLeave");
       video?.pause();
     },
     onLeaveBack: () => {
-      //
       // console.log("onLeaveBack");
       video?.pause();
     },
@@ -219,15 +215,15 @@ function progress(_el) {
       const o = world.getObjByEl(_el);
       // console.log(o); // default {$: {…}, texes: Map(1), rect: DOMRect, defines: {…}, uniforms: {…}, …}
 
-      if (!o) return;
+      if(!o) return;
       gsap.to(o.uniforms.uProgress, {
         value: 1,
         duration: 1,
       });
     },
-    onLeaveBack: () => {
+    onLeaveBack: () => { // 一度入って、戻る
       const o = world.getObjByEl(_el);
-      if (!o) return;
+      if(!o) return;
       gsap.to(o.uniforms.uProgress, {
         value: 0,
         duration: 1,

@@ -168,8 +168,7 @@ function removeObj(o, dispose = true) {
   }
 }
 
-// クラスのセレクタと見合うObクラスのインスタンスを取得
-// selector...セレクタ文字列
+// ✅ Obクラスのインスタンスを取得 → クラスのセレクタと見合うObクラス
 function getObjByEl(_selector) {
   // console.log(_selector) .load-pp
   // console.log(_selector instanceof Ob)
