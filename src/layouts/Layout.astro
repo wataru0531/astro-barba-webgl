@@ -3,39 +3,67 @@
 // ✅ TODO
 // OGP画像 → 絶対URLにする
 
-
-// import "../styles/index.css"
 import "../sass/style.scss"
 import Header from "../components/header.astro"
 import Footer from "../components/footer.astro"
 
-const { 
+interface Props {
+  uid: string
+  pageType: string
+  title: string
+  description: string
+  imagePath: string
+  type: string
+}
+
+const {
   uid,
   pageType,
   title,
   description,
-  image,
+  imagePath,
   type
-} = Astro.props
+} = Astro.props;
+
 // console.log(uid, pageType);
+// console.log(Astro.url); // URL {href: 'http://localhost:4321/', origin: 'http://localhost:4321', protocol: 'http:', ... }
+// console.log(Astro.url.origin); // http://localhost:4321
+
+// 現在のサイトのパス + Propsで渡されたimageのパス
+// console.log(new URL(imagePath, Astro.url.origin)); // URL { href: 'http://localhost:4321/ogp/home.avif', origin: 'http://localhost:4321', ... }
+const imageUrl = new URL(imagePath, Astro.url.origin);
+// console.log(imageUrl); // → AstroがURLオブジェクトを文字列化する仕組みがあるので、絶対パスにしてくれる
 ---
 
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- 
+      ██╗   ██╗  ██████╗ ██████╗ ██████╗ ███████╗
+      ╚██╗ ██╔╝ ██╔════╝██╔═══██╗██╔═══██╗██╔════╝
+      ╚████╔╝  ██║     ██║   ██║██║   ██║█████╗
+        ╚██╔╝   ██║    ██║   ██║██║   ██║██╔══╝
+        ██║    ╚██████╗╚██████╔╝╚██████╔╝███████╗
+        ╚═╝     ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝ 
+      こんにちは、yです。
+      ソースコードをご覧いただきありがとうございます。
+      このサイトですが、
+    -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
-    <!-- 
+    <!--
       preloadでフォントを早い段階で読み込むようにする 
       → この記述だけでは読み込めない。cssで読み込む
     -->
-    <!-- <link
-      rel="preload"
-      href="/fonts/satoshi/Satoshi-Variable.ttf"
-      as="font"
-      type="font/ttf"
-      crossorigin
-    /> -->
+      <!-- <link
+        rel="preload"
+        href="/fonts/satoshi/Satoshi-Variable.ttf"
+        as="font"
+        type="font/ttf"
+        crossorigin
+      /> 
+    -->
+    
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -44,10 +72,11 @@ const {
 
     <link rel="canonical" href={ Astro.url }>
     <!-- このHTMLを何で生成したか。このページを生成したAstroの情報 -->
-    <meta name="generator" content={Astro.generator} />
+    <meta name="generator" content={ Astro.generator } />
 
     <title>{ title }</title>
     <meta name="description" content={ description }>
+
     <!-- OGP -->
     <meta property="og:title" content={ title } />
     <meta property="og:site_name" content="yのポートフォリオサイト。サイト全体の名前" />
@@ -55,7 +84,7 @@ const {
     <meta property="og:type" content={ type } />
     <!-- Astro.url → 現在表示しているURL -->
     <meta property="og:url" content={ Astro.url } /> 
-    <meta property="og:image" content={ image } />
+    <meta property="og:image" content={ imageUrl } />
     <meta property="og:image:alt" content={ title } />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -63,8 +92,8 @@ const {
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={image} />
+    <meta name="twitter:description" content={ description } />
+    <meta name="twitter:image" content={ imageUrl } />
 
     <!-- favicon.ico 16*16、32*32、48*48 -->
     <link rel="icon" href="/favicon.ico" />
@@ -74,7 +103,6 @@ const {
     <link rel="icon" type="image/png" sizes="192x192" href="">
     <!-- クローラー -->
     <!-- <meta name="robots" content="noindex,nofollow"> -->
-
 
   </head>
   <body data-barba="wrapper">
@@ -88,8 +116,8 @@ const {
       <!-- ✅ ローディングアニメーションのdistort。loading - post - process  -->
       <!-- <div class="load-pp" data-webgl="distortion-text"></div> -->
 
-      <div id="app" data-barba="container" data-barba-namespace={uid}>
-        <div id="smooth-content" data-page-type={pageType}>
+      <div id="app" data-barba="container" data-barba-namespace={ uid }>
+        <div id="smooth-content" data-page-type={ pageType }>
           <slot />
         </div>
       </div>

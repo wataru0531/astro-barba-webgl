@@ -2,6 +2,7 @@
 // main.ts
 
 // ⭐️ TODO 
+// デザインを固める + コードの確認
 // WebGLコードの編集
 // astro.config.jsの編集。本番環境の設定など
 // ✅ ローディング画面
@@ -133,9 +134,6 @@ class App {
       this.scrollTop = this.scroll?.getScroll() || 0; // ⭐️ 要確認
     });
 
-    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
     // ・スクロール系のアニメーションの確認
     registerScrollAnimations(); // スクロールアニメーションの登録、実行
 
@@ -176,7 +174,32 @@ class App {
     //   }
     // });
 
+
+    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+    // ページ遷移時のheadタグの書き換え
+
     // ✅ Barba
+    // | フック           | タイミング       | 主な用途          |
+    // | ------------- | ----------- | ------------- |
+    // | `before`      | 遷移処理の最初     | 全体の準備         |
+    // | `beforeLeave` | 現在ページを離れる直前 | 現在ページの状態保存など  |
+    // | `leave`       | 現在ページを離れる処理 | **離脱アニメーション** |
+    // | `afterLeave`  | 現在ページを離れた後  | 古いページの後処理     |
+    // 
+    // -------  ここでページが差し代わる  -------
+    // 
+    // | `beforeEnter` | 新ページが入る直前   | **新ページの準備**   |
+    // | `enter`       | 新ページが入る処理   | **表示アニメーション** |
+    // | `afterEnter`  | 新ページが入った後   | 新ページの初期化      |
+    // | `after`       | 遷移全体が完了した後  | 全体の後処理        |
+
+    // グローバルフック
+    // barba.hooks.before(...)
+    // barba.hooks.beforeLeave(...)
+    // などなど...
+
     barba.init({
       prefetchIgnore: true,
       transitions: [
@@ -233,6 +256,7 @@ class App {
             this.scroll.destroy()
           },
           after: () => {
+            // console.log("after")
             this.scroll.init()
             this.textAnimation.init()
 
@@ -328,12 +352,13 @@ class App {
             this.scroll.destroy()
           },
           after: () => {
+            // console.log("after");
             this.scroll.init()
             this.textAnimation.init()
 
-            const detailContainer = document.querySelector(".details-container");
+            // const detailContainer = document.querySelector(".details-container");
 
-            detailContainer.innerHTML = ""
+            // detailContainer.innerHTML = ""
             // detailContainer.append(activeLinkImage)
 
             const pageType = this.getCurrentTemplate()
@@ -342,7 +367,12 @@ class App {
             return new Promise((resolve) => {
               let activeMedia = null
 
-              this.textAnimation.animateIn({ delay: 0.3 })
+              this.textAnimation.animateIn({ 
+                delay: 0.3,
+                onComplete: () => {
+                  resolve();
+                }
+              });
 
               // Flip.from(this.mediaHomeState, {
               //   absolute: true,
@@ -432,12 +462,6 @@ class App {
       window.dispatchEvent(new Event("fontLoaded")); // 発火させる
     })
   }
-
-  // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-  // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-  // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-   // scroll.jsとtext-animation.jsのコードの確認
-
 
   // guiを初期化、展開
   addGui(_world) {

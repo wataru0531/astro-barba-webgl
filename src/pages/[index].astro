@@ -1,7 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import medias from '../data.json';
-import Header from '../components/header.astro';
 
 export const getStaticPaths = async () => {
   return medias.map((media) => {
@@ -23,7 +22,7 @@ const { media } = Astro.props;
   pageType="detail"
   title={`${media.name} | yのポートフォリオサイト`}
   description={`${media.name}の詳細ページ`}
-  image={`${media.url}`}
+  imagePath={`${media.url}`}
   type="article"
 >
   <div class="details">
