@@ -2,30 +2,35 @@
 // main.ts
 
 // ⭐️ TODO 
+// 画像関係の初期化
+// → headタグの処理にする
 // デザインを固める + コードの確認
 // WebGLコードの編集
+// ページ遷移時にWebGLの初期化を行わないと、表示されない
 // astro.config.jsの編集。本番環境の設定など
 // ✅ ローディング画面
 // 各コンポーネントの初期化順
 // 各コンポーネントのクラス化
 // メニューの実装
 // ScrollTriggerの統一(コンポーネントごとに初期化されている可能性あり)
-// 
 
 
 // import Canvas from "./components/canvas"
 import Scroll from "./components/scroll"
+import Media from "./components/media"
+
 //@ts-ignore
 import barba from "@barba/core"
 
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { ScrollSmoother } from "gsap/ScrollSmoother"
+
 //@ts-ignore
 // import { Flip } from "gsap/Flip"
 import gsap from "gsap"
 // import Media from "./components/media"
 import { SplitText } from "gsap/SplitText"
-import TextAnimation from "./components/text-animation"
+import TextAnimation from "./components/text-animation";
 import FontFaceObserver from "fontfaceobserver";
 
 import { INode, gui, viewport } from "./helper"
@@ -61,6 +66,29 @@ class App {
 
     this.$ = {}; // DOM
     this.$.canvas = INode.getElement("#js-canvas");
+
+
+
+    // Mediaの初期化 → 画像部分のクリック処理も
+    this.medias = [];
+    this.$.images = INode.qsAll(".grid__item img");
+    // console.log(this.$.images);
+    this.$.images.forEach(image => {
+      // console.log(image)
+      const media = new Media(image);
+
+      this.medias.push(media);
+    });
+    // console.log(this.medias);
+
+    // this.medias?.forEach(image => { // ScrollTriggerの監視下に置く
+    //   image?.observe();
+    // })
+
+    this.activeLinkImage = null;
+
+
+
 
     this.scrollBlocked = false;
     this.fontLoaded = false;
@@ -174,12 +202,6 @@ class App {
     //   }
     // });
 
-
-    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-    // ページ遷移時のheadタグの書き換え
-
     // ✅ Barba
     // | フック           | タイミング       | 主な用途          |
     // | ------------- | ----------- | ------------- |
@@ -276,18 +298,19 @@ class App {
           from: {
             custom: () => { // trueならhome-detailが使われる
               const activeLink = document.querySelector('a[data-home-link-active="true"]')
+              // console.log(activeLink);
               if (!activeLink) return false
-
-              return true
+              return true;
             },
           },
           before: () => {
-            this.scrollBlocked = true
-            this.scroll.s?.paused(true)
+            this.scrollBlocked = true;
+            this.scroll.s?.paused(true);
 
-            const tl = this.textAnimation.animateOut()
+            const tl = this.textAnimation.animateOut();
 
-            // activeLinkImage = document.querySelector('a[data-home-link-active="true"] img');
+            this.activeLinkImage = document.querySelector('a[data-home-link-active="true"] img');
+            // console.log(this.activeLinkImage);
 
             // this.canvas.medias?.forEach((media) => {
             //   if (!media) return
@@ -336,25 +359,32 @@ class App {
           },
 
           leave: () => {
-            scrollTop = this.scroll.getScroll()
+            console.log("leave")
+            scrollTop = this.scroll.getScroll();
+            // console.log(scrollTop);
 
-            const container = document.querySelector(".container");
-            container.style.position = "fixed"
-            container.style.top = `-${scrollTop}px`
-            container.style.width = "100%"
-            container.style.zIndex = "1000"
+            // const container = document.querySelector(".container");
+            // console.log(container)
+
+            // container.style.position = "fixed"
+            // container.style.top = `-${scrollTop}px`
+            // container.style.width = "100%"
+            // container.style.zIndex = "1000"
 
             // this.mediaHomeState = Flip.getState(activeLinkImage)
-            this.textAnimation.destroy()
+            this.textAnimation.destroy();
+
           },
-          beforeEnter: () => {
+          beforeEnter: (data) => {
+            console.log("beforeEnter");
+
             this.scroll.reset()
             this.scroll.destroy()
           },
-          after: () => {
-            // console.log("after");
-            this.scroll.init()
-            this.textAnimation.init()
+          after: (data) => {
+            console.log("after");
+            this.scroll.init();
+            this.textAnimation.init();
 
             // const detailContainer = document.querySelector(".details-container");
 
@@ -369,8 +399,23 @@ class App {
 
               this.textAnimation.animateIn({ 
                 delay: 0.3,
+
                 onComplete: () => {
-                  resolve();
+                  this.scrollBlocked = false;
+                  this.medias.forEach(media => {
+                    // console.log(media);
+                    if(!media) return;
+                    if(media.element !== this.activeLinkImage) {
+                      media.destroy();
+                      media = null;
+                    } else {
+                      activeMedia = media;
+                    }
+
+                    this.medias = [activeMedia];
+
+                    resolve();
+                  })
                 }
               });
 

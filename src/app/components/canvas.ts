@@ -82,7 +82,7 @@ export default class Canvas {
     this.renderer.setPixelRatio(this.dimensions.pixelRatio)
     this.renderer.setSize(this.dimensions.width, this.dimensions.height)
 
-    //ScrollTrigger.refresh()
+    ScrollTrigger.refresh()
     this.medias?.forEach((media) => {
       media?.onResize(this.sizes)
     })
@@ -90,6 +90,7 @@ export default class Canvas {
 
   createMedias(activeElement?: HTMLImageElement) {
     const images = document.querySelectorAll("img")
+
     images.forEach((image) => {
       if (image !== activeElement) {
         const media = new Media({
