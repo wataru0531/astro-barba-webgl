@@ -3,6 +3,7 @@
 
 // ⭐️ TODO 
 // 画像関係の初期化
+// テクスチャ、画像などすべてを読み込まないと画像をクリックできないようにする
 // → headタグの処理にする
 // デザインを固める + コードの確認
 // WebGLコードの編集
@@ -13,6 +14,7 @@
 // 各コンポーネントのクラス化
 // メニューの実装
 // ScrollTriggerの統一(コンポーネントごとに初期化されている可能性あり)
+// leave時に、getScrollすると後続の処理が止まる問題
 
 
 // import Canvas from "./components/canvas"
@@ -232,6 +234,7 @@ class App {
             this.scroll.s?.paused(true)
           },
           leave: () => {
+            // console.log("leave");
             // const medias = this.canvas.medias && this.canvas.medias
 
             // medias?.forEach((media) => {
@@ -267,6 +270,7 @@ class App {
             })
           },
           beforeEnter: () => {
+            // console.log("beforeEnter");
             // this.canvas.medias?.forEach((media) => {
             //   media?.destroy()
             //   media = null
@@ -304,6 +308,7 @@ class App {
             },
           },
           before: () => {
+            // console.log("before");
             this.scrollBlocked = true;
             this.scroll.s?.paused(true);
 
@@ -358,9 +363,10 @@ class App {
             })
           },
 
-          leave: () => {
-            console.log("leave")
-            scrollTop = this.scroll.getScroll();
+          leave: (data) => {
+            // console.log("leave", data)
+            // console.log(this.scroll);
+            // scrollTop = this.scroll.getScroll(); 👉 これを呼び出したら実行が止まる
             // console.log(scrollTop);
 
             // const container = document.querySelector(".container");
@@ -372,17 +378,57 @@ class App {
             // container.style.zIndex = "1000"
 
             // this.mediaHomeState = Flip.getState(activeLinkImage)
+            // console.log(this.textAnimation);
             this.textAnimation.destroy();
+            // console.log("leave done");
 
           },
+
+          // ⭐️ここから ⭐️ここから ⭐️ここから ⭐️ここから ⭐️ここから ⭐️ここから ⭐️ここから ⭐️ここから
+          //  ⭐️ここから ⭐️ここから ⭐️ここから ⭐️ここから ⭐️ここから ⭐️ここから ⭐️ここから
+          //  ⭐️ここから ⭐️ここから ⭐️ここから ⭐️ここから ⭐️ここから ⭐️ここから ⭐️ここから
+          // 変数を外にだすなどしてリファクタリング
+          // details-homeの部分も編集、追加
           beforeEnter: (data) => {
-            console.log("beforeEnter");
+            // console.log("beforeEnter");
+            // console.log(data);
+            const parser = new DOMParser();
+            const nextDocument = parser.parseFromString(data.next.html, "text/html");
+
+            // console.log(nextDocument); // #document(127.0.0.1)
+
+            document.title = nextDocument.title;
+
+            const metaSelectors = [
+              'meta[name="description"]',
+              'meta[property="og:title"]',
+              'meta[property="og:description"]',
+              'meta[property="og:type"]',
+              'meta[property="og:url"]',
+              'meta[property="og:image"]',
+              'meta[property="og:image:alt"]',
+              'meta[name="twitter:card"]',
+              'meta[name="twitter:description"]',
+              'meta[name="twitter:image"]',
+            ];
+
+            metaSelectors.forEach(selector => {
+              const nextMeta = nextDocument.head.querySelector(selector);
+              const currentMeta = document.head.querySelector(selector);
+
+              if(nextMeta && currentMeta) {
+                currentMeta.setAttribute("content", nextMeta.getAttribute("content") || "");
+              }
+            })
+
+
+
 
             this.scroll.reset()
             this.scroll.destroy()
           },
           after: (data) => {
-            console.log("after");
+            // console.log("after");
             this.scroll.init();
             this.textAnimation.init();
 
