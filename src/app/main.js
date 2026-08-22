@@ -2,14 +2,19 @@
 // main.ts
 
 // ⭐️ TODO 
+// ページ遷移後のWebGLの初期化
+// → ・これまでのmeshを消す
+//   ・遷移後のページのmeshのみを入れる
+// 
+
+
 // 画像関係の初期化
 // テクスチャ、画像などすべてを読み込まないと画像をクリックできないようにする
-// → headタグの処理にする
+// ⭕️ headタグの更新
 // デザインを固める + コードの確認
-// WebGLコードの編集
 // ページ遷移時にWebGLの初期化を行わないと、表示されない
 // astro.config.jsの編集。本番環境の設定など
-// ✅ ローディング画面
+// ローディング画面
 // 各コンポーネントの初期化順
 // 各コンポーネントのクラス化
 // メニューの実装
@@ -69,8 +74,6 @@ class App {
     this.$ = {}; // DOM
     this.$.canvas = INode.getElement("#js-canvas");
 
-
-
     // Mediaの初期化 → 画像部分のクリック処理も
     this.medias = [];
     this.$.images = INode.qsAll(".grid__item img");
@@ -89,8 +92,18 @@ class App {
 
     this.activeLinkImage = null;
 
-
-
+    this.headMetaSelectors = [ // headタグで更新したい項目。
+      'meta[name="description"]',
+      'meta[property="og:title"]',
+      'meta[property="og:description"]',
+      'meta[property="og:type"]',
+      'meta[property="og:url"]',
+      'meta[property="og:image"]',
+      'meta[property="og:image:alt"]',
+      'meta[name="twitter:card"]',
+      'meta[name="twitter:description"]',
+      'meta[name="twitter:image"]',
+    ];
 
     this.scrollBlocked = false;
     this.fontLoaded = false;
@@ -118,14 +131,17 @@ class App {
     viewport.init(this.$.canvas);
 
     await loader.loadAllAssets(); // url => テクスチャ の状態でtextureCacheに保持
-    // console.log(textureCache);
+    // console.log(window.textureCache);
 
-    await world.init(this.$.canvas, viewport, this.bgColor);
+
+    await world.init(this.$.canvas, viewport, this.bgColor); // Thee.js環境構築
+    await world._initObj(viewport); // Obクラス初期化
+
+
 
     this.addGui(world);
 
-    // 各ページで使うJSの初期化
-    // console.log(this.pageType);
+    // ✅ 各ページで使うJSの初期化
     await import(`./pages/${this.pageType}.js`).then(({ default: init }) => {
       // await import(`./pages/${this.pageType}.js`).then(d => {
       // console.log(d); // Module {Symbol(Symbol.toStringTag): 'Module'}default: (...)Symbol(Symbol.toStringTag): "Module"get default: ƒ ()set default: ƒ ()
@@ -267,14 +283,26 @@ class App {
                 this.textAnimation.destroy()
                 resolve()
               })
-            })
+            });
+
+
+            // 
+
           },
-          beforeEnter: () => {
+          beforeEnter: async (data) => {
             // console.log("beforeEnter");
             // this.canvas.medias?.forEach((media) => {
             //   media?.destroy()
             //   media = null
             // })
+
+            // 戻った時にテクスチャを取得
+            await loader.loadAllAssets();
+            // console.log(window.textureCache);
+
+
+
+            this.updateHead(data.next.html);
 
             this.scrollBlocked = false
 
@@ -382,52 +410,45 @@ class App {
             this.textAnimation.destroy();
             // console.log("leave done");
 
+
+            // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+            // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+            // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+            // 新しいページに遷移後にWebGLの初期化
+            // テクスチャの更新
+            // meshの削除処理など
+
+            // ✅ WebGLのmeshの削除
+            //    debugの対象を削除
+
+            // ※ テクスチャはそのまま
+
           },
 
-          // ⭐️ここから ⭐️ここから ⭐️ここから ⭐️ここから ⭐️ここから ⭐️ここから ⭐️ここから ⭐️ここから
-          //  ⭐️ここから ⭐️ここから ⭐️ここから ⭐️ここから ⭐️ここから ⭐️ここから ⭐️ここから
-          //  ⭐️ここから ⭐️ここから ⭐️ここから ⭐️ここから ⭐️ここから ⭐️ここから ⭐️ここから
-          // 変数を外にだすなどしてリファクタリング
-          // details-homeの部分も編集、追加
-          beforeEnter: (data) => {
+          beforeEnter: async (data) => { 
             // console.log("beforeEnter");
             // console.log(data);
-            const parser = new DOMParser();
-            const nextDocument = parser.parseFromString(data.next.html, "text/html");
 
-            // console.log(nextDocument); // #document(127.0.0.1)
+            // ✅ WebGLのmeshの初期化
+            // 　　debugの対象を更新
 
-            document.title = nextDocument.title;
+            // ※ テクスチャは新しいものは配列に追加
+            await loader.loadAllAssets();
+            // console.log(window.textureCache);
 
-            const metaSelectors = [
-              'meta[name="description"]',
-              'meta[property="og:title"]',
-              'meta[property="og:description"]',
-              'meta[property="og:type"]',
-              'meta[property="og:url"]',
-              'meta[property="og:image"]',
-              'meta[property="og:image:alt"]',
-              'meta[name="twitter:card"]',
-              'meta[name="twitter:description"]',
-              'meta[name="twitter:image"]',
-            ];
-
-            metaSelectors.forEach(selector => {
-              const nextMeta = nextDocument.head.querySelector(selector);
-              const currentMeta = document.head.querySelector(selector);
-
-              if(nextMeta && currentMeta) {
-                currentMeta.setAttribute("content", nextMeta.getAttribute("content") || "");
-              }
-            })
+            // Obクラスの追加処理 → initObjを切り出す
 
 
 
+
+
+
+            this.updateHead(data.next.html); // headタグ内を更新
 
             this.scroll.reset()
             this.scroll.destroy()
           },
-          after: (data) => {
+          after: () => {
             // console.log("after");
             this.scroll.init();
             this.textAnimation.init();
@@ -439,6 +460,7 @@ class App {
 
             const pageType = this.getCurrentTemplate()
             this.setPageType(pageType);
+            // console.log(this.pageType)
 
             return new Promise((resolve) => {
               let activeMedia = null
@@ -494,6 +516,29 @@ class App {
 
     mouse.makeVisible(); // 初期表示時にカスタムカーソルを非表示。300ms毎に判定。
                          //  → 全ての処理が終わったら発火させる
+  }
+
+  // ✅　headの中を更新
+  updateHead(_html) {
+    // console.log(_html);
+    const parser = new DOMParser();
+    const nextDocument = parser.parseFromString(_html, "text/html");
+    // console.log(nextDocument); // #document(127.0.0.1)
+
+    document.title = nextDocument.title;
+
+    this.headMetaSelectors.forEach(selector => {
+      // ✅ TODO 更新後のデータがどちらでも取得できているので要確認
+      const nextMeta = nextDocument.head.querySelector(selector);
+      // console.log("next", nextMeta);
+      const currentMeta = document.head.querySelector(selector);
+      // console.log("current", currentMeta);
+        // console.log(currentMeta === nextMeta)
+
+      if(nextMeta && currentMeta) {
+        currentMeta.setAttribute("content", nextMeta.getAttribute("content") || "");
+      }
+    })
   }
 
   // ✅ ページのタイプを取得

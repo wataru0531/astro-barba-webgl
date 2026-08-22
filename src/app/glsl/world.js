@@ -42,6 +42,8 @@ const world = {
   raycast,
   raycastingMeshes: [], // raicasting対象のmesh
   addRaycastingTarget,
+
+  _initObj,
 };
 
 let stats = null;
@@ -70,7 +72,7 @@ async function init(_canvas, _viewport, _background = "none") {
   world.composer.addPass(renderPass);
   // → このcomposerにエフェクトを格納していき、最終的な描画データをカメラに映す
 
-  await _initObj(_viewport); // メッシュ生成
+  await _initObj(_viewport); // Obクラス初期化。メッシュ生成
 
   if (window.debug) {
     // デバックモードの時のみパフォーマンスを測定
@@ -81,7 +83,7 @@ async function init(_canvas, _viewport, _background = "none") {
     document.body.appendChild(stats.dom);
   }
 
-  _bindEvents(); // iOSの時だけ画面をレンダリングする
+  _bindEvents(); // イベントを追加
 }
 
 // ⭐️ Obクラス初期化、位置やサイズの更新
@@ -388,11 +390,6 @@ function _detachOrbitControl() {
   world.renderer.domElement.style.zIndex = -1;
 }
 
-
-
-
-
-
 // ✅ composerにパスを追加する処理
 function addPass(_pass) {
   world.composer.addPass(_pass);
@@ -403,7 +400,7 @@ function removePass(_pass) {
   world.composer.removePass(_pass);
 }
 
-// renderに関する関数を格納する処理
+// renderに関する関数を追加する処理
 function addRenderAction(_callback) {
   world.renderActions.add(_callback);
 }

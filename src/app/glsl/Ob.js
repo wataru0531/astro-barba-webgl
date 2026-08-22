@@ -125,14 +125,8 @@ class Ob {
     if (shader.isWebGL2) return; // WebGL 2.0の場合、変更は不要
 
     // WebGL1.0の場合はtexture関数が見つからないため、texture2Dに置換
-    shader.vertexShader = shader.vertexShader.replace(
-      /texture\(/g,
-      "texture2D(",
-    );
-    shader.fragmentShader = shader.fragmentShader.replace(
-      /texture\(/g,
-      "texture2D(",
-    );
+    shader.vertexShader = shader.vertexShader.replace(/texture\(/g, "texture2D(");
+    shader.fragmentShader = shader.fragmentShader.replace(/texture\(/g, "texture2D(");
   }
 
   // vertexとfragmentは子クラスで必ずオーバーライド。
