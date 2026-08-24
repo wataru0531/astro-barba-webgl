@@ -72,7 +72,7 @@ async function init(_canvas, _viewport, _background = "none") {
   world.composer.addPass(renderPass);
   // → このcomposerにエフェクトを格納していき、最終的な描画データをカメラに映す
 
-  await _initObj(_viewport); // Obクラス初期化。メッシュ生成
+  // await _initObj(_viewport); // Obクラス初期化。メッシュ生成
 
   if (window.debug) {
     // デバックモードの時のみパフォーマンスを測定
@@ -96,8 +96,7 @@ async function _initObj(_viewport) {
     const type = INode.getDS(el, "webgl");
     // console.log(type) // normal gray
 
-    // ✅ Obクラス初期化 //////////////////////////////////////////////
-    // ダイナミックインポートで初期化したいglslファイルを取得
+    // ✅ Obクラス初期化 ダイナミックインポート ////////////////////////////////////////
     // import → Promiseを返す → thenで受ける
     // default → defaultエクスポートされたオブジェクト。予約後なのでObに変更
     //           ※ defaultを格納したModuleオブジェクト → 名前付きエクスポートも保持
@@ -132,7 +131,7 @@ async function _initObj(_viewport) {
   await Promise.all(afterPrms);
 }
 
-// iOSデバイス(iPhone、iPad)の時だけ画面をレンダリングする
+// ✅ iOSデバイス(iPhone、iPad)の時だけ画面をレンダリングする
 // 別タブで開いて戻ってきたタイミングで実行。→ iOSでエフェクトの残像が残るため
 function _bindEvents() {
   // focus → ブラウザウィンドウがユーザーのアクティブな状態に戻ったときに発生するイベント
@@ -142,22 +141,21 @@ function _bindEvents() {
   });
 }
 
-// メッシュをシーンとosに追加する関数
+// ✅ メッシュをシーンとosに追加する関数
 function addObj(_o) {
   world.scene.add(_o.mesh);
   world.os.push(_o); // awaitで非同期処理が解決した順番でworld.osに格納されていく
 }
 
-// 必要無くなったオブジェクトを削除
+// ✅ 必要無くなったオブジェクトを削除
 // dispose...シーンから削除したいだけの場合もあるので、条件分岐させる。
 function removeObj(o, dispose = true) {
-  if (!(o instanceof Ob)) {
-    // セレクタ文字列で渡ってきた場合など
+  if (!(o instanceof Ob)) { // セレクタ文字列で渡ってきた場合など
     o = world.getObjByEl(o);
-    if (!o) return;
+    if(!o) return;
   }
-
   // console.log(o);
+  
   world.scene.remove(o.mesh); // シーンから削除
   const idx = world.os.indexOf(o); // world.osの何番目のものを削除するかのインデックス
   world.os.splice(idx, 1); // インデックスから1つ要素を削除
@@ -198,7 +196,7 @@ function _setupPerspectiveCamera(viewport) {
   return camera;
 }
 
-// キャンバス、メッシュのサイズ、カメラの更新
+// ✅ キャンバス、メッシュのサイズ、カメラの更新
 async function adjustWorldPosition(_viewport) {
   world.renderer.setSize(_viewport.width, _viewport.height, false);
 

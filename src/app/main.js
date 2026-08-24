@@ -390,9 +390,8 @@ class App {
               })
             })
           },
-
           leave: (data) => {
-            // console.log("leave", data)
+            console.log("leave")
             // console.log(this.scroll);
             // scrollTop = this.scroll.getScroll(); 👉 これを呼び出したら実行が止まる
             // console.log(scrollTop);
@@ -409,37 +408,44 @@ class App {
             // console.log(this.textAnimation);
             this.textAnimation.destroy();
             // console.log("leave done");
-
+          },
+          afterLeave: () => {
+            console.log("afterleave");
+            // 現在ページを離れた後、古いページの後処理 
 
             // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
             // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
             // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-            // 新しいページに遷移後にWebGLの初期化
-            // テクスチャの更新
-            // meshの削除処理など
 
-            // ✅ WebGLのmeshの削除
-            //    debugの対象を削除
+            // meshの削除
+            // debugの対象を削除 → meshがなくなれば消える
 
-            // ※ テクスチャはそのまま
-
+            // meshの削除
+            // console.log([...world.os]);
+            // world.os.forEach(o => {
+            //   // console.log(o);
+            //   world.removeObj(o);
+            // });
           },
 
+          // ---------------------- ページが差し代わる -----------------------------
+
           beforeEnter: async (data) => { 
-            // console.log("beforeEnter");
+            console.log("beforeEnter");
             // console.log(data);
 
-            // ✅ WebGLのmeshの初期化
-            // 　　debugの対象を更新
+            // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+            // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+            // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+            
+            // WebGLのmeshの初期化
+            // debugの対象を更新
+            // テクスチャの更新
 
-            // ※ テクスチャは新しいものは配列に追加
-            await loader.loadAllAssets();
+            // console.log(world.os);
+
+            // await loader.loadAllAssets(); // テクスチャは新しいもののみ配列に追加
             // console.log(window.textureCache);
-
-            // Obクラスの追加処理 → initObjを切り出す
-
-
-
 
 
 
@@ -449,7 +455,7 @@ class App {
             this.scroll.destroy()
           },
           after: () => {
-            // console.log("after");
+            console.log("after");
             this.scroll.init();
             this.textAnimation.init();
 
@@ -599,9 +605,9 @@ class App {
     })
   }
 
-  // guiを初期化、展開
+  // ✅ guiを初期化、展開
   addGui(_world) {
-    if (window.debug) {
+    if(window.debug) {
       gui.add(_world.addOrbitControlGUI); // OrbitControlの制御
 
       // 全てのメッシュにguiを追加
@@ -610,7 +616,7 @@ class App {
         gui.close();
 
         _world.os.forEach((o) => {
-          if (!o.debug) return; // oがデバッグ関数をもったなかったら処理中断
+          if(!o.debug) return; // oがデバッグ関数をもったなかったら処理中断
 
           const type = INode.getDS(o.$.el, "webgl"); // type → フォルダ名
           // console.log(type)
