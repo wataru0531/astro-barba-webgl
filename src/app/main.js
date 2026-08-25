@@ -416,16 +416,18 @@ class App {
             // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
             // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
             // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-
             // meshの削除
+            // → Groupメッシュの場合、removeObjの処理を変更する必要がある
+            //   この実装の理解から
             // debugの対象を削除 → meshがなくなれば消える
 
-            // meshの削除
-            // console.log([...world.os]);
-            // world.os.forEach(o => {
-            //   // console.log(o);
-            //   world.removeObj(o);
-            // });
+            // meshの削除            
+            [...world.os].forEach(o => {
+              // console.log(o);
+              world.removeObj(o, true);
+
+              
+            });
           },
 
           // ---------------------- ページが差し代わる -----------------------------
@@ -444,7 +446,7 @@ class App {
 
             // console.log(world.os);
 
-            // await loader.loadAllAssets(); // テクスチャは新しいもののみ配列に追加
+            await loader.loadAllAssets(); // テクスチャは新しいもののみ配列に追加
             // console.log(window.textureCache);
 
 
@@ -454,7 +456,10 @@ class App {
             this.scroll.reset()
             this.scroll.destroy()
           },
-          after: () => {
+          enter: () => {
+
+          },
+          after: (data) => {
             console.log("after");
             this.scroll.init();
             this.textAnimation.init();
