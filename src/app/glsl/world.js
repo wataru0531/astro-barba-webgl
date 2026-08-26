@@ -87,12 +87,12 @@ async function init(_canvas, _viewport, _background = "none") {
 }
 
 // ⭐️ Obクラス初期化、位置やサイズの更新
-async function _initObj(_viewport) {
-  const els = INode.qsAll("[data-webgl]");
-  // console.log(els) // NodeList(2) [div#div1, div#div2]
+async function _initObj(_viewport, _container = document) {
+  const els = _container.querySelectorAll("[data-webgl]");
+  // const els = INode.qsAll("[data-webgl]");
+  console.log(els) // NodeList(2) [div#div1, div#div2]
   const prms = [...els].map((el) => {
     // console.log(el); // HTMLの要素
-
     const type = INode.getDS(el, "webgl");
     // console.log(type) // normal gray
 
@@ -156,7 +156,7 @@ function removeObj(o, dispose = true) {
   }
   // console.log(o);
   
-  world.scene.remove(o.mesh); // シーンから削除
+  world.scene.remove(o.mesh); // シーンから削除するだけ。なかのmaterial、geometryはメモリにある可能性がある
   const idx = world.os.indexOf(o); // world.osの何番目のものを削除するかのインデックス
   world.os.splice(idx, 1); // インデックスから1つ要素を削除
 
@@ -170,12 +170,23 @@ function removeObj(o, dispose = true) {
   // dispose()...使わないものを削除することになるので余計なメモリを使わなくていい
   // meshはsceneから削除したとしても、meshの内部で保持されているmaterialやgeometryはメモリに残るので削除
   if (dispose) {
-    console.log(o.mesh)
-    if(!o.mesh.material) return;
-      
-    // console.log(o.mesh.material)
-    o.mesh.material.dispose();
-    o.mesh.geometry.dispose();
+    // mesh、Groupメッシュとの場合で分岐させる
+    if (o.mesh.isMesh) {
+      // console.log("isMesh");
+      o.mesh.geometry?.dispose(); // GPU上のgeometry、materialなどの関連リソースを解放
+      o.mesh.material?.dispose();
+    }
+
+    if (o.mesh.isGroup) {
+      // console.log("isGroup");
+      o.mesh.children.forEach((child) => {
+        // console.log(child);
+        if (child.isMesh) {
+          child.geometry?.dispose();
+          child.material?.dispose();
+        }
+      });
+    }
   }
 }
 

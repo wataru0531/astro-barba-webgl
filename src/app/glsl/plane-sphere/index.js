@@ -54,7 +54,9 @@ export default class extends Ob{
     this.plane = super.setupMesh(); // 親クラスの平面のmeshを代入
     // console.log(this.plane); // 
 
-    // Obクラスのスクロールでmeshの位置が反映されるのはこのgroup
+    // ✅ スクロールで動くのは、Group。
+    //    Groupにするのは、外側のGroup → 画面スクロールに対応
+    //                   中のmesh、つまり、this.planeは、ホバーのtiltの動きに対応させるためにGroupで囲っている
     // → this.planeはGroupで囲うことで、Obクラスのスクロール処理での位置変更が加わらなくなる。
     const group = new Group(); 
     // console.log(group)

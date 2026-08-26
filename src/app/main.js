@@ -141,7 +141,7 @@ class App {
 
     this.addGui(world);
 
-    // ✅ 各ページで使うJSの初期化
+    // ✅ 各ページで使うJSの初期化　→ ✅ TODO 関数に切り出す。Barbaのセクションで使うため
     await import(`./pages/${this.pageType}.js`).then(({ default: init }) => {
       // await import(`./pages/${this.pageType}.js`).then(d => {
       // console.log(d); // Module {Symbol(Symbol.toStringTag): 'Module'}default: (...)Symbol(Symbol.toStringTag): "Module"get default: ƒ ()set default: ƒ ()
@@ -416,17 +416,12 @@ class App {
             // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
             // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
             // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-            // meshの削除
-            // → Groupメッシュの場合、removeObjの処理を変更する必要がある
-            //   この実装の理解から
             // debugの対象を削除 → meshがなくなれば消える
 
-            // meshの削除            
+            // mesh、material、geometryの削除            
             [...world.os].forEach(o => {
               // console.log(o);
-              world.removeObj(o, true);
-
-              
+              world.removeObj(o);
             });
           },
 
@@ -439,30 +434,31 @@ class App {
             // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
             // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
             // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-            
-            // WebGLのmeshの初期化
-            // debugの対象を更新
-            // テクスチャの更新
+            // initObjが正常にうごいているか？
+            // 各ページにおけるJavaScriptファイルを読み込む
+            // → 関数化など
 
             // console.log(world.os);
 
-            await loader.loadAllAssets(); // テクスチャは新しいもののみ配列に追加
+            await loader.loadAllAssets(); // テクスチャのキャッシュ更新
             // console.log(window.textureCache);
-
-
+            
+            await world._initObj(viewport, data.next.container); // Obクラス初期化
 
             this.updateHead(data.next.html); // headタグ内を更新
 
             this.scroll.reset()
             this.scroll.destroy()
           },
-          enter: () => {
+          // enter: async (data) => {
+          //   // await world._initObj(viewport, data.next.container);
 
-          },
-          after: (data) => {
+          // },
+          after: async (data) => {
             console.log("after");
             this.scroll.init();
             this.textAnimation.init();
+
 
             // const detailContainer = document.querySelector(".details-container");
 
