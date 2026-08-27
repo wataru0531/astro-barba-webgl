@@ -244,13 +244,23 @@ class App {
       prefetchIgnore: true,
       transitions: [
         {
-          name: "default-transition",
+          name: "default-transition", // ⭐️ detail-home
+          from: {
+            custom: () => { 
+              const backBtn = document.getElementById("js-backBtn");
+              // console.log(backBtn);
+              if(!backBtn) return false;
+
+              return true;
+            },
+          },
           before: () => {
-            this.scrollBlocked = true
-            this.scroll.s?.paused(true)
+            console.log("before");
+            this.scrollBlocked = true;
+            this.scroll.s?.paused(true);
           },
           leave: () => {
-            // console.log("leave");
+            console.log("leave");
             // const medias = this.canvas.medias && this.canvas.medias
 
             // medias?.forEach((media) => {
@@ -285,48 +295,72 @@ class App {
               })
             });
 
-
             // 
-
           },
+          afterLeave: async (data) => {
+            console.log("afterLeave");
+            // console.log(data);
+
+            [...world.os].forEach(o => { // mesh、geometry、material削除
+              // console.log(o);
+              world.removeObj(o);
+            });
+          },
+
+          // --------------- ページが差し代わる -------------------------
+
           beforeEnter: async (data) => {
-            // console.log("beforeEnter");
+            console.log("beforeEnter");
             // this.canvas.medias?.forEach((media) => {
             //   media?.destroy()
             //   media = null
             // })
 
-            // 戻った時にテクスチャを取得
-            await loader.loadAllAssets();
+            await loader.loadAllAssets(); // テクスチャのキャッシュ更新
             // console.log(window.textureCache);
+            
+            await world._initObj(viewport, data.next.container); // Obクラス初期化
 
-
-
-            this.updateHead(data.next.html);
+            this.updateHead(data.next.html); // headタグ内を更新
 
             this.scrollBlocked = false
 
             this.scroll.reset()
             this.scroll.destroy()
           },
+          // enter: async (data) => {},
           after: () => {
-            // console.log("after")
+            console.log("after")
             this.scroll.init()
             this.textAnimation.init()
 
             const pageType = this.getCurrentTemplate()
-            this.setPageType(pageType)
+            this.setPageType(pageType);
+            // console.log(pageType)
 
-            // TODO → 変更
-            this.loadImages(() => {
-              // this.canvas.medias = []
-              // this.canvas.createMedias()
-              this.textAnimation.animateIn({ delay: 0.3 })
-            })
+            // this.loadImages(() => {
+            //   // this.canvas.medias = []
+            //   // this.canvas.createMedias()
+            //   this.textAnimation.animateIn({ delay: 0.3 })
+            // });
+
+            return new Promise((resolve) => {
+              // let activeMedia = null
+
+              this.textAnimation.animateIn({ 
+                delay: 0.3,
+
+                onComplete: () => {
+                  resolve();
+                }
+              });
+            });
+            
           },
         },
+
         {
-          name: "home-detail",
+          name: "home-detail", // ⭐️
           from: {
             custom: () => { // trueならhome-detailが使われる
               const activeLink = document.querySelector('a[data-home-link-active="true"]')
@@ -336,13 +370,13 @@ class App {
             },
           },
           before: () => {
-            // console.log("before");
+            console.log("before");
             this.scrollBlocked = true;
             this.scroll.s?.paused(true);
 
             const tl = this.textAnimation.animateOut();
 
-            this.activeLinkImage = document.querySelector('a[data-home-link-active="true"] img');
+            // this.activeLinkImage = document.querySelector('a[data-home-link-active="true"] img');
             // console.log(this.activeLinkImage);
 
             // this.canvas.medias?.forEach((media) => {
@@ -413,11 +447,6 @@ class App {
             console.log("afterleave");
             // 現在ページを離れた後、古いページの後処理 
 
-            // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-            // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-            // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-            // debugの対象を削除 → meshがなくなれば消える
-
             // mesh、material、geometryの削除            
             [...world.os].forEach(o => {
               // console.log(o);
@@ -430,13 +459,6 @@ class App {
           beforeEnter: async (data) => { 
             console.log("beforeEnter");
             // console.log(data);
-
-            // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-            // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-            // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-            // initObjが正常にうごいているか？
-            // 各ページにおけるJavaScriptファイルを読み込む
-            // → 関数化など
 
             // console.log(world.os);
 
@@ -456,9 +478,9 @@ class App {
           // },
           after: async (data) => {
             console.log("after");
+
             this.scroll.init();
             this.textAnimation.init();
-
 
             // const detailContainer = document.querySelector(".details-container");
 
@@ -469,28 +491,41 @@ class App {
             this.setPageType(pageType);
             // console.log(this.pageType)
 
+            // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+            // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+            // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+            // initObjが正常にうごいているか？
+            // 各ページにおけるJavaScriptファイルを読み込む
+            // → 関数化など
+
             return new Promise((resolve) => {
-              let activeMedia = null
+              // let activeMedia = null
 
               this.textAnimation.animateIn({ 
                 delay: 0.3,
 
+                // ⭐️ この部分の実装を把握、全体を把握
+                // onCompleteを渡せるようにする?検討
+
                 onComplete: () => {
+                  console.log("onComplete");
                   this.scrollBlocked = false;
-                  this.medias.forEach(media => {
-                    // console.log(media);
-                    if(!media) return;
-                    if(media.element !== this.activeLinkImage) {
-                      media.destroy();
-                      media = null;
-                    } else {
-                      activeMedia = media;
-                    }
 
-                    this.medias = [activeMedia];
+                  resolve();
+                  // this.medias.forEach(media => {
+                  //   // console.log(media);
+                  //   if(!media) return;
+                  //   if(media.element !== this.activeLinkImage) {
+                  //     media.destroy();
+                  //     media = null;
+                  //   } else {
+                  //     activeMedia = media;
+                  //   }
 
-                    resolve();
-                  })
+                  //   this.medias = [activeMedia];
+
+                  //   resolve();
+                  // })
                 }
               });
 
@@ -515,7 +550,7 @@ class App {
               //     resolve()
               //   },
               // })
-            })
+            });
           },
         },
       ],

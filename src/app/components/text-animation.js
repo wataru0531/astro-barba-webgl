@@ -100,6 +100,7 @@ export default class TextAnimation {
   }
 
   animateIn({ delay = 0 } = {}) {
+    // console.log(delay)
     // Split text animations
 
     this.splitAnimations.forEach(
