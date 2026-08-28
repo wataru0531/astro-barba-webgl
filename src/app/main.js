@@ -53,8 +53,7 @@ gsap.registerPlugin(
   // Flip, SplitText
 )
 
-
-// デバッグ
+// ✅ デバッグ
 // 1 → 開発はデバッグをON。本番ではOFF
 // 0 → 開発でも本番でもOFF
 window.debug = enableDebugMode(1);
@@ -64,8 +63,25 @@ function enableDebugMode(debug) {
   return debug && import.meta.env.DEV;
 }
 
+// ⭐️
+// ① アプリ全体で一度だけ初期化するもの
+// ・viewport
+// ・mouse
+// ・GUI
+// ・loader
+// ・world(Three.js)
+// ・Barba.js
+// 
+// ② Barbaで、ページ遷移するたびに初期化、破棄
+// ・textureCache → 毎度発火
+// ・Media
+// ・ScrollTrigger
+// ・TextAnimation
+// ・Scroll
+// ・ページ固有のJS
+
 class App {
-  // ✅ 初期化処理 → 保持しておきたいインスタンスなどはここ
+  // ✅ アプリ全体で一度だけ初期化するもの
   constructor() {
     if (typeof history !== "undefined" && "scrollRestoration" in history) {
       history.scrollRestoration = "manual"
@@ -73,6 +89,12 @@ class App {
 
     this.$ = {}; // DOM
     this.$.canvas = INode.getElement("#js-canvas");
+
+    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+    // constructor、各ページで使うJSの使い分け
+    
 
     // Mediaの初期化 → 画像部分のクリック処理も
     this.medias = [];
@@ -126,6 +148,7 @@ class App {
 
   // ✅　初期化処理
   async init() {
+    // console.log("init");
     if(window.debug) await gui.init();
 
     viewport.init(this.$.canvas);
@@ -134,8 +157,10 @@ class App {
     // console.log(window.textureCache);
 
 
-    await world.init(this.$.canvas, viewport, this.bgColor); // Thee.js環境構築
+
+    await world.init(this.$.canvas, viewport, this.bgColor); // Three.js環境構築
     await world._initObj(viewport); // Obクラス初期化
+
 
 
 
@@ -245,15 +270,15 @@ class App {
       transitions: [
         {
           name: "default-transition", // ⭐️ detail-home
-          from: {
-            custom: () => { 
-              const backBtn = document.getElementById("js-backBtn");
-              // console.log(backBtn);
-              if(!backBtn) return false;
+          // from: {
+          //   custom: () => { 
+          //     const backBtn = document.getElementById("js-backBtn");
+          //     // console.log(backBtn);
+          //     if(!backBtn) return false;
 
-              return true;
-            },
-          },
+          //     return true;
+          //   },
+          // },
           before: () => {
             console.log("before");
             this.scrollBlocked = true;
@@ -363,6 +388,7 @@ class App {
           name: "home-detail", // ⭐️
           from: {
             custom: () => { // trueならhome-detailが使われる
+              // console.log("custom");
               const activeLink = document.querySelector('a[data-home-link-active="true"]')
               // console.log(activeLink);
               if (!activeLink) return false
@@ -558,6 +584,29 @@ class App {
 
     mouse.makeVisible(); // 初期表示時にカスタムカーソルを非表示。300ms毎に判定。
                          //  → 全ての処理が終わったら発火させる
+  }
+
+  // ✅ 各ページのJSの初期化
+  async initPage() {
+    const pageType = this.getCurrentTemplate()
+    this.setPageType(pageType);
+
+    await world._initObj(viewport); // ページ固有のWebGL発火
+
+    // ✅ 各ページで使うJSの初期化
+    await import(`./pages/${this.pageType}.js`).then(({ default: init }) => {
+      return init({
+        world,
+        mouse,
+        menu,
+        loader,
+        viewport,
+        scroller: this.scroll,
+      });
+    });
+
+    registerScrollAnimations();
+
   }
 
   // ✅　headの中を更新
