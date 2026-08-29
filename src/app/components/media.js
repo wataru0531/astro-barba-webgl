@@ -50,6 +50,16 @@ export default class Media {
     link.setAttribute("data-home-link-active", "true");
   }
 
+  destroy() {
+    // this.scene.remove(this.mesh)
+    // this.scrollTrigger.scrollTrigger?.kill()
+    // this.scrollTrigger?.kill()
+    this.anchorElement?.removeEventListener("click", this.onClickHandler)
+    this.anchorElement?.removeAttribute("data-home-link-active")
+    // this.geometry.dispose()
+    // this.material.dispose()
+  }
+
   // createGeometry() {
   //   this.geometry = new THREE.PlaneGeometry(1, 1, 1, 1)
   // }
@@ -156,15 +166,6 @@ export default class Media {
   //   })
   // }
 
-  destroy() {
-    // this.scene.remove(this.mesh)
-    // this.scrollTrigger.scrollTrigger?.kill()
-    // this.scrollTrigger?.kill()
-    this.anchorElement?.removeEventListener("click", this.onClickHandler)
-    this.anchorElement?.removeAttribute("data-home-link-active")
-    // this.geometry.dispose()
-    // this.material.dispose()
-  }
 
   // onResize(sizes: Size) {
   //   this.sizes = sizes

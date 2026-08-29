@@ -6,6 +6,8 @@ import { INode } from "../helper/INode.js";
 import { initDistortionPass } from "../glsl/distortion-text/pass.js";
 import { utils } from "../helper/utils.js";
 
+import Media from "../components/media.js";
+
 let _world = null; 
 let _goTo = null;
 let _setProgress = null;
@@ -28,13 +30,24 @@ export default async function({
 
   // _world.addRaycastingTarget(fallbackElement);
 
+  // ✅ Mediaの初期化
+  const medias = [];
+  const images = INode.qsAll(".grid__item img");
+  // console.log(this.$.images);
+  images.forEach(image => {
+    // console.log(image)
+    const media = new Media(image);
+
+    medias.push(media);
+  });
+
   // ✅ Raycastingの対象を格納
   const planeEls = INode.qsAll(".panel__media");
   // console.log(planeEls);
   planeEls.forEach(planeEl => _world.addRaycastingTarget(planeEl));
 
   // ローディングアニメーションを追加 → meshに対してアニメーションをかけていくので、_worldの初期化後とする
-  loader.addLoadingAnimation((_tl) => loadAnimation(_tl));
+  // loader.addLoadingAnimation((_tl) => loadAnimation(_tl));
 
   // ✅ distortion-textの歪んだエフェクトをcomposerに追加
   // const { setProgress, removePass } = initDistortionPass(_world);
@@ -50,9 +63,9 @@ export default async function({
   // _goTo = goTo;
 
   // テキストシェーダーを手前側に移動する
-  const fvTextShader = _world.getObjByEl(".fv__text-shader");
+  // const fvTextShader = _world.getObjByEl(".fv__text-shader");
   // console.log(fvTextShader);
-  if(fvTextShader) fvTextShader.mesh.position.z = 200;
+  // if(fvTextShader) fvTextShader.mesh.position.z = 200;
 
   // mountSkillBtnHandler( // 反射スライダーのボタン機能
   //   ".skill__slider",
@@ -89,9 +102,9 @@ export default async function({
     // _world.addRaycastingTarget(".vision__raymarching");
   }
 
-  const fresnel = _world.getObjByEl(".fresnel"); // 背景のアニメーション
+  // const fresnel = _world.getObjByEl(".fresnel"); // 背景のアニメーション
   // console.log(fresnel);
-  if(fresnel) fresnel.mesh.position.z = - 1000;
+  // if(fresnel) fresnel.mesh.position.z = - 1000;
 
 }
 

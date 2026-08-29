@@ -29,7 +29,7 @@ const ACTIONS = {
 // PCかスマホかでscrollTriggerのスタート位置を定義
 let startTrigger = null;
 
-// ✅ スクロールアニメションの実行
+// ✅ スクロールアニメションの実行 → ⭐️ TODO 解除も作る
 function registerScrollAnimations() {
   gsap.registerPlugin(ScrollTrigger);
 

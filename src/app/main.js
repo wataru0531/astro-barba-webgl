@@ -29,14 +29,23 @@ import Media from "./components/media"
 //@ts-ignore
 import barba from "@barba/core"
 
+import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
-import { ScrollSmoother } from "gsap/ScrollSmoother"
+import { ScrollSmoother } from "gsap/ScrollSmoother";
+import { SplitText } from "gsap/SplitText";
+
+gsap.registerPlugin(
+  ScrollTrigger, 
+  ScrollSmoother, 
+  SplitText
+  // Flip, 
+)
 
 //@ts-ignore
 // import { Flip } from "gsap/Flip"
-import gsap from "gsap"
+
 // import Media from "./components/media"
-import { SplitText } from "gsap/SplitText"
+
 import TextAnimation from "./components/text-animation";
 import FontFaceObserver from "fontfaceobserver";
 
@@ -47,11 +56,6 @@ import world from "./glsl/world"
 import { menu } from "./components/menu"
 import { registerScrollAnimations } from "./components/scroll-animation"
 
-gsap.registerPlugin(
-  ScrollTrigger, 
-  ScrollSmoother, 
-  // Flip, SplitText
-)
 
 // ✅ デバッグ
 // 1 → 開発はデバッグをON。本番ではOFF
@@ -66,7 +70,7 @@ function enableDebugMode(debug) {
 // ⭐️
 // ① アプリ全体で一度だけ初期化するもの
 // ・viewport
-// ・mouse
+// ・mouse ⭕️
 // ・GUI
 // ・loader
 // ・world(Three.js)
@@ -74,10 +78,9 @@ function enableDebugMode(debug) {
 // 
 // ② Barbaで、ページ遷移するたびに初期化、破棄
 // ・textureCache → 毎度発火
-// ・Media
-// ・ScrollTrigger
+// ・Media ⭕️
 // ・TextAnimation
-// ・Scroll
+// ・Scroll → pauseで停止、initで開始 ⭕️
 // ・ページ固有のJS
 
 class App {
@@ -87,30 +90,8 @@ class App {
       history.scrollRestoration = "manual"
     }
 
-    this.$ = {}; // DOM
+    this.$ = {};
     this.$.canvas = INode.getElement("#js-canvas");
-
-    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-    // constructor、各ページで使うJSの使い分け
-    
-
-    // Mediaの初期化 → 画像部分のクリック処理も
-    this.medias = [];
-    this.$.images = INode.qsAll(".grid__item img");
-    // console.log(this.$.images);
-    this.$.images.forEach(image => {
-      // console.log(image)
-      const media = new Media(image);
-
-      this.medias.push(media);
-    });
-    // console.log(this.medias);
-
-    // this.medias?.forEach(image => { // ScrollTriggerの監視下に置く
-    //   image?.observe();
-    // })
 
     this.activeLinkImage = null;
 
@@ -134,7 +115,13 @@ class App {
     this.pageType = this.getCurrentTemplate(); // ページのタイプ
     // console.log(this.pageType);
 
-    this.scroll = new Scroll()
+    this.scroll = new Scroll();
+
+    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+    // → テキストアニメーションを統一する。
+    // → scroll-animation.js、text-animations.jsの確認から
     this.textAnimation = null;
   
     this.scrollTop = 0;
@@ -517,13 +504,6 @@ class App {
             this.setPageType(pageType);
             // console.log(this.pageType)
 
-            // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-            // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-            // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-            // initObjが正常にうごいているか？
-            // 各ページにおけるJavaScriptファイルを読み込む
-            // → 関数化など
-
             return new Promise((resolve) => {
               // let activeMedia = null
 
@@ -564,7 +544,7 @@ class App {
               //     this.canvas.medias?.forEach((media) => {
               //       if (!media) return
               //       if (media.element !== activeLinkImage) {
-              //         media.destroy()
+              //         media.destroy() // ⭐️
               //         media = null
               //       } else {
               //         activeMedia = media
@@ -605,8 +585,7 @@ class App {
       });
     });
 
-    registerScrollAnimations();
-
+    registerScrollAnimations(); // スクロールアニメーションの登録。ScrollTrigger初期化
   }
 
   // ✅　headの中を更新

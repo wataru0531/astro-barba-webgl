@@ -7,27 +7,8 @@
 import gsap from "gsap"
 import { SplitText } from "gsap/SplitText"
 
-// interface BaseAnimationProps {
-//   element: HTMLElement
-//   inDuration: number
-//   outDuration: number
-//   inDelay: number
-// }
-
-// interface SplitAnimationProps extends BaseAnimationProps {
-//   split: globalThis.SplitText
-//   inStagger?: number
-//   outStagger?: number
-// }
 
 export default class TextAnimation {
-  // elements: HTMLElement[]
-  // splitAnimations: SplitAnimationProps[] = []
-  // fadeAnimations: BaseAnimationProps[] = []
-  // splitTweens: gsap.core.Tween[] = []
-  // fadeTweens: gsap.core.Tween[] = []
-  // ready: boolean = false
-
   constructor() {
     this.splitTweens = [];
     this.fadeTweens = [];
@@ -39,6 +20,7 @@ export default class TextAnimation {
     this.ready = true;
   }
 
+  // ✅ スプリットかフェードかに分ける処理
   init() {
     this.elements = [...document.querySelectorAll("[data-text-animation]")];
 
@@ -55,7 +37,7 @@ export default class TextAnimation {
         el.getAttribute("data-text-animation-in-delay") || "0",
       )
 
-      // Check if this should be a split text animation
+      // 分割
       if (el.hasAttribute("data-text-animation-split")) {
         const split = SplitText.create(el, {
           type: "lines",
@@ -70,11 +52,11 @@ export default class TextAnimation {
           el.getAttribute("data-text-animation-out-stagger") || "0.06",
         )
 
-        split.lines.forEach((line) => {
+        split.lines.forEach((line) => { // 下に下げる
           gsap.set(line, { yPercent: 100 })
         })
 
-        gsap.set(el, { autoAlpha: 1, visibility: "visible" })
+        gsap.set(el, { autoAlpha: 1, visibility: "visible" }) // 見えるようにしておく
 
         this.splitAnimations.push({
           element: el,
@@ -86,7 +68,7 @@ export default class TextAnimation {
           inDelay,
         })
       } else {
-        // Default fade animation
+        // スプリットではないアニメーション → フェードアニメーション
         gsap.set(el, { autoAlpha: 0, visibility: "hidden" })
 
         this.fadeAnimations.push({

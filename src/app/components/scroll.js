@@ -1,8 +1,11 @@
 
 // scroll.ts
 
-import { ScrollSmoother } from "gsap/ScrollSmoother"
-import { ScrollTrigger } from "gsap/ScrollTrigger"
+// import gsap from "gsap";
+import { ScrollSmoother } from "gsap/ScrollSmoother";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+// gsap.registerPlugin(ScrollSmoother)
 
 export default class Scroll {
   // scroll: number
@@ -16,7 +19,8 @@ export default class Scroll {
   init() {
     this.scroll = 0
 
-    // Initialize smoother with explicit content to ensure proper sync
+    // ScrollSmoother初期化
+    // pause(true) で停止
     this.s = ScrollSmoother.create({
       smooth: 1,
       normalizeScroll: true,
