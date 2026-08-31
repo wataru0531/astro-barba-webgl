@@ -3,6 +3,7 @@
 
 // ✅ TODO
 // DOMは$で。
+// Not equalのスクロールアニメーションもここで統一させる
 
 import gsap from "gsap"
 import { SplitText } from "gsap/SplitText"
@@ -85,6 +86,9 @@ export default class TextAnimation {
     // console.log(delay)
     // Split text animations
 
+    // console.log(this.splitAnimations);
+    // console.log(this.fadeAnimations);
+
     this.splitAnimations.forEach(
       ({ element, split, inDuration, inStagger, inDelay }) => {
         const tweenWithScroll = gsap.to(split.lines, {
@@ -122,6 +126,7 @@ export default class TextAnimation {
 
       this.fadeTweens.push(fadeTween);
     });
+
     return gsap.timeline()
   }
 
@@ -169,6 +174,7 @@ export default class TextAnimation {
     this.animateIn()
   }
 
+  // ✅ クリーンアップ処理
   destroy() {
     this.splitTweens.forEach((tween) => {
       tween.scrollTrigger?.kill()
@@ -181,10 +187,13 @@ export default class TextAnimation {
     })
 
     this.splitAnimations.forEach(({ split }) => {
-      split.revert()
-    })
+      split.revert(); // SplitTextが加工する前の状態(元のDOM構造)に戻す
+    });
 
-    this.splitTweens = []
-    this.fadeTweens = []
+    this.splitTweens = [];
+    this.fadeTweens = [];
+
+    this.splitAnimations = [];
+    this.fadeAnimations = [];
   }
 }

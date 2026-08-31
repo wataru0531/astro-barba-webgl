@@ -5,7 +5,7 @@
 // ページ遷移後のWebGLの初期化
 // → ・これまでのmeshを消す
 //   ・遷移後のページのmeshのみを入れる
-// 
+// テキストアニメーションの統一。Not Equalのアニメーションも
 
 
 // 画像関係の初期化
@@ -117,11 +117,6 @@ class App {
 
     this.scroll = new Scroll();
 
-    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-    // → テキストアニメーションを統一する。
-    // → scroll-animation.js、text-animations.jsの確認から
     this.textAnimation = null;
   
     this.scrollTop = 0;
@@ -270,6 +265,14 @@ class App {
             console.log("before");
             this.scrollBlocked = true;
             this.scroll.s?.paused(true);
+
+            const tl = this.textAnimation.animateOut();
+
+            return new Promise(resolve => {
+              tl.call(() => {
+                resolve();
+              });
+            })
           },
           leave: () => {
             console.log("leave");
@@ -284,28 +287,30 @@ class App {
             //   })
             // })
 
-            return new Promise((resolve) => {
-              const tl = this.textAnimation.animateOut()
+            this.textAnimation.destroy();
 
-              // this.canvas.medias?.forEach((media) => {
-              //   if (!media) return
-              //   tl.fromTo(
-              //     media.material.uniforms.uProgress,
-              //     { value: 1 },
-              //     {
-              //       duration: 1,
-              //       ease: "linear",
-              //       value: 0,
-              //     },
-              //     0,
-              //   )
-              // })
+            // return new Promise((resolve) => {
+            //   const tl = this.textAnimation.animateOut()
 
-              tl.call(() => {
-                this.textAnimation.destroy()
-                resolve()
-              })
-            });
+            //   // this.canvas.medias?.forEach((media) => {
+            //   //   if (!media) return
+            //   //   tl.fromTo(
+            //   //     media.material.uniforms.uProgress,
+            //   //     { value: 1 },
+            //   //     {
+            //   //       duration: 1,
+            //   //       ease: "linear",
+            //   //       value: 0,
+            //   //     },
+            //   //     0,
+            //   //   )
+            //   // })
+
+            //   tl.call(() => {
+            //     this.textAnimation.destroy()
+            //     resolve()
+            //   })
+            // });
 
             // 
           },
@@ -335,8 +340,6 @@ class App {
 
             this.updateHead(data.next.html); // headタグ内を更新
 
-            this.scrollBlocked = false
-
             this.scroll.reset()
             this.scroll.destroy()
           },
@@ -356,17 +359,20 @@ class App {
             //   this.textAnimation.animateIn({ delay: 0.3 })
             // });
 
-            return new Promise((resolve) => {
-              // let activeMedia = null
+            this.textAnimation.animateIn({ delay: .3 });
+            this.scrollBlocked = false
 
-              this.textAnimation.animateIn({ 
-                delay: 0.3,
+            // return new Promise((resolve) => {
+            //   // let activeMedia = null
 
-                onComplete: () => {
-                  resolve();
-                }
-              });
-            });
+            //   this.textAnimation.animateIn({ 
+            //     delay: 0.3,
+
+            //     onComplete: () => {
+            //       resolve();
+            //     }
+            //   });
+            // });
             
           },
         },
@@ -504,59 +510,58 @@ class App {
             this.setPageType(pageType);
             // console.log(this.pageType)
 
-            return new Promise((resolve) => {
-              // let activeMedia = null
+            this.textAnimation.animateIn({ delay: .3 });
+            this.scrollBlocked = false;
 
-              this.textAnimation.animateIn({ 
-                delay: 0.3,
+            // return new Promise((resolve) => {
+            //   // let activeMedia = null
 
-                // ⭐️ この部分の実装を把握、全体を把握
-                // onCompleteを渡せるようにする?検討
+            //   // this.textAnimation.animateIn({ 
+            //   //   delay: 0.3,
+            //   //   onComplete: () => {
+            //   //     console.log("onComplete");
+            //   //     this.scrollBlocked = false;
 
-                onComplete: () => {
-                  console.log("onComplete");
-                  this.scrollBlocked = false;
+            //   //     resolve();
+            //   //     // this.medias.forEach(media => {
+            //   //     //   // console.log(media);
+            //   //     //   if(!media) return;
+            //   //     //   if(media.element !== this.activeLinkImage) {
+            //   //     //     media.destroy();
+            //   //     //     media = null;
+            //   //     //   } else {
+            //   //     //     activeMedia = media;
+            //   //     //   }
 
-                  resolve();
-                  // this.medias.forEach(media => {
-                  //   // console.log(media);
-                  //   if(!media) return;
-                  //   if(media.element !== this.activeLinkImage) {
-                  //     media.destroy();
-                  //     media = null;
-                  //   } else {
-                  //     activeMedia = media;
-                  //   }
+            //   //     //   this.medias = [activeMedia];
 
-                  //   this.medias = [activeMedia];
+            //   //     //   resolve();
+            //   //     // })
+            //   //   }
+            //   // });
 
-                  //   resolve();
-                  // })
-                }
-              });
+            //   // Flip.from(this.mediaHomeState, {
+            //   //   absolute: true,
+            //   //   duration: 1,
+            //   //   ease: "power3.inOut",
+            //   //   onComplete: () => {
+            //   //     this.scrollBlocked = false
+            //   //     this.canvas.medias?.forEach((media) => {
+            //   //       if (!media) return
+            //   //       if (media.element !== activeLinkImage) {
+            //   //         media.destroy() // ⭐️
+            //   //         media = null
+            //   //       } else {
+            //   //         activeMedia = media
+            //   //       }
+            //   //     })
 
-              // Flip.from(this.mediaHomeState, {
-              //   absolute: true,
-              //   duration: 1,
-              //   ease: "power3.inOut",
-              //   onComplete: () => {
-              //     this.scrollBlocked = false
-              //     this.canvas.medias?.forEach((media) => {
-              //       if (!media) return
-              //       if (media.element !== activeLinkImage) {
-              //         media.destroy() // ⭐️
-              //         media = null
-              //       } else {
-              //         activeMedia = media
-              //       }
-              //     })
+            //   //     this.canvas.medias = [activeMedia]
 
-              //     this.canvas.medias = [activeMedia]
-
-              //     resolve()
-              //   },
-              // })
-            });
+            //   //     resolve()
+            //   //   },
+            //   // })
+            // });
           },
         },
       ],

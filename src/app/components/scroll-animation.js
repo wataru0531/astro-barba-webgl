@@ -1,5 +1,8 @@
 // スクロールと合わせて変更していく
 
+// ✅ TODO
+// このスクロールアニメーションは、text-animation.jsに合わせて統合する
+
 import gsap from "gsap";
 import { INode, viewport } from "../helper";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
