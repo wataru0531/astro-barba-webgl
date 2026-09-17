@@ -1,25 +1,22 @@
 
 // main.ts
 
-// ⭐️ TODO 
-// ページ遷移後のWebGLの初期化
-// → ・これまでのmeshを消す
-//   ・遷移後のページのmeshのみを入れる
-// テキストアニメーションの統一。Not Equalのアニメーションも
+// ✅ デザイン
+// 全体的なデザイン
+// ページ遷移アニメーション
 
 
-// 画像関係の初期化
-// テクスチャ、画像などすべてを読み込まないと画像をクリックできないようにする
+// ✅ コード関係
 // ⭕️ headタグの更新
-// デザインを固める + コードの確認
-// ページ遷移時にWebGLの初期化を行わないと、表示されない
+// テキストアニメーションのコードの統一。Not Equalのアニメーションも
 // astro.config.jsの編集。本番環境の設定など
-// ローディング画面
-// 各コンポーネントの初期化順
-// 各コンポーネントのクラス化
+// テクスチャ、画像などすべてを読み込まないと画像をクリックできないようにする
+
 // メニューの実装
-// ScrollTriggerの統一(コンポーネントごとに初期化されている可能性あり)
-// leave時に、getScrollすると後続の処理が止まる問題
+// ローディング画面
+
+// 各コンポーネントの初期化順の修正
+// 各コンポーネントのクラス化
 
 
 // import Canvas from "./components/canvas"
@@ -203,7 +200,7 @@ class App {
       ScrollTrigger.refresh(); // DOMのサイズや位置が変わった後に呼ぶ
                                // → initでテキストを分割させるのでinitの次で発火させる  
 
-      this.textAnimation.animateIn()
+      this.textAnimation.animateIn();
     });
 
 
@@ -439,7 +436,7 @@ class App {
 
             return new Promise((resolve) => {
               tl.call(() => {
-                resolve()
+                resolve();
               })
             })
           },

@@ -48,6 +48,7 @@ const world = {
 
 let stats = null;
 
+
 // ✅ 初期化
 async function init(_canvas, _viewport, _background = "none") {
   world.renderer = new WebGLRenderer({
@@ -56,9 +57,11 @@ async function init(_canvas, _viewport, _background = "none") {
     debug: window.debug, // 本番環境では停止。bootstrap.jsのdebugと同期さsる
     // エフェクトで個別に設定する場合 → setupMaterial、glslファイル内で
     precision: utils.isTouchDevices ? "highp" : "mediump", // 全体の設定(個別ならglslファイルかindex.jsのShadermaterialに記述)
+  
   });
   world.renderer.setSize(_viewport.width, _viewport.height, false); // バッファに格納するサイズ(領域)を決定 false...styleタグをタグを挿入するかどうか
   world.renderer.setPixelRatio(_viewport.devicePixelRatio); // ピクセル密度を設定
+  world.renderer.setAnimationLoop(null); // ⭐️rendererのループは解除(自分でrafで回しているため)
   world.renderer.setClearColor(0x000000, 0);
   world.scene = new Scene(); // シーン
   world.scene.background =

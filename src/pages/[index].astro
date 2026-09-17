@@ -45,17 +45,29 @@ const { media } = Astro.props;
       class="details-data"
     >
       <a href="/" class="c-backBtn" id="js-backBtn">← Index</a>
-      <p>{media.data}</p>
-      <p>{media.location}</p>
-      <p>{media.name}</p>
+      <p>{ media.data }</p>
+      <p>{ media.location }</p>
+      <p>{ media.name }</p>
     </div>
     <div class="details-container">
-      <img
-        data-detail-media
-        loading="eager"
-        src={media.url}
-        alt={`Image ${media.index}`}
-      />
+      <h1
+        class="details_title"
+        data-text-animation-in-duration="0.5"
+        data-text-animation-out-duration="0.4"
+        data-text-animation-in-delay="0.4"
+        data-text-animation
+        data-text-animation-split
+      >
+        { media.name }
+      </h1>
+      <div class="media-block">
+        <img
+          data-detail-media
+          loading="eager"
+          src={media.url}
+          alt={`Image ${media.index}`}
+        />
+      </div>
     </div>
   </div>
 </Layout>

@@ -262,8 +262,7 @@ class Ob {
     mesh.position.y = y;
   }
 
-  render(tick) {
-    // 個別にレンダーしたい場合もあるので追加
+  render(tick) { // world.render()で発火させる
     this.uniforms.uTick.value = tick;
   }
 

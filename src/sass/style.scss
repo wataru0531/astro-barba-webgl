@@ -283,6 +283,17 @@ h1 {
   // opacity: 0;
 }
 
+
+
+
+
+/*******************************************************
+
+// detailsページ
+
+********************************************************/
+// @use './global/' as *;
+
 .details {
   max-width: 100%;
   padding: var(--page-padding);
@@ -316,6 +327,14 @@ h1 {
 [data-text-animation],
 [data-icon] {
   visibility: hidden;
+}
+
+.details_title {
+  margin-top: rem(20);
+}
+
+.media-block {
+  margin-top: rem(20);
 }
 
 .related {
