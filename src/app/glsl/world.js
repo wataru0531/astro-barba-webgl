@@ -43,6 +43,12 @@ const world = {
   raycastingMeshes: [], // raicasting対象のmesh
   addRaycastingTarget,
 
+  scrollTarget: 0,
+  scrollCurrent: 0,
+  scrollVelocity: 0, // スクロールの速度、強さ
+  scrollEase: 0.075,
+  updateScroll,
+
   _initObj,
 };
 
@@ -132,6 +138,21 @@ async function _initObj(_viewport, _container = document) {
   // console.log(afterPrms); // (2) [Promise, Promise]
 
   await Promise.all(afterPrms);
+}
+
+// ✅ 現在のスクロール状態を監視
+function updateScroll() {
+  world.scrollTarget = window.scrollY;
+
+  world.scrollCurrent = utils.lerp(
+    world.scrollCurrent,
+    world.scrollTarget,
+    world.scrollEase, // 0.075
+  );
+  // console.log(world.scrollCurrent);
+
+  world.scrollVelocity = world.scrollTarget - world.scrollCurrent;
+  // console.log(world.scrollVelocity);
 }
 
 // ✅ iOSデバイス(iPhone、iPad)の時だけ画面をレンダリングする
@@ -270,12 +291,15 @@ function render() {
 
   world.tick++;
 
+  updateScroll(); // ページ全体のスクロール状態を監視
+
   for(let i = world.os.length - 1; i >= 0; i--) {
     // 逆ループ
     const o = world.os[i];
     // console.log(o)
 
     o.scroll(); // スクロール処理...位置関係を取得
+    o.setScrollVelocity(world.scrollVelocity); // スクロールの速度を受け取る
     o.render(world.tick);
   }
 

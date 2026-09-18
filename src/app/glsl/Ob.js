@@ -32,6 +32,7 @@ class Ob {
     this.resizing = false;
     this.rect = this.originalRect = INode.getRect(el);
     // console.log(this.rect); // DOMRect {x: 0, y: 299.484375, width: 637, height: 400, top: 299.484375, …}
+    this.scrollVelocity = 0; // スクロールの速度
 
     if (!this.rect.width || !this.rect.height) {
       // 幅・高さがない場合はエラーログ
@@ -131,7 +132,6 @@ class Ob {
 
   // vertexとfragmentは子クラスで必ずオーバーライド。
   // もし継承しなかった場合はエラーを発生させる
-  // vertexShader
   setupVertex() {
     throw new Error("このメソッドはオーバーライドして使用してください。");
   }
@@ -261,6 +261,11 @@ class Ob {
     // mesh.position.x = x;
     mesh.position.y = y;
   }
+
+  setScrollVelocity(_scrollVelocity) {
+    this.scrollVelocity = _scrollVelocity;
+  }
+  
 
   render(tick) { // world.render()で発火させる
     this.uniforms.uTick.value = tick;

@@ -41,6 +41,7 @@ export default class extends Ob{
   }
 
   setupMesh() { return new Points(this.geometry, this.material); }
+  
   setupVertex(){ return vertexShader; }
   setupFragment(){ return fragmentShader; }
 
