@@ -15,7 +15,7 @@ uniform sampler2D tex1;
 // #pragma glslify: coverUv = require("../shader-util/coverUv");
 
 uniform float uAlpha;
-uniform vec2 uOffset;
+uniform vec2 uRgbOffset;
 
 
 // CSSのobject-fitのcoverのような関数
@@ -33,19 +33,38 @@ vec2 coverUv(vec2 uv, vec4 resolution){
   return (uv - .5) * resolution.zw + .5;
 }
 
-vec3 rgbShift(
-  sampler2D textureImage,
-  vec2 uv,
-  vec2 offset
-) {
-  vec2 shift = offset * 1.2;
+vec3 rgbShift(sampler2D textureImage, vec2 uv, vec2 offset) {
+  // uvのx → 変化なし
+  // uvのy → 変化あり
 
-  float r = texture(textureImage, uv + shift).r;
-  float g = texture(textureImage, uv + shift * 0.25).g;
-  float b = texture(textureImage, uv - shift).b;
+  // 白い部分 → 下にスクロールした場合は、黒い部分の値を引くことになる。
+  //           そのrを取得して付与
+  // → 青くなるのは白い部分の(1, 1, 1, 1)から、offsetの値を少し引くので青く見える(下スクロール時)
+  // float r = texture(textureImage, uv + offset).r;
 
+  // vec2 gb = texture(textureImage, uv).gb; // 通常のgbの値をとる
+
+  float r = texture(textureImage, uv + offset).r;
+  float g = texture(textureImage, uv).g;
+  float b = texture(textureImage, uv).b;
+
+  // return vec3(r, gb);
   return vec3(r, g, b);
 }
+
+// vec3 rgbShift(
+//   sampler2D textureImage,
+//   vec2 uv,
+//   vec2 offset
+// ) {
+//   vec2 shift = offset * 1.2;
+
+//   float r = texture(textureImage, uv + shift).r;
+//   float g = texture(textureImage, uv + shift * 0.25).g;
+//   float b = texture(textureImage, uv - shift).b;
+
+//   return vec3(r, g, b);
+// }
 
 
 void main(){
@@ -63,7 +82,7 @@ void main(){
   // gl_FragColor = tex2;
 
   vec2 uv = coverUv(vUv, uResolution);
-  vec3 color = rgbShift(tex1, uv, uOffset);
+  vec3 color = rgbShift(tex1, uv, uRgbOffset);
 
   gl_FragColor = vec4(color, uAlpha);
   // gl_FragColor = vec4(.5, 1., 1., 1.); // 紫

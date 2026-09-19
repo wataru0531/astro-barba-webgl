@@ -7,6 +7,7 @@ import { Ob } from "../Ob";
 
 import {
   DoubleSide,
+  PlaneGeometry,
   Vector2,
 
 } from "three";
@@ -14,7 +15,7 @@ import {
 //
 import vertexShader   from "./vertex.glsl";
 import fragmentShader from "./fragment.glsl";
-import world from "../world";
+import { utils } from "../../helper";
 
 
 
@@ -27,11 +28,16 @@ export default class extends Ob{
   setupUniforms() {
     const uniforms = super.setupUniforms();
 
-    uniforms.uOffset = { value: new Vector2(.0, .0) };
+    uniforms.uRgbOffset = { value: new Vector2(0.0, 0.0) };
+    uniforms.uDistortionOffset = { value: new Vector2(0.0, 0.0) };
     uniforms.uScale = { value: 0.0 };
     uniforms.uAlpha = { value: 1.0 };
 
     return uniforms;
+  }
+
+  setupGeometry() {
+    return new PlaneGeometry(this.rect.width, this.rect.height, 100, 100);
   }
 
   setupMaterial() {
@@ -53,8 +59,23 @@ export default class extends Ob{
     super.render(tick);
     // console.log(tick);
     
-    const velocity = this.scrollVelocity;
-    console.log(velocity);
+    const speed = Math.abs(this.scrollVelocity);
+    const targetScale = Math.min(speed * 0.001, 0.01);
+
+    // Distortion 歪み
+    // console.log(this.scrollVelocity * 0.0005);
+    // this.uniforms.uOffset.value.set(0, 50);
+    this.uniforms.uDistortionOffset.value.set(0, -this.scrollVelocity * 0.05);
+    
+    // RGB
+    this.uniforms.uRgbOffset.value.set(0, -this.scrollVelocity * 0.0005);
+
+    // 縮小
+    this.uniforms.uScale.value = utils.lerp(
+      this.uniforms.uScale.value,
+      targetScale,
+      0.08
+    );
 
   }
 }
