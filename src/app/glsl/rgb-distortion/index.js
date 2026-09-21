@@ -3,6 +3,7 @@
 テンプレ
 
 ***************************************************************/
+import gsap from "gsap"
 import { Ob } from "../Ob";
 
 import {
@@ -32,6 +33,7 @@ export default class extends Ob{
     uniforms.uDistortionOffset = { value: new Vector2(0.0, 0.0) };
     uniforms.uScale = { value: 0.0 };
     uniforms.uAlpha = { value: 1.0 };
+    uniforms.uProgress = { value: 0 };
 
     return uniforms;
   }
@@ -76,6 +78,21 @@ export default class extends Ob{
       targetScale,
       0.08
     );
+  }
+
+  debug(_folder){
+    _folder.add(this.uniforms.uProgress, "value", 0, 1, 0.1).name('progress').listen();
+    
+    const datData = { next: !!this.uniforms.uProgress.value }
+    // console.log(datData); // {next: false}
+    
+    _folder.add(datData, "next").onChange(() => {
+      gsap.to(this.uniforms.uProgress, {
+        value: +datData.next,
+        duration: 1.5,
+        ease: "power3.inOut"
+      })
+    })
 
   }
 }

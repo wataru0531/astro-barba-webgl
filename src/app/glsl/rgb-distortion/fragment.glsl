@@ -10,7 +10,7 @@ uniform vec2 uMouse;
 uniform vec4 uResolution;
 uniform float uHover;
 uniform sampler2D tex1;
-// uniform sampler2D tex2;
+uniform float uProgress;
 
 // #pragma glslify: coverUv = require("../shader-util/coverUv");
 
@@ -52,19 +52,6 @@ vec3 rgbShift(sampler2D textureImage, vec2 uv, vec2 offset) {
   return vec3(r, g, b);
 }
 
-// vec3 rgbShift(
-//   sampler2D textureImage,
-//   vec2 uv,
-//   vec2 offset
-// ) {
-//   vec2 shift = offset * 1.2;
-
-//   float r = texture(textureImage, uv + shift).r;
-//   float g = texture(textureImage, uv + shift * 0.25).g;
-//   float b = texture(textureImage, uv - shift).b;
-
-//   return vec3(r, g, b);
-// }
 
 
 void main(){
@@ -80,6 +67,9 @@ void main(){
   // vec4 color = mix(tex1, tex2, step(.5, uv.x));
 
   // gl_FragColor = tex2;
+
+  // 上から順番に消す
+  if(vUv.y > 1.0 - uProgress) discard;
 
   vec2 uv = coverUv(vUv, uResolution);
   vec3 color = rgbShift(tex1, uv, uRgbOffset);

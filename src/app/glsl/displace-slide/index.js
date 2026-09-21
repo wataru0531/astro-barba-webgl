@@ -54,7 +54,7 @@ export default class extends Ob{
   }
 
   debug(_folder){
-    _folder.add(this.uniforms.uProgress, "value", 0, 1, 0.1).name('progess').listen();
+    _folder.add(this.uniforms.uProgress, "value", 0, 1, 0.1).name('progress').listen();
     
     const datData = { next: !!this.uniforms.uProgress.value }
     
