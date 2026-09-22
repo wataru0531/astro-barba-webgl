@@ -19,7 +19,6 @@ import fragmentShader from "./fragment.glsl";
 import { utils } from "../../helper";
 
 
-
 // Obクラスを継承したクラスを作成。クラス名はつけなくてもいい
 export default class extends Ob{
 
@@ -33,7 +32,7 @@ export default class extends Ob{
     uniforms.uDistortionOffset = { value: new Vector2(0.0, 0.0) };
     uniforms.uScale = { value: 0.0 };
     uniforms.uAlpha = { value: 1.0 };
-    uniforms.uProgress = { value: 0 };
+    uniforms.uProgress = { value: 1 };
 
     return uniforms;
   }

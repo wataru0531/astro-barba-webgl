@@ -1,6 +1,8 @@
 
 // トップページの実装
 
+import gsap from "gsap";
+
 import { INode } from "../helper/INode.js";
 // import { mountNavBtnHandler, mountScrollHandler, mountSkillBtnHandler } from "../component/slide-hangler";
 import { initDistortionPass } from "../glsl/distortion-text/pass.js";
@@ -40,6 +42,7 @@ export default async function({
 
     medias.push(media);
   });
+
 
   // ✅ Raycastingの対象を格納
   const planeEls = INode.qsAll(".panel__media");
@@ -105,6 +108,25 @@ export default async function({
   // const fresnel = _world.getObjByEl(".fresnel"); // 背景のアニメーション
   // console.log(fresnel);
   // if(fresnel) fresnel.mesh.position.z = - 1000;
+
+  // ✅ distortionのエフェクトのでクリック時にuProgressを0にする
+  const rgbDistortions = INode.qsAll(".rbg-split-image");
+  // console.log(rgbDistortions);
+  rgbDistortions.forEach(rgb => {
+    console.log(rgb)
+    rgb.addEventListener("click", () => {
+      const o = _world.getObjByEl(rgb);
+      // console.log(o);
+    
+      gsap.to(o.uniforms.uProgress, {
+        value: 0,
+        duration: 1.5,
+        ease: "power3.inOUt",
+      });
+    })
+    
+  })
+
 
 }
 

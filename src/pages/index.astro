@@ -32,22 +32,29 @@ import medias from '../data.json';
       data-webgl="plane"
     ></div> -->
 
-    <!-- <img
-      class="panel__media"
-      data-webgl="plane-sphere"
-      data-tex-1="/img/graphic/panel_6.jpg"
-      data-mouse="highlight"
-      data-scroll-trigger="progress"
-    /> -->
+
+
+    <!-- <div style="height: 100svh; background-color='red'"></div> -->
+
+    <!-- data-scroll-trigger="progress" -->
 
     <!--✅ image RGB Split / Distortion On Scroll -->
     <div class="rgb-split-container">
-      <img
+      <a href="/1">
+        <img
+          class="rbg-split-image"
+          data-webgl="rgb-distortion"
+          data-tex-1={medias[0].url}
+          alt=""
+        >
+      </a>
+      <!-- <img
         class="rbg-split-image"
         data-webgl="rgb-distortion"
         data-tex-1="/img/kaneki.avif"
         alt=""
-      >
+      > -->
+      
     </div>
 
 

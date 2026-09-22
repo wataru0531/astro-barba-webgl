@@ -55,6 +55,36 @@ function registerScrollAnimations() {
   });
 }
 
+// ✅ progress
+function progress(_el) {
+  // console.log(_el);
+
+  ScrollTrigger.create({
+    trigger: _el,
+    start: startTrigger, // _elのtop, ブラウザ上から80%
+    onEnter: () => {
+      const o = world.getObjByEl(_el);
+      // console.log(o); // default {$: {…}, texes: Map(1), rect: DOMRect, defines: {…}, uniforms: {…}, …}
+      if(!o) return;
+
+      gsap.to(o.uniforms.uProgress, {
+        value: 1,
+        duration: 1,
+        ease: "power3.inOut",
+      });
+    },
+    onLeaveBack: () => { // 一度入って、戻る
+      const o = world.getObjByEl(_el);
+      if(!o) return;
+      gsap.to(o.uniforms.uProgress, {
+        value: 0,
+        duration: 1,
+        ease: "power3.inOut",
+      });
+    },
+  });
+}
+
 // rippleの制御
 // → 反射スライダーではrippleのポストプロセスを切る
 async function ripple(_el) {
@@ -207,33 +237,7 @@ function progressParticles(_el) {
   });
 }
 
-// ✅ progress
-function progress(_el) {
-  // console.log(_el);
 
-  ScrollTrigger.create({
-    trigger: _el,
-    start: startTrigger, // _elのtop, ブラウザ上から80%
-    onEnter: () => {
-      const o = world.getObjByEl(_el);
-      // console.log(o); // default {$: {…}, texes: Map(1), rect: DOMRect, defines: {…}, uniforms: {…}, …}
-
-      if(!o) return;
-      gsap.to(o.uniforms.uProgress, {
-        value: 1,
-        duration: 1,
-      });
-    },
-    onLeaveBack: () => { // 一度入って、戻る
-      const o = world.getObjByEl(_el);
-      if(!o) return;
-      gsap.to(o.uniforms.uProgress, {
-        value: 0,
-        duration: 1,
-      });
-    },
-  });
-}
 
 // ✅ fadeのアニメーション
 // CSSに定義 _commonに定義

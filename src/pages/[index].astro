@@ -4,6 +4,7 @@ import medias from '../data.json';
 
 export const getStaticPaths = async () => {
   return medias.map((media) => {
+    // console.log(media)
     return {
       params: { index: media.index.toString() },
       props: {

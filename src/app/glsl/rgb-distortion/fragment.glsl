@@ -53,7 +53,6 @@ vec3 rgbShift(sampler2D textureImage, vec2 uv, vec2 offset) {
 }
 
 
-
 void main(){
   // uMouseにはホバーした部分の値が渡る
   // 第1パラメータを、第2パラメータの値が超えたら1を返す。
@@ -68,8 +67,10 @@ void main(){
 
   // gl_FragColor = tex2;
 
+
   // 上から順番に消す
-  if(vUv.y > 1.0 - uProgress) discard;
+  // if(vUv.y > 1.0 - uProgress) discard;
+  if(vUv.y > uProgress) discard;
 
   vec2 uv = coverUv(vUv, uResolution);
   vec3 color = rgbShift(tex1, uv, uRgbOffset);
