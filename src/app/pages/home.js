@@ -110,22 +110,21 @@ export default async function({
   // if(fresnel) fresnel.mesh.position.z = - 1000;
 
   // ✅ distortionのエフェクトのでクリック時にuProgressを0にする
-  const rgbDistortions = INode.qsAll(".rbg-split-image");
-  // console.log(rgbDistortions);
-  rgbDistortions.forEach(rgb => {
-    console.log(rgb)
-    rgb.addEventListener("click", () => {
-      const o = _world.getObjByEl(rgb);
-      // console.log(o);
+  // const rgbDistortions = INode.qsAll(".rbg-split-image");
+  // rgbDistortions.forEach(rgb => {
+  //   console.log(rgb)
+  //   rgb.addEventListener("click", () => {
+  //     const o = _world.getObjByEl(rgb);
+  //     // console.log(o);
     
-      gsap.to(o.uniforms.uProgress, {
-        value: 0,
-        duration: 1.5,
-        ease: "power3.inOUt",
-      });
-    })
+  //     gsap.to(o.uniforms.uProgress, {
+  //       value: 0,
+  //       duration: 1.5,
+  //       ease: "power3.inOUt",
+  //     });
+  //   })
     
-  })
+  // })
 
 
 }

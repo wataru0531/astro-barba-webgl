@@ -44,6 +44,7 @@ gsap.registerPlugin(
 // import Media from "./components/media"
 
 import TextAnimation from "./components/text-animation";
+import RgbImageAnimation from "./components/rgb-image-animation"
 import FontFaceObserver from "fontfaceobserver";
 
 import { INode, gui, viewport } from "./helper"
@@ -115,6 +116,7 @@ class App {
     this.scroll = new Scroll();
 
     this.textAnimation = null;
+    this.rgbImageAnimation = null;
   
     this.scrollTop = 0;
 
@@ -139,7 +141,6 @@ class App {
 
     await world.init(this.$.canvas, viewport, this.bgColor); // Three.js環境構築
     await world._initObj(viewport); // Obクラス初期化
-
 
 
 
@@ -197,10 +198,13 @@ class App {
     this.loadFont(() => {
       // console.log("init")
       this.textAnimation.init();
+      this.rgbImageAnimation.init();
+
       ScrollTrigger.refresh(); // DOMのサイズや位置が変わった後に呼ぶ
                                // → initでテキストを分割させるのでinitの次で発火させる  
 
       this.textAnimation.animateIn();
+      this.rgbImageAnimation.animateIn();
     });
 
 
@@ -391,6 +395,8 @@ class App {
             this.scroll.s?.paused(true);
 
             const tl = this.textAnimation.animateOut();
+
+            this.rgbImageAnimation.animateOut();
 
             // this.activeLinkImage = document.querySelector('a[data-home-link-active="true"] img');
             // console.log(this.activeLinkImage);
@@ -665,6 +671,7 @@ class App {
       
       // await document.fonts.ready;
       this.textAnimation = new TextAnimation();
+      this.rgbImageAnimation = new RgbImageAnimation();
 
       _callback();
       window.dispatchEvent(new Event("fontLoaded")); // 発火させる
