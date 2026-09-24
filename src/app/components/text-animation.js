@@ -135,9 +135,7 @@ export default class TextAnimation {
 
     // Split animations
     this.splitAnimations.forEach(({ split, outDuration, outStagger }) => {
-      tl.to(
-        split.lines,
-        {
+      tl.to(split.lines, {
           yPercent: 100,
           stagger: outStagger,
           ease: "power2.out",
@@ -159,7 +157,9 @@ export default class TextAnimation {
         0,
       )
     })
-
+    // console.log(tl);
+    // console.log(this.splitAnimations);
+    // console.log(this.fadeAnimations);
     return tl
   }
 

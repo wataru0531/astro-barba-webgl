@@ -34,7 +34,8 @@ export default async function({
 
   // ✅ Mediaの初期化
   const medias = [];
-  const images = INode.qsAll(".grid__item img");
+  const images = INode.qsAll(".rbg-split-image");
+  // const images = INode.qsAll(".grid__item img");
   // console.log(this.$.images);
   images.forEach(image => {
     // console.log(image)

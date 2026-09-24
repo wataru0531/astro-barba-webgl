@@ -115,6 +115,7 @@ class App {
 
     this.scroll = new Scroll();
 
+    this.transitionTl = gsap.timeline({ paused: true }); // animateOutをいれるタイムライン
     this.textAnimation = null;
     this.rgbImageAnimation = null;
   
@@ -194,7 +195,7 @@ class App {
 
     // await loader.letsBegin(); // ローディングのアニメーション発火(カウンターの削除、コンテンツを表示)
 
-    // フォントのロード後に処理したい処理を渡す
+    // フォントのロード後に処理したいコールバックを渡す
     this.loadFont(() => {
       // console.log("init")
       this.textAnimation.init();
@@ -394,9 +395,15 @@ class App {
             this.scrollBlocked = true;
             this.scroll.s?.paused(true);
 
-            const tl = this.textAnimation.animateOut();
+            this.transitionTl.pause(0); // timelineの開始位置を元に戻す。
+            this.transitionTl.clear(); // timelineの中身をカラにする
+            const tlText = this.textAnimation.animateOut();
+            const tlRgb = this.rgbImageAnimation.animateOut();
 
-            this.rgbImageAnimation.animateOut();
+            this.transitionTl.add(tlText, 0); // 親Timelineのどの時刻に追加する
+            this.transitionTl.add(tlRgb, 0); // 追加
+
+            this.transitionTl.play(); // ここで再生
 
             // this.activeLinkImage = document.querySelector('a[data-home-link-active="true"] img');
             // console.log(this.activeLinkImage);
@@ -441,10 +448,10 @@ class App {
             // })
 
             return new Promise((resolve) => {
-              tl.call(() => {
+              this.transitionTl.call(() => {
                 resolve();
               })
-            })
+            });
           },
           leave: (data) => {
             console.log("leave")
@@ -468,6 +475,9 @@ class App {
           afterLeave: () => {
             console.log("afterleave");
             // 現在ページを離れた後、古いページの後処理 
+
+            this.transitionTl.pause(0); // timelineの開始位置を元に戻す。
+            this.transitionTl.clear(); // timelineの中身をカラにする
 
             // mesh、material、geometryの削除            
             [...world.os].forEach(o => {
