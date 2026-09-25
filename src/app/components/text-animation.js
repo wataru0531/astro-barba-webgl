@@ -4,6 +4,7 @@
 // ✅ TODO
 // DOMは$で。
 // Not equalのスクロールアニメーションもここで統一させる
+// splitと、fadeを2つに分けてもいい
 
 import gsap from "gsap"
 import { SplitText } from "gsap/SplitText"
@@ -11,14 +12,15 @@ import { SplitText } from "gsap/SplitText"
 
 export default class TextAnimation {
   constructor() {
-    this.splitTweens = [];
-    this.fadeTweens = [];
+    this.elements = [];
+    this.ready = true;
 
     this.splitAnimations = []
     this.fadeAnimations = []
 
-    this.elements = [];
-    this.ready = true;
+    this.splitTweens = [];
+    this.fadeTweens = [];
+    
   }
 
   // ✅ スプリットかフェードかに分ける処理
@@ -130,6 +132,7 @@ export default class TextAnimation {
     return gsap.timeline()
   }
 
+  // このtlは、あとからpause(0)、clearするからdestroyする必要はない
   animateOut() {
     const tl = gsap.timeline()
 

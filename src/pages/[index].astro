@@ -29,6 +29,99 @@ const { media } = Astro.props;
 >
   <div class="details">
     <!-- Meshのテスト表示テスト -->
+    <!-- <div 
+      class="vision__fallback"
+      data-webgl="gray-pic"
+      data-tex-1="/img/slider/slider_2.jpg"
+    ></div>
+    <div 
+      class="vision__fallback"
+      data-webgl="gray-pic"
+      data-tex-1="/img/slider/slider_3.jpg"
+    ></div> -->
+
+    <div 
+      data-text-animation 
+      class="details-data"
+    >
+      <a href="/" class="c-backBtn" id="js-backBtn">← Index</a>
+      <p>{ media.data }</p>
+      <p>{ media.location }</p>
+      <p>{ media.name }</p>
+    </div>
+    <div class="details-container">
+      <h1
+        class="details_title"
+        data-text-animation-in-duration="0.5"
+        data-text-animation-out-duration="0.4"
+        data-text-animation-in-delay="0.4"
+        data-text-animation
+        data-text-animation-split
+      >
+        { media.name }
+      </h1>
+      <div class="media-block">
+        <div class="rgb-image-container">
+          <a class="rgb-image-wrapper" href="/1">
+            <img
+              class="rbg-image"
+              data-webgl="rgb-distortion"
+              data-tex-1={media.url}
+              data-animation-in-duration="1.5"
+              data-animation-out-duration="1.5"
+              data-animation-in-delay="0.4"
+              alt={media.name}
+            >
+            <!-- <img
+              data-detail-media
+              loading="eager"
+              src={media.url}
+              alt={`Image ${media.index}`}
+            /> -->
+          </a>
+        </div>
+
+        
+      </div>
+    </div>
+  </div>
+</Layout>
+
+
+
+
+<!-- 元のコード -->
+
+<!-- 
+---
+import Layout from '../layouts/Layout.astro';
+import medias from '../data.json';
+
+export const getStaticPaths = async () => {
+  return medias.map((media) => {
+    return {
+      params: { index: media.index.toString() },
+      props: {
+        media,
+      },
+    };
+  });
+};
+
+// layoutにmetaタグ情報、OGP情報を渡して動的にする
+const { media } = Astro.props;
+
+---
+
+<Layout 
+  uid={`detail-${media.index}`} 
+  pageType="detail"
+  title={`${media.name} | yのポートフォリオサイト`}
+  description={`${media.name}の詳細ページ`}
+  imagePath={`${media.url}`}
+  type="article"
+>
+  <div class="details">
     <div 
       class="vision__fallback"
       data-webgl="gray-pic"
@@ -39,7 +132,6 @@ const { media } = Astro.props;
       data-webgl="gray-pic"
       data-tex-1="/img/slider/slider_3.jpg"
     ></div>
-
 
     <div 
       data-text-animation 
@@ -71,4 +163,4 @@ const { media } = Astro.props;
       </div>
     </div>
   </div>
-</Layout>
+</Layout> -->

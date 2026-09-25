@@ -98,7 +98,6 @@ async function init(_canvas, _viewport, _background = "none") {
 // ⭐️ Obクラス初期化、位置やサイズの更新
 async function _initObj(_viewport, _container = document) {
   const els = _container.querySelectorAll("[data-webgl]");
-  // const els = INode.qsAll("[data-webgl]");
   // console.log(els) // NodeList(2) [div#div1, div#div2]
   const prms = [...els].map((el) => {
     // console.log(el); // HTMLの要素

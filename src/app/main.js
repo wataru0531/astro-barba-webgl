@@ -18,6 +18,11 @@
 // 各コンポーネントの初期化順の修正
 // 各コンポーネントのクラス化
 
+// ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+// ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+// detail → home への遷移
+// 新たなmedia.jsのようなものを作ってdetail → home への目標のクラスを作る
+
 
 // import Canvas from "./components/canvas"
 import Scroll from "./components/scroll"
@@ -115,7 +120,8 @@ class App {
 
     this.scroll = new Scroll();
 
-    this.transitionTl = gsap.timeline({ paused: true }); // animateOutをいれるタイムライン
+    // animateOutをいれるタイムラインの箱。→ 遷移時に空にする
+    this.transitionTl = gsap.timeline({ paused: true }); 
     this.textAnimation = null;
     this.rgbImageAnimation = null;
   
@@ -447,8 +453,10 @@ class App {
             //   }
             // })
 
+            // console.log(this.transitionTl);
+            
             return new Promise((resolve) => {
-              this.transitionTl.call(() => {
+              this.transitionTl.call(() => { // callをtlに登録
                 resolve();
               })
             });
@@ -468,16 +476,17 @@ class App {
             // container.style.zIndex = "1000"
 
             // this.mediaHomeState = Flip.getState(activeLinkImage)
-            // console.log(this.textAnimation);
+
             this.textAnimation.destroy();
-            // console.log("leave done");
+            this.rgbImageAnimation.destroy();
           },
           afterLeave: () => {
             console.log("afterleave");
             // 現在ページを離れた後、古いページの後処理 
-
-            this.transitionTl.pause(0); // timelineの開始位置を元に戻す。
+            // console.log(this.transitionTl);
+            this.transitionTl.pause(0); // timelineの開始位置を元に戻す。再生停止。
             this.transitionTl.clear(); // timelineの中身をカラにする
+            // ※ killをすると、this.transitionTl自体を破棄してしまう。
 
             // mesh、material、geometryの削除            
             [...world.os].forEach(o => {
@@ -491,6 +500,7 @@ class App {
           beforeEnter: async (data) => { 
             console.log("beforeEnter");
             // console.log(data);
+            // console.log(this.transitionTl);
 
             // console.log(world.os);
 
@@ -513,6 +523,7 @@ class App {
 
             this.scroll.init();
             this.textAnimation.init();
+            this.rgbImageAnimation.init();
 
             // const detailContainer = document.querySelector(".details-container");
 
@@ -524,34 +535,37 @@ class App {
             // console.log(this.pageType)
 
             this.textAnimation.animateIn({ delay: .3 });
+
+            this.rgbImageAnimation.animateIn();
+
             this.scrollBlocked = false;
 
             // return new Promise((resolve) => {
             //   // let activeMedia = null
 
-            //   // this.textAnimation.animateIn({ 
-            //   //   delay: 0.3,
-            //   //   onComplete: () => {
-            //   //     console.log("onComplete");
-            //   //     this.scrollBlocked = false;
+            //   this.textAnimation.animateIn({ 
+            //     delay: 0.3,
+            //     onComplete: () => {
+            //       console.log("onComplete");
+            //       this.scrollBlocked = false;
 
-            //   //     resolve();
-            //   //     // this.medias.forEach(media => {
-            //   //     //   // console.log(media);
-            //   //     //   if(!media) return;
-            //   //     //   if(media.element !== this.activeLinkImage) {
-            //   //     //     media.destroy();
-            //   //     //     media = null;
-            //   //     //   } else {
-            //   //     //     activeMedia = media;
-            //   //     //   }
+            //       resolve();
+            //       // this.medias.forEach(media => {
+            //       //   // console.log(media);
+            //       //   if(!media) return;
+            //       //   if(media.element !== this.activeLinkImage) {
+            //       //     media.destroy();
+            //       //     media = null;
+            //       //   } else {
+            //       //     activeMedia = media;
+            //       //   }
 
-            //   //     //   this.medias = [activeMedia];
+            //       //   this.medias = [activeMedia];
 
-            //   //     //   resolve();
-            //   //     // })
-            //   //   }
-            //   // });
+            //       //   resolve();
+            //       // })
+            //     }
+            //   });
 
             //   // Flip.from(this.mediaHomeState, {
             //   //   absolute: true,
@@ -575,6 +589,7 @@ class App {
             //   //   },
             //   // })
             // });
+          
           },
         },
       ],

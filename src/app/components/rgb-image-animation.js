@@ -1,10 +1,6 @@
 
-// rgb-transition.js
+// rgb-image-transition.js
 
-
-// ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-// ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-// 各tweensのdestroyから
 
 import gsap from "gsap"
 import { INode } from "../helper";
@@ -17,38 +13,31 @@ export default class RgbImageAnimation {
     this.elements = [];
     this.ready = true;
 
-    this.animationTweens = [];
     this.animations = [];
-
-
-    this.revealAnimations = [];
-    this.hideAnimations = [];
-
-    this.revealTweens = [];
-    this.hideTweens = [];
+    this.animationTweens = [];
   }
 
   // ✅ 
   // worldからoを取得
   // durationの登録など
   init() {
-    this.elements = INode.qsAll(".rbg-split-image");
+    this.elements = INode.qsAll(".rbg-image");
     // console.log(this.elements); // [img.rbg-split-image]
 
     this.elements.forEach((el) => {
       const inDuration = parseFloat(
-        el.getAttribute("data-text-animation-in-duration") || "0.6",
+        el.getAttribute("data-animation-in-duration") || "0.6",
       );
 
       const outDuration = parseFloat(
-        el.getAttribute("data-text-animation-out-duration") || "0.3",
+        el.getAttribute("data-animation-out-duration") || "0.3",
       );
 
-      const inEase = el.getAttribute("data-text-animation-in-ease") || "power3.inOut";
-      const outEase = el.getAttribute("data-text-animation-out-ease") || "power3.inOut";
+      const inEase = el.getAttribute("data-animation-in-ease") || "power3.inOut";
+      const outEase = el.getAttribute("data-animation-out-ease") || "power3.inOut";
 
       const inDelay = parseFloat(
-        el.getAttribute("data-text-animation-in-delay") || "0",
+        el.getAttribute("data-animation-in-delay") || "0",
       );
 
       this.animations.push({
@@ -71,7 +60,7 @@ export default class RgbImageAnimation {
       // console.log(o);
 
       // 条件分岐、uProgressの値が0なら1に
-      gsap.to(o.uniforms.uProgress, {
+      const tween = gsap.to(o.uniforms.uProgress, {
         value: 1,
         duration: inDuration,
         ease: inEase,
@@ -80,12 +69,14 @@ export default class RgbImageAnimation {
         // }
       });
 
-
+      this.animationTweens.push(tween);
     })
   }
 
   // ✅ uProgressを1 → 0にして画像を非表示
   animateOut() {
+    // ページ遷移時にアニメーションが終わるまで遷移ととめるためにタイムラインを使う
+    // → このtlは親でクリアする。
     const tl = new gsap.timeline();
 
     this.animations.forEach(({ element, inDuration, outDuration, inEase, outEase, inDelay }) => {
@@ -111,12 +102,23 @@ export default class RgbImageAnimation {
   }
 
   // ✅ リサイズ処理 → viewport.addResizeActionに
-  onResize() {
-  
-  }
+  // onResize() {
+  //   if(!this.ready) return;
+  //   console.log("onResize");
+
+  //   this.destroy();
+  //   this.init();
+
+  //   this.animateIn();
+  // }
 
   // ✅ クリーンアップ処理
   destroy() {
-    
+    this.animationTweens.forEach(tween => {
+      tween.kill();
+    });
+
+    this.animations = [];
+    this.animationTweens = [];
   }
 }
