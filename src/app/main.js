@@ -145,32 +145,12 @@ class App {
     // console.log(window.textureCache);
 
 
-
     await world.init(this.$.canvas, viewport, this.bgColor); // Three.js環境構築
     await world._initObj(viewport); // Obクラス初期化
 
-
-
     this.addGui(world);
 
-    // ✅ 各ページで使うJSの初期化　→ ✅ TODO 関数に切り出す。Barbaのセクションで使うため
-    await import(`./pages/${this.pageType}.js`).then(({ default: init }) => {
-      // await import(`./pages/${this.pageType}.js`).then(d => {
-      // console.log(d); // Module {Symbol(Symbol.toStringTag): 'Module'}default: (...)Symbol(Symbol.toStringTag): "Module"get default: ƒ ()set default: ƒ ()
-
-      // ・default → default exportされているものが渡ってくる。
-      // ・init    → デフォルトエクスポートされた関数をinitという名前の変数に格納
-      //             defaultは予約後のため使えない
-
-      return init({
-        world,
-        mouse,
-        menu,
-        loader,
-        viewport,
-        scroller: this.scroll,
-      });
-    });
+    await this.initPageScript(); // 各ページのJSを実行 TODO 中でpageTypeの更新もしている
 
     mouse.init();
     
@@ -193,7 +173,7 @@ class App {
     });
 
     // ・スクロール系のアニメーションの確認
-    registerScrollAnimations(); // スクロールアニメーションの登録、実行
+    // registerScrollAnimations(); // スクロールアニメーションの登録、実行
 
     // menu.init(world, scroller); // ✅ メニューの初期化。
 
@@ -201,39 +181,40 @@ class App {
 
     // await loader.letsBegin(); // ローディングのアニメーション発火(カウンターの削除、コンテンツを表示)
 
+
+    // ⭐️ このあたりうまく書く
+    await this.loadFont(); // フォントのロードを待つ
+    // console.log("done")
+
+    this.textAnimation = new TextAnimation();
+    this.rgbImageAnimation = new RgbImageAnimation();
+    // console.log("done")
+
+    this.textAnimation.init();
+    this.rgbImageAnimation.init();
+
+    ScrollTrigger.refresh(); // DOMのサイズや位置が変わった後に呼ぶ
+                            // → initでテキストを分割させるので発火させる  
+
+    this.textAnimation.animateIn();
+    this.rgbImageAnimation.animateIn();
+
+
+
+
     // フォントのロード後に処理したいコールバックを渡す
-    this.loadFont(() => {
-      // console.log("init")
-      this.textAnimation.init();
-      this.rgbImageAnimation.init();
+    // this.loadFont(() => {
+    //   // console.log("init")
+    //   this.textAnimation.init();
+    //   this.rgbImageAnimation.init();
 
-      ScrollTrigger.refresh(); // DOMのサイズや位置が変わった後に呼ぶ
-                               // → initでテキストを分割させるのでinitの次で発火させる  
+    //   ScrollTrigger.refresh(); // DOMのサイズや位置が変わった後に呼ぶ
+    //                            // → initでテキストを分割させるのでinitの次で発火させる  
 
-      this.textAnimation.animateIn();
-      this.rgbImageAnimation.animateIn();
-    });
-
-
-    // ⭐️ loadImagesはやめて、loadFontのみで行く
-    // this.loadImages(() => {
-    //   // this.canvas.createMedias()
-
-    //   if(this.fontLoaded) {
-    //     this.textAnimation.init()
-    //     this.textAnimation.animateIn()
-    //   } else {
-    //     // fontLoadedをここで登録 → dispatchで発火させる
-    //     window.addEventListener("fontLoaded", () => { 
-    //       gsap.delayedCall(0, () => {
-    //         gsap.delayedCall(0, () => {
-    //           this.textAnimation.init()
-    //           this.textAnimation.animateIn({ delay: 0.3 })
-    //         });
-    //       });
-    //     });
-    //   }
+    //   this.textAnimation.animateIn();
+    //   this.rgbImageAnimation.animateIn();
     // });
+
 
     // ✅ Barba
     // | フック           | タイミング       | 主な用途          |
@@ -361,12 +342,6 @@ class App {
             this.setPageType(pageType);
             // console.log(pageType)
 
-            // this.loadImages(() => {
-            //   // this.canvas.medias = []
-            //   // this.canvas.createMedias()
-            //   this.textAnimation.animateIn({ delay: 0.3 })
-            // });
-
             this.textAnimation.animateIn({ delay: .3 });
             this.scrollBlocked = false
 
@@ -400,6 +375,7 @@ class App {
             console.log("before");
             this.scrollBlocked = true;
             this.scroll.s?.paused(true);
+
 
             this.transitionTl.pause(0); // timelineの開始位置を元に戻す。
             this.transitionTl.clear(); // timelineの中身をカラにする
@@ -488,55 +464,67 @@ class App {
             this.transitionTl.clear(); // timelineの中身をカラにする
             // ※ killをすると、this.transitionTl自体を破棄してしまう。
 
-            // mesh、material、geometryの削除            
-            [...world.os].forEach(o => {
+            [...world.os].forEach(o => { // mesh、material、geometryの削除       
               // console.log(o);
               world.removeObj(o);
             });
           },
 
-          // ---------------------- ページが差し代わる -----------------------------
+          // ---------------------- ⭐️ ページが差し代わる -----------------------------
+          // | `beforeEnter` | 新ページが入る直前   | **新ページの準備**   |
+          // | `enter`       | 新ページが入る処理   | **表示アニメーション** |
+          // | `afterEnter`  | 新ページが入った後   | 新ページの初期化      |
+          // | `after`       | 遷移全体が完了した後  | 全体の後処理        |
+
+          // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+          // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+          // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+          // SpliteTextがフォントのロードを待たずして実行されている
+          // ページ遷移のときにどこからかエラーがでている
+          // initPageScriptの中。pageTypeの更新を引き離す
 
           beforeEnter: async (data) => { 
+            // 👉 ① 次ページを表示するための素材を準備
+
             console.log("beforeEnter");
             // console.log(data);
-            // console.log(this.transitionTl);
 
-            // console.log(world.os);
+            const pageType = this.getCurrentTemplate(); // → 注: initPageScriptでも発火
+            this.setPageType(pageType);
+
+            await this.loadFont(); // フォントのロードを待つ
 
             await loader.loadAllAssets(); // テクスチャのキャッシュ更新
             // console.log(window.textureCache);
             
             await world._initObj(viewport, data.next.container); // Obクラス初期化
 
-            this.updateHead(data.next.html); // headタグ内を更新
+            this.updateHead(data.next.html); // headタグ更新
 
             this.scroll.reset()
             this.scroll.destroy()
           },
-          // enter: async (data) => {
-          //   // await world._initObj(viewport, data.next.container);
+          enter: async (data) => { 
+            // ② Barbaが新しいページをEnterする
+            console.log("enter");
+          },
+          afterEnter: async (data) => { 
+            // ③ 新ページのDOMを使う処理を初期化
+            console.log("afterEnter");
 
-          // },
-          after: async (data) => {
-            console.log("after");
-
-            this.scroll.init();
             this.textAnimation.init();
             this.rgbImageAnimation.init();
 
-            // const detailContainer = document.querySelector(".details-container");
+            this.scroll.init();
+          },
+          after: async (data) => {
+            // 👉 ④ 全て準備できたので動かし始める
+            console.log("after");
 
-            // detailContainer.innerHTML = ""
-            // detailContainer.append(activeLinkImage)
-
-            const pageType = this.getCurrentTemplate()
-            this.setPageType(pageType);
-            // console.log(this.pageType)
-
-            this.textAnimation.animateIn({ delay: .3 });
-
+            this.textAnimation.animateIn();
             this.rgbImageAnimation.animateIn();
+
+            await this.initPageScript(); // 各ページのJSの更新。
 
             this.scrollBlocked = false;
 
@@ -600,11 +588,9 @@ class App {
   }
 
   // ✅ 各ページのJSの初期化
-  async initPage() {
+  async initPageScript() {
     const pageType = this.getCurrentTemplate()
     this.setPageType(pageType);
-
-    await world._initObj(viewport); // ページ固有のWebGL発火
 
     // ✅ 各ページで使うJSの初期化
     await import(`./pages/${this.pageType}.js`).then(({ default: init }) => {
@@ -618,7 +604,6 @@ class App {
       });
     });
 
-    registerScrollAnimations(); // スクロールアニメーションの登録。ScrollTrigger初期化
   }
 
   // ✅　headの中を更新
@@ -654,31 +639,6 @@ class App {
     this.pageType = pageType;
   }
 
-  // ※ テクスチャの読み込みはloadAllAssetsを使うのでこれは使わない
-  loadImages(_callback) {
-    const medias = document.querySelectorAll("img")
-    let loadedImages = 0
-    const totalImages = medias.length
-
-    medias.forEach((img) => {
-      // console.log(img)
-      if(img.complete) {
-        loadedImages++
-      } else {
-        img.addEventListener("load", () => {
-          loadedImages++
-          if (loadedImages === totalImages) {
-            this.onReady(_callback)
-          }
-        })
-      }
-    })
-
-    if (loadedImages === totalImages) {
-      this.onReady(_callback)
-    }
-  }
-
   //　
   onReady(callback) {
     if (callback) callback()
@@ -686,21 +646,33 @@ class App {
   }
 
   // ✅ フォントのロードが終わればコールバックを発火
-  loadFont(_callback) {
-    const inter = new FontFaceObserver("Inter")
+  // loadFont(_callback) {
+  //   const inter = new FontFaceObserver("Inter")
 
-    // ※ Interが使われるのを検知するので、「FontFaceObserverが待っているフォント」
-    //   と「実際にSplitTextするテキストが使っているフォント」を一致させる
-    inter.load().then(async () => {
-      this.fontLoaded = true;
+  //   // ※ Interが使われるのを検知するので、「FontFaceObserverが待っているフォント」
+  //   //   と「実際にSplitTextするテキストが使っているフォント」を一致させる
+  //   inter.load().then(async () => {
+  //     this.fontLoaded = true;
       
-      // await document.fonts.ready;
-      this.textAnimation = new TextAnimation();
-      this.rgbImageAnimation = new RgbImageAnimation();
+  //     // await document.fonts.ready;
+  //     this.textAnimation = new TextAnimation();
+  //     this.rgbImageAnimation = new RgbImageAnimation();
 
-      _callback();
-      window.dispatchEvent(new Event("fontLoaded")); // 発火させる
-    })
+  //     _callback();
+  //     window.dispatchEvent(new Event("fontLoaded")); // 発火させる
+  //   })
+  // }
+
+  async loadFont() {
+    // すでに読み込み済みなら何もしない
+    if (this.fontLoaded) return;
+    // console.log("fontLoaded")
+
+    const inter = new FontFaceObserver("Inter");
+    await inter.load();
+
+    this.fontLoaded = true;
+    window.dispatchEvent(new Event("fontLoaded"));
   }
 
   // ✅ guiを初期化、展開

@@ -298,7 +298,7 @@ function render() {
   // 他のコンポーネントのrenderに関する関数を実行
   // console.log(world.renderActions); // Set(1) {ƒ}
   world.renderActions.forEach((action) => action?.(world));
-  world.composer.render(); // ✅ メインのrendererをレンダリング
+  world.composer.render(); // メインのrendererをレンダリング
 
   window.debug && stats?.end(); // パフォーマンス測定終了
 }

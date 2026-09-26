@@ -28,6 +28,7 @@ export default class TextAnimation {
     this.elements = [...document.querySelectorAll("[data-text-animation]")];
 
     this.elements.forEach((el) => {
+      // console.log(el)
       const inDuration = parseFloat(
         el.getAttribute("data-text-animation-in-duration") || "0.6",
       )
@@ -42,6 +43,7 @@ export default class TextAnimation {
 
       // 分割
       if (el.hasAttribute("data-text-animation-split")) {
+        // console.log(el)
         const split = SplitText.create(el, {
           type: "lines",
           mask: "lines",
