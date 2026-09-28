@@ -139,6 +139,8 @@ class App {
     // console.log("init");
     if(window.debug) await gui.init();
 
+    await this.loadFont(); // フォントのロード
+
     viewport.init(this.$.canvas);
 
     await loader.loadAllAssets(); // url => テクスチャ の状態でtextureCacheに保持
@@ -181,24 +183,18 @@ class App {
 
     // await loader.letsBegin(); // ローディングのアニメーション発火(カウンターの削除、コンテンツを表示)
 
-
-    // ⭐️ このあたりうまく書く
-    await this.loadFont(); // フォントのロードを待つ
-    // console.log("done")
+    
 
     this.textAnimation = new TextAnimation();
     this.rgbImageAnimation = new RgbImageAnimation();
     // console.log("done")
 
+    // これら5つはセットで使う
     this.textAnimation.init();
     this.rgbImageAnimation.init();
-
-    ScrollTrigger.refresh(); // DOMのサイズや位置が変わった後に呼ぶ
-                            // → initでテキストを分割させるので発火させる  
-
+    ScrollTrigger.refresh(); // DOMのサイズや位置が変わった後に呼ぶ  → initでテキストを分割させるので発火させる
     this.textAnimation.animateIn();
     this.rgbImageAnimation.animateIn();
-
 
 
 
@@ -376,7 +372,6 @@ class App {
             this.scrollBlocked = true;
             this.scroll.s?.paused(true);
 
-
             this.transitionTl.pause(0); // timelineの開始位置を元に戻す。
             this.transitionTl.clear(); // timelineの中身をカラにする
             const tlText = this.textAnimation.animateOut();
@@ -475,14 +470,6 @@ class App {
           // | `enter`       | 新ページが入る処理   | **表示アニメーション** |
           // | `afterEnter`  | 新ページが入った後   | 新ページの初期化      |
           // | `after`       | 遷移全体が完了した後  | 全体の後処理        |
-
-          // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-          // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-          // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-          // SpliteTextがフォントのロードを待たずして実行されている
-          // ページ遷移のときにどこからかエラーがでている
-          // initPageScriptの中。pageTypeの更新を引き離す
-
           beforeEnter: async (data) => { 
             // 👉 ① 次ページを表示するための素材を準備
 
@@ -492,14 +479,12 @@ class App {
             const pageType = this.getCurrentTemplate(); // → 注: initPageScriptでも発火
             this.setPageType(pageType);
 
-            await this.loadFont(); // フォントのロードを待つ
+            this.updateHead(data.next.html); // headタグ更新
 
             await loader.loadAllAssets(); // テクスチャのキャッシュ更新
             // console.log(window.textureCache);
             
-            await world._initObj(viewport, data.next.container); // Obクラス初期化
-
-            this.updateHead(data.next.html); // headタグ更新
+            await world._initObj(viewport, data.next.container); // Obクラス初期
 
             this.scroll.reset()
             this.scroll.destroy()
@@ -511,9 +496,7 @@ class App {
           afterEnter: async (data) => { 
             // ③ 新ページのDOMを使う処理を初期化
             console.log("afterEnter");
-
-            this.textAnimation.init();
-            this.rgbImageAnimation.init();
+            // ⭐️ ここでrgbImageAnimation.initをするとバグる
 
             this.scroll.init();
           },
@@ -521,6 +504,10 @@ class App {
             // 👉 ④ 全て準備できたので動かし始める
             console.log("after");
 
+            // これらは同じブロックで使う
+            this.textAnimation.init();
+            this.rgbImageAnimation.init();
+            ScrollTrigger.refresh(); 
             this.textAnimation.animateIn();
             this.rgbImageAnimation.animateIn();
 
@@ -663,13 +650,19 @@ class App {
   //   })
   // }
 
+
+  // ✅ フォントのロード。
+  // → 一度ロードすればブラウザのフォントキャッシュに保存されるので何度も使う必要がない
   async loadFont() {
     // すでに読み込み済みなら何もしない
+    // console.log(this.fontLoaded);
     if (this.fontLoaded) return;
-    // console.log("fontLoaded")
 
-    const inter = new FontFaceObserver("Inter");
-    await inter.load();
+    await document.fonts.ready; // ブラウザのフォント読み込みに関する処理が一通り落ち着くまで待つ
+    await document.fonts.load('1em "Inter"'); // Interフォントを実際に使える状態になるまで待つ
+    
+    // const inter = new FontFaceObserver("Inter"); // 外す
+    // await inter.load();
 
     this.fontLoaded = true;
     window.dispatchEvent(new Event("fontLoaded"));

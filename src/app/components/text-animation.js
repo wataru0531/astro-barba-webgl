@@ -26,6 +26,7 @@ export default class TextAnimation {
   // ✅ スプリットかフェードかに分ける処理
   init() {
     this.elements = [...document.querySelectorAll("[data-text-animation]")];
+    // console.log(this.elements);
 
     this.elements.forEach((el) => {
       // console.log(el)
@@ -44,6 +45,7 @@ export default class TextAnimation {
       // 分割
       if (el.hasAttribute("data-text-animation-split")) {
         // console.log(el)
+        // console.log(document.fonts.status); // loading
         const split = SplitText.create(el, {
           type: "lines",
           mask: "lines",

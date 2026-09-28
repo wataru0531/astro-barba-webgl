@@ -52,10 +52,9 @@ export default class RgbImageAnimation {
   }
 
   // ✅ uProgressを0 → 1にして画像を表示
-  animateIn({ delay = 0 } = {}) {
+  animateIn() {
     this.animations.forEach(({ element, inDuration, outDuration, inEase, outEase, inDelay }) => {
       // console.log(element);
-      // console.log(typeof inDuration);
       const o = world.getObjByEl(element);
       // console.log(o);
 
