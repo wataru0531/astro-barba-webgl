@@ -237,27 +237,41 @@ class App {
       transitions: [
         {
           name: "default-transition", // ⭐️ detail-home
-          // from: {
-          //   custom: () => { 
-          //     const backBtn = document.getElementById("js-backBtn");
-          //     // console.log(backBtn);
-          //     if(!backBtn) return false;
-
-          //     return true;
-          //   },
-          // },
+          from: {
+            custom: () => { 
+              // 
+              const backBtn = INode.qs("#js-backBtn");
+              if(!backBtn) return false;
+              // console.log("true");
+              return true;
+            },
+          },
           before: () => {
             console.log("before");
             this.scrollBlocked = true;
             this.scroll.s?.paused(true);
 
-            const tl = this.textAnimation.animateOut();
+            this.transitionTl.pause(0); // timelineの開始位置を元に戻す。
+            this.transitionTl.clear(); // timelineの中身をカラにする
+            const tlText = this.textAnimation.animateOut();
+            const tlRgb = this.rgbImageAnimation.animateOut();
 
-            return new Promise(resolve => {
-              tl.call(() => {
+            this.transitionTl.add(tlText, 0); // 親Timelineのどの時刻に追加する
+            this.transitionTl.add(tlRgb, 0); // 追加
+
+            this.transitionTl.play(); // ここで再生
+
+            return new Promise((resolve) => {
+              this.transitionTl.call(() => { // callをtlに登録。アニメーションを全て終わらせて次へ
                 resolve();
-              });
-            })
+              })
+            });
+
+            // return new Promise(resolve => {
+            //   tl.call(() => {
+            //     resolve();
+            //   });
+            // })
           },
           leave: () => {
             console.log("leave");
@@ -273,6 +287,7 @@ class App {
             // })
 
             this.textAnimation.destroy();
+            this.rgbImageAnimation.destroy();
 
             // return new Promise((resolve) => {
             //   const tl = this.textAnimation.animateOut()
@@ -303,6 +318,9 @@ class App {
             console.log("afterLeave");
             // console.log(data);
 
+            this.transitionTl.pause(0); // timelineの開始位置を元に戻す。再生停止。
+            this.transitionTl.clear(); // timelineの中身をカラにする
+
             [...world.os].forEach(o => { // mesh、geometry、material削除
               // console.log(o);
               world.removeObj(o);
@@ -317,29 +335,38 @@ class App {
             //   media?.destroy()
             //   media = null
             // })
+            
+            this.updateHead(data.next.html); // headタグ内を更新
 
             await loader.loadAllAssets(); // テクスチャのキャッシュ更新
             // console.log(window.textureCache);
             
             await world._initObj(viewport, data.next.container); // Obクラス初期化
 
-            this.updateHead(data.next.html); // headタグ内を更新
-
             this.scroll.reset()
             this.scroll.destroy()
           },
-          // enter: async (data) => {},
-          after: () => {
-            console.log("after")
-            this.scroll.init()
-            this.textAnimation.init()
+          enter: async (data) => {
+            console.log("enter");
+          },
+          after: async (data) => {
+            console.log("after");
 
             const pageType = this.getCurrentTemplate()
             this.setPageType(pageType);
             // console.log(pageType)
 
-            this.textAnimation.animateIn({ delay: .3 });
-            this.scrollBlocked = false
+            this.scroll.init();
+
+            this.textAnimation.init();
+            this.rgbImageAnimation.init();
+            ScrollTrigger.refresh(); // SplitTextで高さなどDOM構造が変わる可能性があるため
+            this.textAnimation.animateIn();
+            this.rgbImageAnimation.animateIn();
+
+            this.scrollBlocked = false;
+
+            await this.initPageScript(); // 各ページのJSの実行
 
             // return new Promise((resolve) => {
             //   // let activeMedia = null
@@ -427,7 +454,7 @@ class App {
             // console.log(this.transitionTl);
             
             return new Promise((resolve) => {
-              this.transitionTl.call(() => { // callをtlに登録
+              this.transitionTl.call(() => { // callをtlに登録。アニメーションを全て終わらせて次へ
                 resolve();
               })
             });
@@ -472,12 +499,8 @@ class App {
           // | `after`       | 遷移全体が完了した後  | 全体の後処理        |
           beforeEnter: async (data) => { 
             // 👉 ① 次ページを表示するための素材を準備
-
             console.log("beforeEnter");
             // console.log(data);
-
-            const pageType = this.getCurrentTemplate(); // → 注: initPageScriptでも発火
-            this.setPageType(pageType);
 
             this.updateHead(data.next.html); // headタグ更新
 
@@ -486,34 +509,44 @@ class App {
             
             await world._initObj(viewport, data.next.container); // Obクラス初期
 
-            this.scroll.reset()
-            this.scroll.destroy()
+            this.scroll.reset();
+            this.scroll.destroy();
           },
           enter: async (data) => { 
             // ② Barbaが新しいページをEnterする
             console.log("enter");
-          },
-          afterEnter: async (data) => { 
-            // ③ 新ページのDOMを使う処理を初期化
-            console.log("afterEnter");
-            // ⭐️ ここでrgbImageAnimation.initをするとバグる
 
-            this.scroll.init();
+            // ⭐️ enter、afterEnterではbeforeEnterの処理などが済んでいないためにバグる可能性がある
+            // this.scroll.init();
           },
+          // afterEnter: async (data) => { 
+          //   // ③ 新ページのDOMを使う処理を初期化
+          //   console.log("afterEnter");
+          //   // ⭐️ ここでrgbImageAnimation.initをするとバグる
+
+          //   // this.scroll.init();
+          // },
           after: async (data) => {
             // 👉 ④ 全て準備できたので動かし始める
             console.log("after");
 
+            const pageType = this.getCurrentTemplate();
+            this.setPageType(pageType);
+
+            this.scroll.init();
+
             // これらは同じブロックで使う
             this.textAnimation.init();
             this.rgbImageAnimation.init();
-            ScrollTrigger.refresh(); 
+            ScrollTrigger.refresh(); // SplitTextで高さなどDOM構造が変わる可能性があるため
             this.textAnimation.animateIn();
             this.rgbImageAnimation.animateIn();
 
-            await this.initPageScript(); // 各ページのJSの更新。
-
             this.scrollBlocked = false;
+
+            await this.initPageScript(); // 各ページのJSの実行
+
+            // console.log(this.pageType);
 
             // return new Promise((resolve) => {
             //   // let activeMedia = null
@@ -525,44 +558,44 @@ class App {
             //       this.scrollBlocked = false;
 
             //       resolve();
-            //       // this.medias.forEach(media => {
-            //       //   // console.log(media);
-            //       //   if(!media) return;
-            //       //   if(media.element !== this.activeLinkImage) {
-            //       //     media.destroy();
-            //       //     media = null;
-            //       //   } else {
-            //       //     activeMedia = media;
-            //       //   }
+            //       this.medias.forEach(media => {
+            //         // console.log(media);
+            //         if(!media) return;
+            //         if(media.element !== this.activeLinkImage) {
+            //           media.destroy();
+            //           media = null;
+            //         } else {
+            //           activeMedia = media;
+            //         }
 
-            //       //   this.medias = [activeMedia];
+            //         this.medias = [activeMedia];
 
-            //       //   resolve();
-            //       // })
+            //         resolve();
+            //       })
             //     }
             //   });
 
-            //   // Flip.from(this.mediaHomeState, {
-            //   //   absolute: true,
-            //   //   duration: 1,
-            //   //   ease: "power3.inOut",
-            //   //   onComplete: () => {
-            //   //     this.scrollBlocked = false
-            //   //     this.canvas.medias?.forEach((media) => {
-            //   //       if (!media) return
-            //   //       if (media.element !== activeLinkImage) {
-            //   //         media.destroy() // ⭐️
-            //   //         media = null
-            //   //       } else {
-            //   //         activeMedia = media
-            //   //       }
-            //   //     })
+            //   Flip.from(this.mediaHomeState, {
+            //     absolute: true,
+            //     duration: 1,
+            //     ease: "power3.inOut",
+            //     onComplete: () => {
+            //       this.scrollBlocked = false
+            //       this.canvas.medias?.forEach((media) => {
+            //         if (!media) return
+            //         if (media.element !== activeLinkImage) {
+            //           media.destroy() // ⭐️
+            //           media = null
+            //         } else {
+            //           activeMedia = media
+            //         }
+            //       })
 
-            //   //     this.canvas.medias = [activeMedia]
+            //       this.canvas.medias = [activeMedia]
 
-            //   //     resolve()
-            //   //   },
-            //   // })
+            //       resolve()
+            //     },
+            //   })
             // });
           
           },
@@ -576,8 +609,10 @@ class App {
 
   // ✅ 各ページのJSの初期化
   async initPageScript() {
-    const pageType = this.getCurrentTemplate()
-    this.setPageType(pageType);
+    // console.log("initScript");
+    // const pageType = this.getCurrentTemplate()
+    // this.setPageType(pageType);
+    console.log(this.pageType);
 
     // ✅ 各ページで使うJSの初期化
     await import(`./pages/${this.pageType}.js`).then(({ default: init }) => {
@@ -590,7 +625,6 @@ class App {
         scroller: this.scroll,
       });
     });
-
   }
 
   // ✅　headの中を更新
