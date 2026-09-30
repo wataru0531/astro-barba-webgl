@@ -63,13 +63,22 @@ export default class RgbImageAnimation {
         value: 1,
         duration: inDuration,
         ease: inEase,
+
+        scrollTrigger: {
+          trigger: element,
+          start: "top 80%",
+          // end: "bottom end",
+          toggleActions: "play none none none",
+        }
         // onUpdate: () => {
         //   console.log(o.uniforms.uProgress.value);
         // }
       });
 
       this.animationTweens.push(tween);
-    })
+    });
+
+    // console.log(this.animationTweens);
   }
 
   // ✅ uProgressを1 → 0にして画像を非表示
@@ -91,9 +100,6 @@ export default class RgbImageAnimation {
         value: 0,
         duration: outDuration,
         ease: outEase,
-        // onUpdate: () => {
-        //   console.log(o.uniforms.uProgress.value);
-        // }
       }, 0);
     });
 
@@ -114,6 +120,7 @@ export default class RgbImageAnimation {
   // ✅ クリーンアップ処理
   destroy() {
     this.animationTweens.forEach(tween => {
+      tween.scrollTrigger?.kill();
       tween.kill();
     });
 

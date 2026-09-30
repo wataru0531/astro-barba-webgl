@@ -587,7 +587,15 @@ h1 {
 .rgb-image-container {
   margin-top: 200px;
 }
+
 .rbg-image{
   width: 500px;
   height: 400px;
+
+  opacity: 0;
+  visibility: hidden;
+}
+
+.rbg-image-container__block:nth-of-type(2) {
+  margin-top: 500px;
 }

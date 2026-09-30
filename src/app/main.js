@@ -18,10 +18,11 @@
 // 各コンポーネントの初期化順の修正
 // 各コンポーネントのクラス化
 
-// ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-// ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-// detail → home への遷移
-// 新たなmedia.jsのようなものを作ってdetail → home への目標のクラスを作る
+
+// ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+// ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+// ページ遷移時にh1が見える
+// ページ遷移時のアニメーションを追加
 
 
 // import Canvas from "./components/canvas"
@@ -227,16 +228,11 @@ class App {
     // | `afterEnter`  | 新ページが入った後   | 新ページの初期化      |
     // | `after`       | 遷移全体が完了した後  | 全体の後処理        |
 
-    // グローバルフック
-    // barba.hooks.before(...)
-    // barba.hooks.beforeLeave(...)
-    // などなど...
-
     barba.init({
       prefetchIgnore: true,
       transitions: [
         {
-          name: "default-transition", // ⭐️ detail-home
+          name: "detail-home", // ⭐️ detail-home
           from: {
             custom: () => { 
               // 
@@ -609,12 +605,6 @@ class App {
 
   // ✅ 各ページのJSの初期化
   async initPageScript() {
-    // console.log("initScript");
-    // const pageType = this.getCurrentTemplate()
-    // this.setPageType(pageType);
-    console.log(this.pageType);
-
-    // ✅ 各ページで使うJSの初期化
     await import(`./pages/${this.pageType}.js`).then(({ default: init }) => {
       return init({
         world,
