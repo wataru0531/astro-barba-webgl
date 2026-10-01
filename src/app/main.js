@@ -49,7 +49,6 @@ gsap.registerPlugin(
 
 // import Media from "./components/media"
 
-import TextAnimation from "./components/text-animation";
 import RgbImageAnimation from "./components/rgb-image-animation"
 import FontFaceObserver from "fontfaceobserver";
 
@@ -59,6 +58,10 @@ import mouse from "./components/mouse"
 import world from "./glsl/world"
 import { menu } from "./components/menu"
 import { registerScrollAnimations } from "./components/scroll-animation"
+
+
+import TextAnimationSplit from "./components/text-animation-split"
+import TextAnimationFade from "./components/text-animation-fade"
 
 
 // ✅ デバッグ
@@ -123,14 +126,11 @@ class App {
 
     // animateOutをいれるタイムラインの箱。→ 遷移時に空にする
     this.transitionTl = gsap.timeline({ paused: true }); 
-    this.textAnimation = null;
+    this.textAnimationSplit = null;
+    this.textAnimationFade = null;
     this.rgbImageAnimation = null;
   
     this.scrollTop = 0;
-
-    // → viewport.addResizeActionに持っていく
-    // window.addEventListener("resize", this.onResize.bind(this))
-    // this.render = this.render.bind(this)
 
     this.init(); // 初期化処理
   }
@@ -164,7 +164,7 @@ class App {
 
       mouse.resize(); // マウスカーソルのsvgのサイズ更新
 
-      this.textAnimation?.onResize();
+      this.textAnimationSplit?.onResize();
     });
 
     world.addRenderAction(() => {
@@ -186,31 +186,18 @@ class App {
 
     
 
-    this.textAnimation = new TextAnimation();
-    this.rgbImageAnimation = new RgbImageAnimation();
-    // console.log("done")
+    this.textAnimationSplit = new TextAnimationSplit();
+    this.textAnimationFade = new TextAnimationFade();
+    this.rgbImageAnimation = new RgbImageAnimation()
 
-    // これら5つはセットで使う
-    this.textAnimation.init();
+    // これら8つはセットで使う
+    this.textAnimationSplit.init();
+    this.textAnimationFade.init();
     this.rgbImageAnimation.init();
-    ScrollTrigger.refresh(); // DOMのサイズや位置が変わった後に呼ぶ  → initでテキストを分割させるので発火させる
-    this.textAnimation.animateIn();
+    ScrollTrigger.refresh();
+    this.textAnimationSplit.animateIn();
+    this.textAnimationFade.animateIn();
     this.rgbImageAnimation.animateIn();
-
-
-
-    // フォントのロード後に処理したいコールバックを渡す
-    // this.loadFont(() => {
-    //   // console.log("init")
-    //   this.textAnimation.init();
-    //   this.rgbImageAnimation.init();
-
-    //   ScrollTrigger.refresh(); // DOMのサイズや位置が変わった後に呼ぶ
-    //                            // → initでテキストを分割させるのでinitの次で発火させる  
-
-    //   this.textAnimation.animateIn();
-    //   this.rgbImageAnimation.animateIn();
-    // });
 
 
     // ✅ Barba
@@ -249,10 +236,14 @@ class App {
 
             this.transitionTl.pause(0); // timelineの開始位置を元に戻す。
             this.transitionTl.clear(); // timelineの中身をカラにする
-            const tlText = this.textAnimation.animateOut();
+            
+            const tlTextSplit = this.textAnimationSplit.animateOut();
+            const tlTextFade = this.textAnimationFade.animateOut();
             const tlRgb = this.rgbImageAnimation.animateOut();
 
-            this.transitionTl.add(tlText, 0); // 親Timelineのどの時刻に追加する
+            // this.transitionTl.add(tlText, 0); // 親Timelineのどの時刻に追加する
+            this.transitionTl.add(tlTextSplit, 0); // 親Timelineのどの時刻に追加する
+            this.transitionTl.add(tlTextFade, 0); // 親Timelineのどの時刻に追加する
             this.transitionTl.add(tlRgb, 0); // 追加
 
             this.transitionTl.play(); // ここで再生
@@ -262,27 +253,12 @@ class App {
                 resolve();
               })
             });
-
-            // return new Promise(resolve => {
-            //   tl.call(() => {
-            //     resolve();
-            //   });
-            // })
           },
           leave: () => {
             console.log("leave");
-            // const medias = this.canvas.medias && this.canvas.medias
 
-            // medias?.forEach((media) => {
-            //   if (!media) return
-            //   media.onResize(this.canvas.sizes)
-            //   gsap.set(media.element, {
-            //     visibility: "hidden",
-            //     opacity: 0,
-            //   })
-            // })
-
-            this.textAnimation.destroy();
+            this.textAnimationSplit.destroy();
+            this.textAnimationFade.destroy();
             this.rgbImageAnimation.destroy();
 
             // return new Promise((resolve) => {
@@ -327,10 +303,6 @@ class App {
 
           beforeEnter: async (data) => {
             console.log("beforeEnter");
-            // this.canvas.medias?.forEach((media) => {
-            //   media?.destroy()
-            //   media = null
-            // })
             
             this.updateHead(data.next.html); // headタグ内を更新
 
@@ -354,28 +326,17 @@ class App {
 
             this.scroll.init();
 
-            this.textAnimation.init();
+            this.textAnimationSplit.init();
+            this.textAnimationFade.init();
             this.rgbImageAnimation.init();
             ScrollTrigger.refresh(); // SplitTextで高さなどDOM構造が変わる可能性があるため
-            this.textAnimation.animateIn();
+            this.textAnimationSplit.animateIn();
+            this.textAnimationFade.animateIn();
             this.rgbImageAnimation.animateIn();
 
             this.scrollBlocked = false;
 
             await this.initPageScript(); // 各ページのJSの実行
-
-            // return new Promise((resolve) => {
-            //   // let activeMedia = null
-
-            //   this.textAnimation.animateIn({ 
-            //     delay: 0.3,
-
-            //     onComplete: () => {
-            //       resolve();
-            //     }
-            //   });
-            // });
-            
           },
         },
 
@@ -397,10 +358,13 @@ class App {
 
             this.transitionTl.pause(0); // timelineの開始位置を元に戻す。
             this.transitionTl.clear(); // timelineの中身をカラにする
-            const tlText = this.textAnimation.animateOut();
+
+            const tlTextSplit = this.textAnimationSplit.animateOut();
+            const tlTextFade = this.textAnimationFade.animateOut();
             const tlRgb = this.rgbImageAnimation.animateOut();
 
-            this.transitionTl.add(tlText, 0); // 親Timelineのどの時刻に追加する
+            this.transitionTl.add(tlTextSplit, 0); // 親Timelineのどの時刻に追加する
+            this.transitionTl.add(tlTextFade, 0); // 親Timelineのどの時刻に追加する
             this.transitionTl.add(tlRgb, 0); // 追加
 
             this.transitionTl.play(); // ここで再生
@@ -471,7 +435,8 @@ class App {
 
             // this.mediaHomeState = Flip.getState(activeLinkImage)
 
-            this.textAnimation.destroy();
+            this.textAnimationSplit.destroy();
+            this.textAnimationFade.destroy();
             this.rgbImageAnimation.destroy();
           },
           afterLeave: () => {
@@ -531,11 +496,12 @@ class App {
 
             this.scroll.init();
 
-            // これらは同じブロックで使う
-            this.textAnimation.init();
+            this.textAnimationSplit.init();
+            this.textAnimationFade.init();
             this.rgbImageAnimation.init();
             ScrollTrigger.refresh(); // SplitTextで高さなどDOM構造が変わる可能性があるため
-            this.textAnimation.animateIn();
+            this.textAnimationSplit.animateIn();
+            this.textAnimationFade.animateIn();
             this.rgbImageAnimation.animateIn();
 
             this.scrollBlocked = false;

@@ -14,7 +14,7 @@ export default class RgbImageAnimation {
     this.ready = true;
 
     this.animations = [];
-    this.animationTweens = [];
+    this.animationTweens = []; // inのtweenを入れる
   }
 
   // ✅ 
@@ -63,22 +63,16 @@ export default class RgbImageAnimation {
         value: 1,
         duration: inDuration,
         ease: inEase,
-
         scrollTrigger: {
           trigger: element,
           start: "top 80%",
           // end: "bottom end",
           toggleActions: "play none none none",
         }
-        // onUpdate: () => {
-        //   console.log(o.uniforms.uProgress.value);
-        // }
       });
 
       this.animationTweens.push(tween);
     });
-
-    // console.log(this.animationTweens);
   }
 
   // ✅ uProgressを1 → 0にして画像を非表示

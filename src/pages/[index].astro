@@ -42,6 +42,7 @@ const { media } = Astro.props;
 
     <div 
       data-text-animation 
+      data-text-animation-fade
       class="details-data"
     >
       <a href="/" class="c-backBtn" id="js-backBtn">戻るボタン戻るボタン</a>
@@ -52,11 +53,11 @@ const { media } = Astro.props;
     <div class="details-container">
       <h1
         class="details_title"
+        data-text-animation
+        data-text-animation-split
         data-text-animation-in-duration="0.5"
         data-text-animation-out-duration="0.4"
         data-text-animation-in-delay="0.4"
-        data-text-animation
-        data-text-animation-split
       >
         { media.name }
       </h1>
