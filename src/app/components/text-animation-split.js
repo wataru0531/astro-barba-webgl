@@ -55,7 +55,10 @@ export default class TextAnimationSplit {
         gsap.set(line, { yPercent: 100 })
       })
 
-      gsap.set(el, { autoAlpha: 1, visibility: "visible" }) // 見えるようにしておく
+      gsap.set(el, { 
+        autoAlpha: 1,  // opacity + visibility
+        // visibility: "visible" 
+      }) // 見えるようにしておく
 
       this.animations.push({
         element: el,
@@ -91,7 +94,7 @@ export default class TextAnimationSplit {
       },
     )
 
-    return gsap.timeline();
+    // return gsap.timeline();
   }
 
   // このtlは、あとからpause(0)、clearするからdestroyする必要はない

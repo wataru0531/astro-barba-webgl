@@ -324,10 +324,20 @@ h1 {
   align-items: end;
 }
 
+
+
+// 
 [data-text-animation],
 [data-icon] {
   visibility: hidden;
 }
+
+[data-text-animation][data-text-animation-split] {
+  opacity: 0;
+  visibility: hidden;
+}
+
+
 
 .details_title {
   margin-top: rem(20);

@@ -24,7 +24,7 @@ export default class Scroll {
     this.s = ScrollSmoother.create({
       smooth: 1,
       normalizeScroll: true,
-      wrapper: document.getElementById("app"),
+      // wrapper: document.getElementById("app"), // → fixedなどが付与される
       content: document.getElementById("smooth-content"),
     })
 

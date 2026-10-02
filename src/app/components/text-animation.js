@@ -1,10 +1,11 @@
 
 // text-animation.js
+// splitと、fadeを統合した場合
 
 // ✅ TODO
 // DOMは$で。
 // Not equalのスクロールアニメーションもここで統一させる
-// splitと、fadeを2つに分けてもいい
+
 
 import gsap from "gsap"
 import { SplitText } from "gsap/SplitText"

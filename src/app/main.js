@@ -297,6 +297,8 @@ class App {
               // console.log(o);
               world.removeObj(o);
             });
+
+            data.current.container.style.opacity = "0";
           },
 
           // --------------- ページが差し代わる -------------------------
@@ -439,7 +441,7 @@ class App {
             this.textAnimationFade.destroy();
             this.rgbImageAnimation.destroy();
           },
-          afterLeave: () => {
+          afterLeave: (data) => {
             console.log("afterleave");
             // 現在ページを離れた後、古いページの後処理 
             // console.log(this.transitionTl);
@@ -451,6 +453,8 @@ class App {
               // console.log(o);
               world.removeObj(o);
             });
+
+            data.current.container.style.opacity = "0";
           },
 
           // ---------------------- ⭐️ ページが差し代わる -----------------------------
@@ -472,6 +476,7 @@ class App {
 
             this.scroll.reset();
             this.scroll.destroy();
+
           },
           enter: async (data) => { 
             // ② Barbaが新しいページをEnterする
@@ -499,6 +504,7 @@ class App {
             this.textAnimationSplit.init();
             this.textAnimationFade.init();
             this.rgbImageAnimation.init();
+
             ScrollTrigger.refresh(); // SplitTextで高さなどDOM構造が変わる可能性があるため
             this.textAnimationSplit.animateIn();
             this.textAnimationFade.animateIn();

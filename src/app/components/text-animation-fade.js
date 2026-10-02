@@ -40,7 +40,10 @@ export default class TextAnimationFade {
       )
 
       // スプリットではないアニメーション → フェードアニメーション
-      gsap.set(el, { autoAlpha: 0, visibility: "hidden" })
+      gsap.set(el, { 
+        autoAlpha: 0, 
+      //   visibility: "hidden" 
+      });
 
       this.animations.push({
         element: el,
