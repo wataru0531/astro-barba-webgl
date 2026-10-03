@@ -21,13 +21,13 @@
 
 // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
 // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-// ページ遷移時にh1が見える
+// ページ遷移時前後に、画像の一部ラインが見える時がある。
 // ページ遷移時のアニメーションを追加
+// フッターをどうするか。smoothを指定すると高さがなくなるのでfooterが上に来てしまう問題
 
 
 // import Canvas from "./components/canvas"
 import Scroll from "./components/scroll"
-import Media from "./components/media"
 
 //@ts-ignore
 import barba from "@barba/core"
@@ -131,6 +131,7 @@ class App {
     this.rgbImageAnimation = null;
   
     this.scrollTop = 0;
+    this.savedScrollTop = 0;
 
     this.init(); // 初期化処理
   }
@@ -173,6 +174,7 @@ class App {
       world.raycast();
 
       this.scrollTop = this.scroll?.getScroll() || 0; // ⭐️ 要確認
+      // console.log(this.scrollTop);
     });
 
     // ・スクロール系のアニメーションの確認
@@ -241,7 +243,6 @@ class App {
             const tlTextFade = this.textAnimationFade.animateOut();
             const tlRgb = this.rgbImageAnimation.animateOut();
 
-            // this.transitionTl.add(tlText, 0); // 親Timelineのどの時刻に追加する
             this.transitionTl.add(tlTextSplit, 0); // 親Timelineのどの時刻に追加する
             this.transitionTl.add(tlTextFade, 0); // 親Timelineのどの時刻に追加する
             this.transitionTl.add(tlRgb, 0); // 追加
@@ -357,6 +358,9 @@ class App {
             console.log("before");
             this.scrollBlocked = true;
             this.scroll.s?.paused(true);
+
+            this.savedScrollTop = this.scroll.getScroll(); // スクロール位置を保存
+
 
             this.transitionTl.pause(0); // timelineの開始位置を元に戻す。
             this.transitionTl.clear(); // timelineの中身をカラにする

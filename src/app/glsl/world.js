@@ -142,12 +142,9 @@ async function _initObj(_viewport, _container = document) {
 // ✅ 現在のスクロール状態を監視
 function updateScroll() {
   world.scrollTarget = window.scrollY;
+  // console.log(world.scrollTarget);
 
-  world.scrollCurrent = utils.lerp(
-    world.scrollCurrent,
-    world.scrollTarget,
-    world.scrollEase, // 0.075
-  );
+  world.scrollCurrent = utils.lerp(world.scrollCurrent, world.scrollTarget, world.scrollEase);
   // console.log(world.scrollCurrent);
 
   world.scrollVelocity = world.scrollTarget - world.scrollCurrent;

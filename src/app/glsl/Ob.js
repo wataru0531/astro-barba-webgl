@@ -264,6 +264,7 @@ class Ob {
 
   setScrollVelocity(_scrollVelocity) {
     this.scrollVelocity = _scrollVelocity;
+    // console.log(this.scrollVelocity);
   }
   
 

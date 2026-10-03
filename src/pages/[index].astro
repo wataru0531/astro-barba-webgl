@@ -2,12 +2,14 @@
 import Layout from '../layouts/Layout.astro';
 import medias from '../data.json';
 
+// URLをつくる
 export const getStaticPaths = async () => {
   return medias.map((media) => {
     // console.log(media)
     return {
+      // params ... [index].astro の index の部分を取得して、URLを作る
       params: { index: media.index.toString() },
-      props: {
+      props: { // ページごとに付与する値
         media,
       },
     };
@@ -16,7 +18,6 @@ export const getStaticPaths = async () => {
 
 // layoutにmetaタグ情報、OGP情報を渡して動的にする
 const { media } = Astro.props;
-
 ---
 
 <Layout 
