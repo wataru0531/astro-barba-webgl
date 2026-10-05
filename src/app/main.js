@@ -24,6 +24,8 @@
 // ページ遷移時前後に、画像の一部ラインが見える時がある。
 // ページ遷移時のアニメーションを追加
 // フッターをどうするか。smoothを指定すると高さがなくなるのでfooterが上に来てしまう問題
+// スクロール位置を戻す
+// デザインの続き
 
 
 // import Canvas from "./components/canvas"
@@ -62,6 +64,8 @@ import { registerScrollAnimations } from "./components/scroll-animation"
 
 import TextAnimationSplit from "./components/text-animation-split"
 import TextAnimationFade from "./components/text-animation-fade"
+import { FALSE } from "sass";
+import { TileShadowNode } from "three/examples/jsm/tsl/shadows/TileShadowNode.js";
 
 
 // ✅ デバッグ
@@ -123,6 +127,9 @@ class App {
     // console.log(this.pageType);
 
     this.scroll = new Scroll();
+    this.scrollTop = 0;
+    this.savedScrollTop = 0;
+
 
     // animateOutをいれるタイムラインの箱。→ 遷移時に空にする
     this.transitionTl = gsap.timeline({ paused: true }); 
@@ -130,9 +137,6 @@ class App {
     this.textAnimationFade = null;
     this.rgbImageAnimation = null;
   
-    this.scrollTop = 0;
-    this.savedScrollTop = 0;
-
     this.init(); // 初期化処理
   }
 
@@ -329,6 +333,9 @@ class App {
 
             this.scroll.init();
 
+            // this.scroll.scrollTop(this.savedScrollTop);
+
+
             this.textAnimationSplit.init();
             this.textAnimationFade.init();
             this.rgbImageAnimation.init();
@@ -360,7 +367,7 @@ class App {
             this.scroll.s?.paused(true);
 
             this.savedScrollTop = this.scroll.getScroll(); // スクロール位置を保存
-
+            // console.log(this.savedScrollTop);
 
             this.transitionTl.pause(0); // timelineの開始位置を元に戻す。
             this.transitionTl.clear(); // timelineの中身をカラにする

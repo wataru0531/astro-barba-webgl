@@ -37,8 +37,8 @@ export default class Scroll {
   }
 
   destroy() {
-    this.s?.kill()
-    this.s = null
+    this.s?.kill();
+    this.s = null;
   }
 
   getScroll() {
@@ -46,5 +46,10 @@ export default class Scroll {
     // console.log(this.scroll);
 
     return this.scroll
+  }
+
+  // 指定した位置にスクロール
+  scrollTop(_scrollTop) {
+    this.s?.scrollTop(_scrollTop);
   }
 }
