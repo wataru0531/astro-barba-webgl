@@ -8,9 +8,6 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 // gsap.registerPlugin(ScrollSmoother)
 
 export default class Scroll {
-  // scroll: number
-  // s: globalThis.ScrollSmoother | null
-
   constructor() {
     window.scrollTo(0, 0)
     this.init()

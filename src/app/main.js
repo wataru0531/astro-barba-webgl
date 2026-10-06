@@ -64,8 +64,6 @@ import { registerScrollAnimations } from "./components/scroll-animation"
 
 import TextAnimationSplit from "./components/text-animation-split"
 import TextAnimationFade from "./components/text-animation-fade"
-import { FALSE } from "sass";
-import { TileShadowNode } from "three/examples/jsm/tsl/shadows/TileShadowNode.js";
 
 
 // ✅ デバッグ
