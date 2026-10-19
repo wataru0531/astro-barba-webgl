@@ -7,6 +7,8 @@
 → "tex1" => Texture　この形で取得
 
 ・ローディングアニメーションの処理
+
+// ⭐️ モデルの読み込み。.gltf、.glbの読み込んでキャッシュする
 ***************************************************************/
 import gsap from "gsap";
 import { LinearFilter, TextureLoader, VideoTexture } from "three";
