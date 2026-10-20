@@ -10,6 +10,21 @@
 
 // ⭐️ モデルの読み込み。.gltf、.glbの読み込んでキャッシュする
 ***************************************************************/
+
+import { GLTFLoader, DRACOLoader } from "three/examples/jsm/Addons.js";
+
+const dracoLoader = new DRACOLoader();
+dracoLoader.setDecoderPath("/draco/");
+
+const gltfLoader = new GLTFLoader();
+gltfLoader.setDRACOLoader(dracoLoader);
+
+const modelCache = new Map(); // 読み込み完了後のGLTFを保存。url => gltf の形式
+const modelPromises = new Map();
+
+
+
+
 import gsap from "gsap";
 import { LinearFilter, TextureLoader, VideoTexture } from "three";
 
@@ -44,6 +59,12 @@ async function init() {
   $.loader = INode.getElement("#loader");
 }
 
+
+// ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+// ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+// ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+// https://chatgpt.com/c/6ad7721f-a3b0-83ee-ba41-37f02198cc5d
+
 // ✅ 全てのURLを取得して、url => テクスチャ の状態でtextureCacheに格納
 async function loadAllAssets() {
   const els = INode.qsAll("[data-webgl]");
@@ -51,7 +72,6 @@ async function loadAllAssets() {
 
   for(const el of els) {
     // console.log(el); // htmlのタグ
-
     const data = el.dataset; // data-〜 の 〜 と 値を取得
     // console.log(data); // DOMStringMap {webgl: 'particles', tex-1: '/img/diverse_image_2.jpeg', mouse: 'highlight', mouseScale: '3'}
 
@@ -169,12 +189,35 @@ async function getTexByElement(el) {
   return texes;
 }
 
+// ✅ モデルのロード
+async function loadModel(_url) {
+  if(modelCache.has(_url)) { // 読み込み済みならキャッシュを返して終了
+    return modelCache.get(_url);
+  }
 
-// ✅ 画像ロード
+  if(modelPromises.has(_url)) { // // 読み込み中なら、同じPromiseを共有する
+    return modelPromises.get(_url);
+  }
+
+  const promise = gltfLoader.loadAsync(_url)
+    .then((gltf) => {
+      modelCache.set(_url, gltf);
+      return gltf;
+    })
+    .finally(() => {
+      modelPromises.delete(_url);
+    });
+  
+  modelPromises.set(_url, promise);
+  return promise;
+}
+
+
 let total = 0; // loadImg、loadVideo
 let progress = 0; // loadImg、loadVideoがPromise.allで解決したら+1
 let _progressAction = null; // コールバック関数を格納する関数
 
+// ✅ 画像ロード
 async function loadImg(url) {
   incrementTotal(); // 読み込み対象の合計値(分母)に +１
 
@@ -196,7 +239,7 @@ async function loadImg(url) {
   }
 }
 
-// 動画ロード
+// ✅ 動画ロード
 // 前半の記述 → urlに紐づいた動画が再生可能かどうかを判定するためだけの記述
 // 後半のPromiseの記述 → 動画の読み込みが完了するまで待機し、動画が再生可能になった時点でPromiseを解決する記述
 async function loadVideo(url) {
@@ -325,8 +368,7 @@ async function _loadingAnimationEnd(_tl){
         resolve();
       }
     });
-  })
-  
+  });
 }
 
 

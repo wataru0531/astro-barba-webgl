@@ -90,7 +90,6 @@ class Ob {
     // console.log(_uniforms)
     this.texes.forEach((tex, key) => {
       //  console.log(tex, key); // Texture{}, "tex1"
-
       _uniforms[key] = { value: tex }; // キー情報を元にテクスチャを設定
       // console.log(_uniforms); // {uTick: {…}, tex1: {value: Texture}, tex2: {value: Texture}}
     });
