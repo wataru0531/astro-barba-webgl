@@ -63,7 +63,10 @@ async function init() {
 // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
 // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
 // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+// loadAllAssets()の編集
 // https://chatgpt.com/c/6ad7721f-a3b0-83ee-ba41-37f02198cc5d
+
+
 
 // ✅ 全てのURLを取得して、url => テクスチャ の状態でtextureCacheに格納
 async function loadAllAssets() {
@@ -189,13 +192,32 @@ async function getTexByElement(el) {
   return texes;
 }
 
+
+// ✅ webgl要素のモデルを取得
+async function getModelByElement(_el) {
+  const models = new Map();
+
+  for(const key of Object.keys(el.dataset)) {
+    if(!key.startsWith("model-")) continue;
+
+    const url = el.dataset[key];
+    if(!url) continue;
+    const modelKey = key.replace("-", ""); // model-1 → model1 にする。
+
+    const gltf = await loadModel(url); // キャッシュ済みなら再利用
+    models.set(modelKey, gltf);
+  }
+
+  return models;
+}
+
 // ✅ モデルのロード
 async function loadModel(_url) {
   if(modelCache.has(_url)) { // 読み込み済みならキャッシュを返して終了
     return modelCache.get(_url);
   }
 
-  if(modelPromises.has(_url)) { // // 読み込み中なら、同じPromiseを共有する
+  if(modelPromises.has(_url)) { // 読み込み中なら、同じPromiseを共有する
     return modelPromises.get(_url);
   }
 
