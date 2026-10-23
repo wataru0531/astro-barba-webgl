@@ -25,9 +25,6 @@ dracoLoader.setDecoderPath("/draco/");
 const gltfLoader = new GLTFLoader();
 gltfLoader.setDRACOLoader(dracoLoader);
 
-const modelCache = new Map(); // 読み込み完了後のGLTFを保存。url => gltf の形式
-const modelPromises = new Map();
-
 
 
 import gsap from "gsap";
@@ -90,7 +87,7 @@ async function loadAllAssets() {
       if (!key.startsWith("tex") && !key.startsWith("model")) continue;
       
       const url = data[key];
-      // console.log(url); // /img/diverse_image_2.jpeg
+      // console.log(url); // /img/diverse_image_2.jpeg, /models/models.glb
 
       // 既に格納してあるURL以外は格納しない
       if (!textureCache.has(url)) {
@@ -107,12 +104,16 @@ async function loadAllAssets() {
 
   // url => Texture の形でtextureCacheに格納
   textureCache.forEach((_, url) => { // value, index → null, 画像のパス
-    // console.log(_, url); // null '/img/diverse_image_2.jpeg'
+    // console.log(_, url); // null '/img/diverse_image_2.jpeg', null '/models/models.glb'
 
     let prms = null; // thenのコールバックで解決されたらプロミスオブジェクトが返り格納される
 
     // 画像 / 動画をロード
-    const loadFn = /\.(mp4|webm|mov)$/.test(url) ? loadVideo : loadImg;
+    // const loadFn = /\.(mp4|webm|mov)$/.test(url) ? loadVideo : loadImg;
+    const loadFn = /\.(glb|gltf)$/.test(url) ? loadModel
+                : /\.(mp4|webm|mov)$/.test(url)
+                ? loadVideo
+                : loadImg;
 
     // ここでは、loadFnの処理の始まりからtextureCacheの処理が終わるまでの一連の流れが終わるまでのプロミスが返される
     prms = loadFn(url).then((tex) => { // tex → Promiseの解決値
@@ -129,7 +130,10 @@ async function loadAllAssets() {
   // console.log(textureCache)
 
   await Promise.all(texPrms);
-  // console.log(textureCache); // Map(4) {'/img/slider/slider_1.jpg' => Texture, '/img/slider/slider_2.jpg' => Texture, '/img/slider/slider_5.jpg' => Texture, '/img/disps/3.png' => Texture}
+  console.log(textureCache); // Map(4) {'/img/slider/slider_1.jpg' => Texture, '/img/slider/slider_2.jpg' => Texture, '/img/slider/slider_5.jpg' => Texture, '/img/disps/3.png' => Texture}
+  // console.log(textureCache.get("/models/models.glb")); // {scene: Group, scenes: Array(1), animations: Array(0), cameras: Array(0), asset: {…}, …}
+  // → gltfオブジェクトでscenedなどを持っている。
+
 }
 
 
@@ -270,20 +274,15 @@ let _progressAction = null; // コールバック関数を格納する関数
 
 
 // ✅ モデルのロード
+// → glft.sceneだけでなく、モデルに関するデータをまとめて利用できるように、gltfオブジェクトを返している。
 async function loadModel(_url) {
-  if(modelCache.has(_url)) { // 読み込み済みならキャッシュを返して終了
-    return modelCache.get(_url);
-  }
-
-  if(modelPromises.has(_url)) { // 読み込み中なら、同じPromiseを共有する
-    return modelPromises.get(_url);
-  }
-
   incrementTotal();
 
   const promise = new Promise((resolve, reject) => {
     gltfLoader.load(_url, (gltf) => {
-      modelCache.set(_url, gltf);
+      console.log(gltf); // {scene: Group, scenes: Array(1), animations: Array(0), cameras: Array(0), asset: {…}, …}
+      // modelCache.set(_url, gltf);
+      // console.log(modelCache);
 
       incrementProgress();
       resolve(gltf);
@@ -293,12 +292,8 @@ async function loadModel(_url) {
       incrementProgress();
       reject(error);
     });
-
-  }).finally(() => {
-    modelPromises.delete(_url);
   });
-
-  modelPromises.set(_url, promise);
+  // console.log(promise)
 
   return promise;
 }
