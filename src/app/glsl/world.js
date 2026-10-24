@@ -104,6 +104,10 @@ async function _initObj(_viewport, _container = document) {
     const type = INode.getDS(el, "webgl");
     // console.log(type) // normal gray
 
+
+    // ⭐️　3Dモデルならここで条件分岐させる。
+    // → ObとModelObとで条件分岐
+
     // ✅ Obクラス初期化 ダイナミックインポート ////////////////////////////////////////
     // import → Promiseを返す → thenで受ける
     // default → defaultエクスポートされたオブジェクト。予約後なのでObに変更

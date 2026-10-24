@@ -19,8 +19,9 @@
 
 import { GLTFLoader, DRACOLoader } from "three/examples/jsm/Addons.js";
 
+// データがdraco圧縮されている場合があるので、解答の準備
 const dracoLoader = new DRACOLoader();
-dracoLoader.setDecoderPath("/draco/");
+dracoLoader.setDecoderPath("/draco/"); // 解凍に必要なデコーダーの指定
 
 const gltfLoader = new GLTFLoader();
 gltfLoader.setDRACOLoader(dracoLoader);
@@ -46,6 +47,7 @@ const loader = {
   init,
   loadAllAssets,
   getTexByElement,
+  getModelsByElement, // new
   loadImg,
   loadVideo,
   addProgressAction,
@@ -62,20 +64,10 @@ async function init() {
 }
 
 
-// ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-// ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-// ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-// loadAllAssets()の編集
-// https://chatgpt.com/c/6ad7721f-a3b0-83ee-ba41-37f02198cc5d
-
-
-
 // ✅ 全てのURLを取得して、url => テクスチャ の状態でtextureCacheに格納
 async function loadAllAssets() {
   const els = INode.qsAll("[data-webgl]");
   // console.log(els)
-
-
 
   for(const el of els) {
     // console.log(el); // htmlのタグ
@@ -111,8 +103,7 @@ async function loadAllAssets() {
     // 画像 / 動画をロード
     // const loadFn = /\.(mp4|webm|mov)$/.test(url) ? loadVideo : loadImg;
     const loadFn = /\.(glb|gltf)$/.test(url) ? loadModel
-                : /\.(mp4|webm|mov)$/.test(url)
-                ? loadVideo
+                : /\.(mp4|webm|mov)$/.test(url) ? loadVideo
                 : loadImg;
 
     // ここでは、loadFnの処理の始まりからtextureCacheの処理が終わるまでの一連の流れが終わるまでのプロミスが返される
@@ -137,66 +128,10 @@ async function loadAllAssets() {
 }
 
 
-// async function loadAllAssets() {
-//   const els = INode.qsAll("[data-webgl]");
-//   // console.log(els)
-
-//   for(const el of els) {
-//     // console.log(el); // htmlのタグ
-//     const data = el.dataset; // data-〜 の 〜 と 値を取得
-//     // console.log(data); // DOMStringMap {webgl: 'particles', tex-1: '/img/diverse_image_2.jpeg', mouse: 'highlight', mouseScale: '3'}
-
-//     for (let key in data) {
-//       if (!key.startsWith("tex")) continue; // texから始まらないループは終了
-//       const url = data[key];
-//       // console.log(url); // /img/diverse_image_2.jpeg
-
-//       // 既に格納してあるURL以外は格納しない
-//       if (!textureCache.has(url)) {
-//         // 必要なURLをセットすればいいだけなので、ここでは第２引数はnullとする。ただ設定しているだけ
-//         textureCache.set(url, null);
-//         // console.log(textureCache); // 0: {"/img/slider/slider_1.jpg" => null}
-//       }
-//     }
-//   }
-//   // console.log(textureCache); // Map(4) {'/img/slider/slider_1.jpg' => null, '/img/slider/slider_2.jpg' => null, '/img/slider/slider_5.jpg' => null, '/img/disps/3.png' => null}
-//   // ここまでは url = null の状態
-
-//   const texPrms = []; // プロミスオブジェクトの配列
-
-//   // url => Texture の形でtextureCacheに格納
-//   textureCache.forEach((_, url) => { // value, index → null, 画像のパス
-//     // console.log(_, url); // null '/img/diverse_image_2.jpeg'
-
-//     let prms = null; // thenのコールバックで解決されたらプロミスオブジェクトが返り格納される
-
-//     // 画像 / 動画をロード
-//     const loadFn = /\.(mp4|webm|mov)$/.test(url) ? loadVideo : loadImg;
-
-//     // ここでは、loadFnの処理の始まりからtextureCacheの処理が終わるまでの一連の流れが終わるまでのプロミスが返される
-//     prms = loadFn(url).then((tex) => { // tex → Promiseの解決値
-//       textureCache.set(url, tex); // プロミスオブジェクトになり返される
-//       // console.log(textureCache) // 0: {"/img/slider/slider_1.jpg" => Texture}
-
-//     }).catch(() => {
-//       console.error("Media Download Error", url);
-//     });
-
-//     texPrms.push(prms);
-//   });
-//   // console.log(texPrms) // プロミスオブジェクトの配列
-//   // console.log(textureCache)
-
-//   await Promise.all(texPrms);
-//   // console.log(textureCache); // Map(4) {'/img/slider/slider_1.jpg' => Texture, '/img/slider/slider_2.jpg' => Texture, '/img/slider/slider_5.jpg' => Texture, '/img/disps/3.png' => Texture}
-// }
-
 
 
 // ✅ キャッシュから取得したテクスチャを要素それぞれに返す処理
-// また、img要素・video要素がelに渡ってきた場合は、完全に読み込んでから、
-
-
+// loadModelの場合はどうする？
 async function getTexByElement(el) {
   // console.log(el); // htmlのタグ
   const texes = new Map(); // tex1 => Texture で格納
@@ -271,8 +206,6 @@ let progress = 0; // loadImg、loadVideoがPromise.allで解決したら+1
 let _progressAction = null; // コールバック関数を格納する関数
 
 
-
-
 // ✅ モデルのロード
 // → glft.sceneだけでなく、モデルに関するデータをまとめて利用できるように、gltfオブジェクトを返している。
 async function loadModel(_url) {
@@ -280,7 +213,7 @@ async function loadModel(_url) {
 
   const promise = new Promise((resolve, reject) => {
     gltfLoader.load(_url, (gltf) => {
-      console.log(gltf); // {scene: Group, scenes: Array(1), animations: Array(0), cameras: Array(0), asset: {…}, …}
+      // console.log(gltf); // {scene: Group, scenes: Array(1), animations: Array(0), cameras: Array(0), asset: {…}, …}
       // modelCache.set(_url, gltf);
       // console.log(modelCache);
 
@@ -298,18 +231,25 @@ async function loadModel(_url) {
   return promise;
 }
 
-// ✅ webgl要素のモデルを取得
-async function getModelByElement(_el) {
+// ✅ 3dモデルを取得
+async function getModelsByElement(_el) {
   const models = new Map();
 
-  for(const key of Object.keys(el.dataset)) {
+  for(const key of Object.keys(_el.dataset)) {
     if(!key.startsWith("model-")) continue;
 
-    const url = el.dataset[key];
+    const url = _el.dataset[key];
     if(!url) continue;
+    
     const modelKey = key.replace("-", ""); // model-1 → model1 にする。
+    // console.log(modelKey);
+    const gltf = textureCache.get(url);
 
-    const gltf = await loadModel(url); // キャッシュ済みなら再利用
+    if(!gltf) {
+      console.error("モデルがキャッシュにありません。", url);
+      continue;
+    }
+
     models.set(modelKey, gltf);
   }
 
