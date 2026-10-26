@@ -3,6 +3,11 @@
 WebGL関連の記述
 Three.js関連の記述
 
+// ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+world.os.push(_o); をすることで、Barbaが破綻している。
+3Dモデルのシーン挿入までの確認
+ObModelの確認
+
 ***************************************************************/
 import {
   WebGLRenderer,
@@ -104,10 +109,6 @@ async function _initObj(_viewport, _container = document) {
     const type = INode.getDS(el, "webgl");
     // console.log(type) // normal gray
 
-
-    // ⭐️　3Dモデルならここで条件分岐させる。
-    // → ObとModelObとで条件分岐
-
     // ✅ Obクラス初期化 ダイナミックインポート ////////////////////////////////////////
     // import → Promiseを返す → thenで受ける
     // default → defaultエクスポートされたオブジェクト。予約後なのでObに変更
@@ -115,7 +116,10 @@ async function _initObj(_viewport, _container = document) {
     return import(`./${type}/index.js`).then(({ default: Ob }) => {
       // return import(`./${type}/index.js`).then((d) => {
       // console.log(d); // Module {Symbol(Symbol.toStringTag): 'Module'}
-      // console.log(Ob)
+      // console.log(type)
+
+      // ⭐️　3Dモデルならここで条件分岐させる。
+      // → Ob と ModelOb とで条件分岐
 
       return Ob.init({ el, type });
     });
@@ -130,7 +134,7 @@ async function _initObj(_viewport, _container = document) {
   _os.forEach((o) => {
     // console.log(o); // default {$: {…}, texes: Map(3), rect: DOMRect, defines: {…}, uniforms: {…}, …}
     // meshがなければ処理中断
-    if(!o.mesh) return;
+    if(!o.mesh && !o.meshes?.length) return;
 
     addObj(o); // シーン、os配列に追加
   });
@@ -167,8 +171,24 @@ function _bindEvents() {
 
 // ✅ メッシュをシーンとosに追加する関数
 function addObj(_o) {
-  world.scene.add(_o.mesh);
-  world.os.push(_o); // awaitで非同期処理が解決した順番でworld.osに格納されていく
+  // world.scene.add(_o.mesh);
+  // world.os.push(_o); // awaitで非同期処理が解決した順番でworld.osに格納されていく
+
+  // 通常のmesh
+  if(_o.mesh) {
+    world.scene.add(_o.mesh);
+  }
+
+  // モデルの場合
+  if(_o.meshes) {
+    // console.log("in")
+    for(const mesh of _o.meshes) {
+      // console.log(mesh); // Group {isObject3D: true, uuid: '61eb2eb4-5a68-4e91-8f00-93084e321048', name: 'Scene', type: 'Group', parent: null, …}
+      world.scene.add(mesh); // Groupメッシュも通常のメッシュ同様にaddできる。
+    }
+  }
+
+  world.os.push(_o);
 }
 
 // ✅ 必要無くなったオブジェクトを削除

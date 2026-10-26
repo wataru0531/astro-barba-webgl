@@ -14,14 +14,6 @@ class Ob {
     const texes = await loader.getTexByElement(el); // キャッシュからテクスチャ取得
     // console.log(texes) // 0: {"tex1" => Texture} 1: {"tex2" => Texture}
 
-
-    // ⭐️ 3Dモデルのキャッシュ
-    const models = await loader.getModelsByElement(el);
-    console.log(models); 
-
-
-
-
     // new this ... 子クラスのインスタンス化
     // ※ new Obとした場合...Obクラスを直接インスタンス化となるため、vertexなどがオーバーライドされない
     const o = new this({ texes, el, type });
