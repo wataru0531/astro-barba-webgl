@@ -3,11 +3,6 @@
 WebGL関連の記述
 Three.js関連の記述
 
-// ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-world.os.push(_o); をすることで、Barbaが破綻している。
-3Dモデルのシーン挿入までの確認
-ObModelの確認
-
 ***************************************************************/
 import {
   WebGLRenderer,
@@ -110,6 +105,7 @@ async function _initObj(_viewport, _container = document) {
     // console.log(type) // normal gray
 
     // ✅ Obクラス初期化 ダイナミックインポート ////////////////////////////////////////
+    // ObもObModelもObとして同じ
     // import → Promiseを返す → thenで受ける
     // default → defaultエクスポートされたオブジェクト。予約後なのでObに変更
     //           ※ defaultを格納したModuleオブジェクト → 名前付きエクスポートも保持
@@ -117,9 +113,6 @@ async function _initObj(_viewport, _container = document) {
       // return import(`./${type}/index.js`).then((d) => {
       // console.log(d); // Module {Symbol(Symbol.toStringTag): 'Module'}
       // console.log(type)
-
-      // ⭐️　3Dモデルならここで条件分岐させる。
-      // → Ob と ModelOb とで条件分岐
 
       return Ob.init({ el, type });
     });

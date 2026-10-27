@@ -121,12 +121,10 @@ async function loadAllAssets() {
   // console.log(textureCache)
 
   await Promise.all(texPrms);
-  console.log(textureCache); // Map(4) {'/img/slider/slider_1.jpg' => Texture, '/img/slider/slider_2.jpg' => Texture, '/img/slider/slider_5.jpg' => Texture, '/img/disps/3.png' => Texture}
+  // console.log(textureCache); // Map(4) {'/img/slider/slider_1.jpg' => Texture, '/img/slider/slider_2.jpg' => Texture, '/img/slider/slider_5.jpg' => Texture, '/img/disps/3.png' => Texture}
   // console.log(textureCache.get("/models/models.glb")); // {scene: Group, scenes: Array(1), animations: Array(0), cameras: Array(0), asset: {…}, …}
   // → gltfオブジェクトでscenedなどを持っている。
-
 }
-
 
 
 

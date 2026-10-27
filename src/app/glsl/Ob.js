@@ -48,6 +48,7 @@ class Ob {
       this.uniforms = this.setupUniforms();
       this.uniforms = this.setupTexes(this.uniforms);
       this.uniforms = this.setupResolution(this.uniforms); // (画像・動画のアスペクト比の計算)
+      // console.log(this.uniforms);
 
       this.vertexShader = this.setupVertex();
       this.fragmentShader = this.setupFragment();

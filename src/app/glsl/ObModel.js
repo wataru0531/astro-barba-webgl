@@ -6,8 +6,16 @@
 // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
 // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
 // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-// ObModelクラスの確認
+
+// ObModelクラスの作成、確認
 // world.jsのinitObの条件分岐
+
+// ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+// world.os.push(_o); をすることで、Barbaが破綻している。
+// 3Dモデルのシーン挿入までの確認
+// ObModelの確認
+// 各3Dモデルの各ファイルでの独自の実装
+
 
 import { PlaneGeometry, ShaderMaterial, Mesh, Vector2 } from "three";
 
@@ -30,7 +38,7 @@ class ObModel {
   constructor({ el, type, models }) {
     this.$ = { el };
     this.models = models;
-    this.meshes = [];
+    this.meshes = []; 
 
     this.scale = { width: 1, height: 1, depth: 1 };
     this.resizing = false;
@@ -43,7 +51,7 @@ class ObModel {
     // const gltf = this.models.values().next().value;
     // console.log(gltf); // {scene: Group, scenes: Array(1), animations: Array(0), cameras: Array(0), asset: {…}, …}
 
-    for(const [key, gltf] of this.models) {
+    for(const [ key, gltf ] of this.models) {
       const mesh = gltf.scene;
       // console.log(key); // model1 model2
       mesh.__marker = type;
@@ -53,7 +61,6 @@ class ObModel {
     }
     // console.log(this.meshes); // (2) [Group, Group]
     // → 複数のシーンが入る。
-
 
     // if(!gltf) {
     //   this.mesh = null;
@@ -73,7 +80,43 @@ class ObModel {
     );
 
     // this.mesh.position.set(x, y, 0);
+    try {
+      this.beforeCreateMesh();
+      this.defines = this.setupDefines();
+      this.uniforms = this.setupUniforms();
+
+
+    } catch(e) {
+
+    }
   }
+
+  beforeCreateMesh() {}
+
+  setupDefines() {
+    return {
+      PI: Math.PI,
+    }
+  }
+
+  setupUniforms() {
+    return {
+      uTick: { value: 0 },
+      uMouse: { value: new Vector2( 0.5, 0.5) },
+      uAlpha: { value: 0 },
+      uHover: { value: 0 },
+      uProgress: { value: 0 },
+    }
+  }
+
+  // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+  // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+  // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+
+
+
+
+
 
   getWorldPosition(rect, canvasRect) {
     const x = rect.left + rect.width / 2 - canvasRect.width / 2;
