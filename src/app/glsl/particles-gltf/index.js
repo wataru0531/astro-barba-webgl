@@ -13,8 +13,23 @@ import fragmentShader from "./fragment.glsl";
 // Obクラスを継承したクラスを作成。クラス名はつけなくてもいい
 export default class extends ObModel{
 
-  // このようにすることで、基本的にはObクラスの処理を使いながら
-  // 個別の処理をここで設定することができる
+  // 3Dモデルをそのまま表示するならfalse。
+  // ShaderMaterialをあてて使うならtrue.
+  useShaderMaterial() {
+    return true;
+  }
+
+  // 
+  applyShaderMaterial(root) {
+    root.traverse((child) => {
+      // Mesh以外はスキップ
+      if (!child.isMesh) return;
+
+      // 元のgeometryはそのまま使い、materialだけを独自のShaderMaterialに変更
+      child.material = this.setupMaterial();
+    });
+  }
+
 
   setupVertex(){
     return vertexShader;

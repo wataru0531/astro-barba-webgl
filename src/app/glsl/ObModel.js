@@ -10,6 +10,24 @@
 // ObModelの確認
 // 各3Dモデルの各ファイルでの独自の実装
 
+// モデルのsceneをそのまま常時か、頂点をとりだして再構築してsceneに追加
+// ① world.js
+// → data-webgl属性を読み取り、個別のクラスを動的にimport
+
+// ② 個別のModelクラス
+// → ObModelを継承し、vertex.glsl / fragment.glslを指定
+
+// ③ 共通のObModel
+// → GLTFを取得し、Group内のMeshを探索
+//   ShaderMaterialを作成して適用するか判断
+
+// ⭐️ 通常表示 → モデルのsceneをそのまま表示
+// ⭐️ Shader表示 → モデルのsceneから頂点などを取り出して、独自ShaderMaterialを作り表示
+// 　↓
+// world.scene に追加する
+
+// ※ Groupを追加すれば、内部のMeshも描画対象になる
+
 import { PlaneGeometry, ShaderMaterial, Mesh, Vector2 } from "three";
 
 import loader from "../components/loader";
@@ -49,12 +67,13 @@ class ObModel {
     // }
 
     for(const [ key, gltf ] of this.models) {
-      const mesh = gltf.scene;
+      const root = gltf.scene; // ⭐️ シーンをメッシュに格納する
+                                // →　gltf.sceneは単独のmeshではなくてGroupの可能性もあるためrootと名付ける
       // console.log(key); // model1 model2
-      mesh.__marker = type;
-      mesh.__modelKey = key;
+      root.__marker = type;
+      root.__modelKey = key;
 
-      this.meshes.push(mesh);
+      this.meshes.push(root);
     }
     // console.log(this.meshes); // (2) [Group, Group]
     // → 複数のシーンが入る。
@@ -71,12 +90,19 @@ class ObModel {
     // this.mesh.__marker = type;
 
     // ⑤ 初期位置を設定
-    const { x, y } = this.getWorldPosition(
-      this.rect,
-      viewport
-    );
+
+    // const { x, y } = this.getWorldPosition(
+    //   this.rect,
+    //   viewport
+    // );
 
     // this.mesh.position.set(x, y, 0);
+
+
+    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+    // 処理の確認。→ 3Dモデルそのまま表示か、否か
     try {
       this.beforeCreateMesh();
       this.defines = this.setupDefines();
@@ -84,12 +110,39 @@ class ObModel {
       this.uniforms = this.setupTexes(this.uniforms);
       this.uniforms = this.setupResolution(this.uniforms);
 
+      // 3Dモデルをそのまま使わずに、ShaderMaterialをあてる
+      if(this.useShaderMaterial()) {
+        this.vertexShader = this.setupVertex();
+        this.fragmentShader = this.setupFragment();
+
+        for(const root of this.meshes) {
+          this.applyShaderMaterial(root); // ShaderMaterialを適用
+        }
+      }
+
+      // this.vertexShader = this.setupVertex();
+      // this.fragmentShader = this.setupFragment();
+      // this.material = this.setupMaterial();
+      // // console.log(this.material);
+      // this.geometry = this.setupGeometry();
+      // this.mesh = this.setupMesh();
+      this.disableOriginalElem(); // ドラッグ時の挙動の処理
+      this.mesh.__marker = type; // typeを渡せばどの位置でエラーとなったかが分かるようにtypeを渡す
+      
+      this.afterInit();
+
     } catch(e) {
 
     }
   }
 
   beforeCreateMesh() {}
+
+  // ✅ 独自のshaderMaterialを使うかどうか
+  // → 3Dモデルの中を編集して使いたいなら、親クラスで上書きしてtrueに
+  useShaderMaterial() {
+    return false;
+  }
 
   setupDefines() {
     return {
@@ -199,6 +252,10 @@ class ObModel {
     this.$.el.style.opacity = 0;
   }
 
+  async resize(_duration = 1) {
+    console.log("ObModel resize");
+  }
+
   // async resize(_duration = 1) {
   //   // メッシュの位置とサイズの更新
   //   this.resizing = true;
@@ -257,45 +314,45 @@ class ObModel {
     return { x, y };
   }
 
-  scroll() {
-    if(this.fixed) return;
+  scroll() {}
 
-    const { $: { el }, mesh } = this;
-    const rect = INode.getRect(el);
-    const { x, y } = this.getWorldPosition(rect, viewport);
+  // scroll() {
+  //   if(this.fixed) return;
 
-    mesh.position.x = x;
-    mesh.position.y = y;
-  }
+  //   const { $: { el }, mesh } = this;
+  //   const rect = INode.getRect(el);
+  //   const { x, y } = this.getWorldPosition(rect, viewport);
+
+  //   mesh.position.x = x;
+  //   mesh.position.y = y;
+  // }
 
   setScrollVelocity(_scrollVelocity) {
     this.scrollVelocity = _scrollVelocity;
     // console.log(this.scrollVelocity);
   }
 
-  // ⭐️これから⭐️これから⭐️これから⭐️これから⭐️これから⭐️これから
-  // ⭐️これから⭐️これから⭐️これから⭐️これから⭐️これから⭐️これから
-  // ⭐️これから⭐️これから⭐️これから⭐️これから⭐️これから⭐️これから
-
-
-  // world側から呼び出されるメソッド
-  render(tick) {}
+  render(tick) {
+    this.uniforms.uTick.value = tick;
+  }
 
   async afterInit() {}
 
-  scroll() {
-    if (!this.mesh) return;
-
-    const rect = INode.getRect(this.$.el);
-    const { x, y } = this.getWorldPosition(rect, viewport);
-
-    this.mesh.position.x = x;
-    this.mesh.position.y = y;
+  async playVideo(texId = "tex1") {
+    // 動画の再生関数。playは非同期関数
+    // console.log(this.uniforms[texId])
+    // console.log(this.uniforms[texId].value.source.data.play?.())
+    // data → TextureLoaderで生成したDOMを格納
+    // 画像にはplayはないのでオプショナルチェイニング演算子でplayがなかった場合エラーにしないと制御を加える
+    // play...非同期でプロミスが返る
+    await this.uniforms[texId].value.source.data.play?.();
   }
 
-  setScrollVelocity(velocity) {
-    this.scrollVelocity = velocity;
+  pause(texId = "tex1") {
+    // 動画の停止関数
+    this.uniforms[texId].value.source.data.pause?.();
   }
+
 }
 
 export { ObModel };
