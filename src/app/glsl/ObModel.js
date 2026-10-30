@@ -9,9 +9,11 @@
 // 3Dモデルのシーン挿入までの確認
 // ObModelの確認
 // 各3Dモデルの各ファイルでの独自の実装
+// リサイズ処理
+// スクロール処理
 
-// モデルのsceneをそのまま常時か、頂点をとりだして再構築してsceneに追加
-// ① world.js
+// モデルのsceneをそのまま常時か、頂点をとりだして再構築してsceneに追加するかで分ける
+// ① world.jsの_initObj
 // → data-webgl属性を読み取り、個別のクラスを動的にimport
 
 // ② 個別のModelクラス
@@ -103,6 +105,7 @@ class ObModel {
     // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
     // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
     // 処理の確認。→ 3Dモデルそのまま表示か、否か
+
     try {
       this.beforeCreateMesh();
       this.defines = this.setupDefines();
@@ -110,7 +113,7 @@ class ObModel {
       this.uniforms = this.setupTexes(this.uniforms);
       this.uniforms = this.setupResolution(this.uniforms);
 
-      // 3Dモデルをそのまま使わずに、ShaderMaterialをあてる
+      // 3Dモデルをそのまま表示せずに、ShaderMaterialを適用する場合
       if(this.useShaderMaterial()) {
         this.vertexShader = this.setupVertex();
         this.fragmentShader = this.setupFragment();
@@ -120,19 +123,18 @@ class ObModel {
         }
       }
 
-      // this.vertexShader = this.setupVertex();
-      // this.fragmentShader = this.setupFragment();
-      // this.material = this.setupMaterial();
-      // // console.log(this.material);
-      // this.geometry = this.setupGeometry();
-      // this.mesh = this.setupMesh();
       this.disableOriginalElem(); // ドラッグ時の挙動の処理
-      this.mesh.__marker = type; // typeを渡せばどの位置でエラーとなったかが分かるようにtypeを渡す
-      
       this.afterInit();
 
+      // これらは、3Dモデルの中にgeometry、materialなどを持つために必要ない
+      // this.material = this.setupMaterial();
+      // this.geometry = this.setupGeometry();
+      // this.mesh = this.setupMesh();
+      // this.mesh.__marker = type; // typeを渡せばどの位置でエラーとなったかが分かるようにtypeを渡す
+      
     } catch(e) {
-
+      if(window.debug) console.log(e);
+      return {};
     }
   }
 
@@ -172,6 +174,7 @@ class ObModel {
     return new PlaneGeometry(this.rect.width, this.rect.height, 1, 1);
   }
 
+  // ✅ 3Dモデルのメッシュに適用する
   setupMaterial() {
     return new ShaderMaterial({
       defines: this.defines,
@@ -252,6 +255,7 @@ class ObModel {
     this.$.el.style.opacity = 0;
   }
 
+  // ✅ TODO リサイズ
   async resize(_duration = 1) {
     console.log("ObModel resize");
   }
@@ -333,6 +337,8 @@ class ObModel {
   }
 
   render(tick) {
+    if(!this.useShaderMaterial()) return;
+
     this.uniforms.uTick.value = tick;
   }
 
