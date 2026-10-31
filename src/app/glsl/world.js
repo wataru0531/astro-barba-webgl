@@ -164,6 +164,8 @@ function _bindEvents() {
 
 // ✅ メッシュをシーンとosに追加する関数
 function addObj(_o) {
+  console.log(_o);
+  // console.log(_o.mesh)
   // world.scene.add(_o.mesh);
   // world.os.push(_o); // awaitで非同期処理が解決した順番でworld.osに格納されていく
 
@@ -172,7 +174,7 @@ function addObj(_o) {
     world.scene.add(_o.mesh);
   }
 
-  // モデルの場合
+  // 3Dモデルの場合
   if(_o.meshes) {
     // console.log("in")
     for(const mesh of _o.meshes) {

@@ -80,32 +80,6 @@ class ObModel {
     // console.log(this.meshes); // (2) [Group, Group]
     // → 複数のシーンが入る。
 
-    // if(!gltf) {
-    //   this.mesh = null;
-    //   return;
-    // }
-
-    // ④ glTFのsceneをmeshとして保持
-    // this.mesh = gltf.scene;
-
-    // どのWebGLオブジェクトか識別する
-    // this.mesh.__marker = type;
-
-    // ⑤ 初期位置を設定
-
-    // const { x, y } = this.getWorldPosition(
-    //   this.rect,
-    //   viewport
-    // );
-
-    // this.mesh.position.set(x, y, 0);
-
-
-    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-    // 処理の確認。→ 3Dモデルそのまま表示か、否か
-
     try {
       this.beforeCreateMesh();
       this.defines = this.setupDefines();
@@ -113,13 +87,20 @@ class ObModel {
       this.uniforms = this.setupTexes(this.uniforms);
       this.uniforms = this.setupResolution(this.uniforms);
 
-      // 3Dモデルをそのまま表示せずに、ShaderMaterialを適用する場合
+      // ✅ 3Dモデル(scene)のmaterialを使うかどうか、ShaderMaterialを適用するか
       if(this.useShaderMaterial()) {
         this.vertexShader = this.setupVertex();
         this.fragmentShader = this.setupFragment();
 
         for(const root of this.meshes) {
           this.applyShaderMaterial(root); // ShaderMaterialを適用
+        }
+      }
+
+      // ✅ 3Dモデル(scene)のgeometryを使うかどうか、オリジナルのgeometryを適用するか
+      if(this.useCustomGeometry()) {
+        for(const root of this.meshes) {
+          this.applyCustomGeometry(root);
         }
       }
 
@@ -170,11 +151,12 @@ class ObModel {
     return _uniforms;
   }
 
-  setupGeometry() {
-    return new PlaneGeometry(this.rect.width, this.rect.height, 1, 1);
-  }
+  // setupGeometry() {
+  //   return new PlaneGeometry(this.rect.width, this.rect.height, 1, 1);
+  // }
 
   // ✅ 3Dモデルのメッシュに適用する
+  // → 適用するなら親クラスで
   setupMaterial() {
     return new ShaderMaterial({
       defines: this.defines,
@@ -318,6 +300,7 @@ class ObModel {
     return { x, y };
   }
 
+  // ✅ TODO スクロール処理
   scroll() {}
 
   // scroll() {
