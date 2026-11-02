@@ -5,9 +5,17 @@
 // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
 // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
 
-// ライトをあてていく
+// ライトをあてていく → なぜ灰色のメッシュなのか
+// Geometryの処理
 
 ***************************************************************/
+import { 
+  BufferGeometry,
+  Float32BufferAttribute,
+  Points,
+  
+} from "three";
+
 import { ObModel } from "../ObModel";
 
 //
@@ -31,7 +39,7 @@ export default class extends ObModel{
     return true;
   }
 
-  // ✅ 3Dモデルのマテリアルに、ShaderMaterialを適用する。
+  // ✅ 3Dモデルのマテリアルに、独自のShaderMaterialを適用する。
   // Group → 複数の3Dオブジェクトをまとめる親
   // Object3D →	Three.jsの3Dオブジェクトの基本クラス
   // Bone →	3Dモデルの骨格
@@ -57,7 +65,7 @@ export default class extends ObModel{
     });
   }
 
-  // ✅ glTFのGeometryをカスタマイズする処理
+  // ✅ glTFのgeometryに独自のカスタマイズする処理
   applyCustomGeometry(_root){
     // console.log(_root); // Group {isObject3D: true, uuid: '323cb6b5-1a1f-42a1-8e25-e816fbf75527', name: '', type: 'Group', parent: null, …}
 
@@ -65,17 +73,120 @@ export default class extends ObModel{
     // _root.scale.set(50, 50, 50);
     _root.scale.multiplyScalar(50);
 
+    // particlesの初期設定
+    this.particles = {};
+    const particles = this.particles;
+    particles.index = 0;
+
+    //  glTFのMeshから頂点を取得
+    const meshes = [];
     _root.traverse(child => {
       if(!child.isMesh) return;
-      // console.log(child); // SkinnedMesh {isObject3D: true, uuid: '3d60a5c8-7d86-419e-a994-faf48ccbcd19', name: 'fox', type: 'SkinnedMesh', parent: _Object3D, …}
-      console.log(child.geometry); // _BufferGeometry {isBufferGeometry: true, uuid: '1bd90b20-b80f-4f43-a863-ffadf25c7eb1', name: '', type: 'BufferGeometry', index: null, …}
 
-      // TODO Geometryを独自に生成する処理を書いていく
-
-
+      meshes.push(child);
     });
+    // console.log(meshes); // (4) [Mesh, Mesh, Mesh, Mesh]
+
+    const positions = meshes.map(child => child.geometry.attributes.position);
+    // console.log(positions); // (4) [BufferAttribute, BufferAttribute, BufferAttribute, BufferAttribute]
+
+    // 最大超点数を取得　→ メッシュの携帯を変化させるには同じ超点数に合わせる必要があるため
+    particles.maxCount = 0;
+
+    for(const position of positions) {
+      if(position.count > particles.maxCount) {
+        particles.maxCount = position.count;
+      }
+    }
+    // console.log(particles.maxCount); // 10242
+
+    // 超点数を統一していく
+    particles.positions = [];
+
+    for(const position of positions) {
+      const originalArray = position.array;
+      // console.log(originalArray); 
+      // Float32Array(29928), Float32Array(23874), Float32Array(30726), Float32Array(28566)
+
+      const newArray = new Float32Array(particles.maxCount * 3);
+      for(let i = 0; i < particles.maxCount; i++) {
+        const i3 = i * 3;
+
+        if(i < position.count) {
+          newArray[i3 + 0] = originalArray[i3 + 0];
+          newArray[i3 + 1] = originalArray[i3 + 1];
+          newArray[i3 + 2] = originalArray[i3 + 2];
+        } else {
+          const randomIndex = Math.floor(position.count * Math.random()) * 3;
+
+          newArray[i3 + 0] = originalArray[randomIndex + 0];
+          newArray[i3 + 1] = originalArray[randomIndex + 1];
+          newArray[i3 + 2] = originalArray[randomIndex + 2];
+        }
+      }
+
+      particles.positions.push(new Float32BufferAttribute(newArray, 3));
+    }
+    // console.log(particles.positions); // (4) [Float32BufferAttribute, Float32BufferAttribute, Float32BufferAttribute, Float32BufferAttribute]
+    // → すべての頂点が 30726 に統一される
+
+    // aSizeを生成していく
+    const sizesArray = new Float32Array(particles.maxCount);
+    for(let i = 0; i < particles.maxCount; i++) {
+      sizesArray[i] = Math.random();
+    }
+
+    particles.geometry = new BufferGeometry();
+    particles.geometry.setAttribute("position", particles.positions[particles.index]);
+    particles.geometry.setAttribute("aPositionTarget", particles.positions[particles.positions.length - 1]);
+    particles.geometry.setAttribute("aSize", new Float32BufferAttribute(sizesArray, 1));
 
 
+    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+    // 確認、元のコードも確認する
+
+
+
+
+    // ✅ Pointsを生成していく
+    particles.material = this.setupMaterial();
+
+    particles.points = new Points(
+      particles.geometry,
+      particles.material
+    );
+
+    particles.points.frustumCulled = false;
+    // world.js の addObj() で追加できるようにする
+    this.mesh = particles.points;
+
+
+    // ✅ モーフィング関数
+    particles.morph = (_index) => {
+      particles.geometry.setAttribute(
+        "position",
+        particles.positions[particles.index]
+      );
+
+      particles.geometry.setAttribute(
+        "aPositionTarget",
+        particles.positions[_index]
+      );
+
+      gsap.fromTo(
+        particles.material.uniforms.uProgress,
+        { value: 0 },
+        {
+          value: 1,
+          duration: 3,
+          ease: "expo.out",
+        }
+      );
+
+      particles.index = _index;
+    };
   }
 
   setupVertex(){

@@ -87,7 +87,8 @@ class ObModel {
       this.uniforms = this.setupTexes(this.uniforms);
       this.uniforms = this.setupResolution(this.uniforms);
 
-      // ✅ 3Dモデル(scene)のmaterialを使うかどうか、ShaderMaterialを適用するか
+      // ✅ 3Dモデル(scene)のmaterialを使うかどうか
+      //    独自のShaderMaterialを適用するか
       if(this.useShaderMaterial()) {
         this.vertexShader = this.setupVertex();
         this.fragmentShader = this.setupFragment();
@@ -97,7 +98,8 @@ class ObModel {
         }
       }
 
-      // ✅ 3Dモデル(scene)のgeometryを使うかどうか、オリジナルのgeometryを適用するか
+      // ✅ 3Dモデル(scene)のgeometryを使うかどうか
+      //    独自のgeometryを適用するか
       if(this.useCustomGeometry()) {
         for(const root of this.meshes) {
           this.applyCustomGeometry(root);
