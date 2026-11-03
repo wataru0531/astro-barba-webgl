@@ -11,8 +11,10 @@
 ***************************************************************/
 import { 
   BufferGeometry,
+  Color,
   Float32BufferAttribute,
   Points,
+  Vector2,
   
 } from "three";
 
@@ -21,6 +23,7 @@ import { ObModel } from "../ObModel";
 //
 import vertexShader   from "./vertex.glsl";
 import fragmentShader from "./fragment.glsl";
+import { Uniform } from "three";
 
 
 // ObModelクラスを継承したクラスを作成。
@@ -130,16 +133,16 @@ export default class extends ObModel{
     // console.log(particles.positions); // (4) [Float32BufferAttribute, Float32BufferAttribute, Float32BufferAttribute, Float32BufferAttribute]
     // → すべての頂点が 30726 に統一される
 
-    // aSizeを生成していく
+    // aSizeを生成していく → 0 〜 1 の範囲
     const sizesArray = new Float32Array(particles.maxCount);
     for(let i = 0; i < particles.maxCount; i++) {
       sizesArray[i] = Math.random();
     }
 
     particles.geometry = new BufferGeometry();
-    particles.geometry.setAttribute("position", particles.positions[particles.index]);
-    particles.geometry.setAttribute("aPositionTarget", particles.positions[particles.positions.length - 1]);
-    particles.geometry.setAttribute("aSize", new Float32BufferAttribute(sizesArray, 1));
+    particles.geometry.setAttribute("position", particles.positions[particles.index]); // モーフィングの最初のインデックス
+    particles.geometry.setAttribute("aPositionTarget", particles.positions[particles.positions.length - 1]); // ✅ 移動先の座標(ターゲット)。最後のモーフィングの頂点
+    particles.geometry.setAttribute("aSize", new Float32BufferAttribute(sizesArray, 1)); // ランダムな 0 〜 1の少数
 
 
     // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
@@ -153,10 +156,7 @@ export default class extends ObModel{
     // ✅ Pointsを生成していく
     particles.material = this.setupMaterial();
 
-    particles.points = new Points(
-      particles.geometry,
-      particles.material
-    );
+    particles.points = new Points(particles.geometry, particles.material);
 
     particles.points.frustumCulled = false;
     // world.js の addObj() で追加できるようにする
@@ -165,28 +165,18 @@ export default class extends ObModel{
 
     // ✅ モーフィング関数
     particles.morph = (_index) => {
-      particles.geometry.setAttribute(
-        "position",
-        particles.positions[particles.index]
-      );
-
-      particles.geometry.setAttribute(
-        "aPositionTarget",
-        particles.positions[_index]
-      );
+      particles.geometry.setAttribute("position", particles.positions[particles.index]);
+      particles.geometry.setAttribute("aPositionTarget", particles.positions[_index]);
 
       gsap.fromTo(
         particles.material.uniforms.uProgress,
         { value: 0 },
-        {
-          value: 1,
-          duration: 3,
-          ease: "expo.out",
-        }
+        { value: 1, duration: 3, ease: "expo.out", }
       );
 
-      particles.index = _index;
+      particles.index = _index; 
     };
+
   }
 
   setupVertex(){
@@ -195,6 +185,35 @@ export default class extends ObModel{
 
   setupFragment(){
     return fragmentShader;
+  }
+
+  setupUniforms() {
+    return {
+      ...super.setupUniforms(), // ObModelの内容を継承
+
+      uSize: new Uniform(0.4), // 全体的な粒子サイズをコントロールするスケール係数
+      uResolution: new Uniform(
+        new Vector2(
+          sizes.width * sizes.pixelRatio,
+          sizes.height * sizes.pixelRatio,
+        ),
+      ),
+      uColorA: new Uniform(new Color(particles.colorA)),
+      uColorB: new Uniform(new Color(particles.colorB)),
+    }
+  }
+
+  // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+  // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+  // 必要なものだけ継承する
+  setupMaterial() {
+    return new ShaderMaterial({
+      vertexShader: this.vertexShader,
+      fragmentShader: this.fragmentShader,
+      uniforms: this.uniforms,
+      blending: AdditiveBlending, // 他のMeshや背景色と重なった場合は色を上書きせずに現実のように色を混ぜ合わせる。
+      depthWrite: false,
+    });
   }
 }
 
