@@ -77,7 +77,7 @@ export default class extends ObModel{
     _root.scale.multiplyScalar(50);
 
     // particlesの初期設定
-    this.particles = {};
+    this.particles = {}; // ✅ geometry、materialなどパーティクルのデータを格納していく
     const particles = this.particles;
     particles.index = 0;
 
@@ -144,13 +144,10 @@ export default class extends ObModel{
     particles.geometry.setAttribute("aPositionTarget", particles.positions[particles.positions.length - 1]); // ✅ 移動先の座標(ターゲット)。最後のモーフィングの頂点
     particles.geometry.setAttribute("aSize", new Float32BufferAttribute(sizesArray, 1)); // ランダムな 0 〜 1の少数
 
-
     // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
     // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
     // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
     // 確認、元のコードも確認する
-
-
 
 
     // ✅ Pointsを生成していく
@@ -161,7 +158,6 @@ export default class extends ObModel{
     particles.points.frustumCulled = false;
     // world.js の addObj() で追加できるようにする
     this.mesh = particles.points;
-
 
     // ✅ モーフィング関数
     particles.morph = (_index) => {
