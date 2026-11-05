@@ -14,6 +14,7 @@ import {
   Color,
   Float32BufferAttribute,
   Points,
+  ShaderMaterial,
   Vector2,
   
 } from "three";
@@ -24,10 +25,16 @@ import { ObModel } from "../ObModel";
 import vertexShader   from "./vertex.glsl";
 import fragmentShader from "./fragment.glsl";
 import { Uniform } from "three";
+import { AdditiveBlending } from "three";
 
 
 // ObModelクラスを継承したクラスを作成。
 export default class extends ObModel{
+
+  beforeCreateMesh() {
+    this.colorA = "#ff7300";
+    this.colorB = "#0091ff";
+  }
 
   // ✅ モデル(scene)のmaterialをそのまま表示するかそうか。
   // → そのまま表示ならfalse。
@@ -59,7 +66,6 @@ export default class extends ObModel{
     // 子・孫・ひ孫といった階層の深いところにあるオブジェクトまで再帰的に探索可能
     _root.traverse((child) => {
       // console.log(child);
-
       if (!child.isMesh) return; // ThreeのMesh以外はスキップ
       // console.log(child); // SkinnedMesh {isObject3D: true, uuid: 'c800e23c-545b-4296-9e2a-babfdbd942fe', name: 'fox', type: 'SkinnedMesh', parent: _Object3D, …}
 
@@ -77,8 +83,9 @@ export default class extends ObModel{
     _root.scale.multiplyScalar(50);
 
     // particlesの初期設定
-    this.particles = {}; // ✅ geometry、materialなどパーティクルのデータを格納していく
-    const particles = this.particles;
+    // this.particles = {}; // ✅ geometry、materialなどパーティクルのデータを格納していく
+    // const particles = this.particles;
+    const particles = {};
     particles.index = 0;
 
     //  glTFのMeshから頂点を取得
@@ -139,40 +146,16 @@ export default class extends ObModel{
       sizesArray[i] = Math.random();
     }
 
-    particles.geometry = new BufferGeometry();
-    particles.geometry.setAttribute("position", particles.positions[particles.index]); // モーフィングの最初のインデックス
-    particles.geometry.setAttribute("aPositionTarget", particles.positions[particles.positions.length - 1]); // ✅ 移動先の座標(ターゲット)。最後のモーフィングの頂点
-    particles.geometry.setAttribute("aSize", new Float32BufferAttribute(sizesArray, 1)); // ランダムな 0 〜 1の少数
+    const geometry = new BufferGeometry();
+    geometry.setAttribute("position", particles.positions[particles.index]); // モーフィングの最初のインデックス
+    geometry.setAttribute("aPositionTarget", particles.positions[particles.positions.length - 1]); // ✅ 移動先の座標(ターゲット)。最後のモーフィングの頂点
+    geometry.setAttribute("aSize", new Float32BufferAttribute(sizesArray, 1)); // ランダムな 0 〜 1の少数
 
-    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-    // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-    // 確認、元のコードも確認する
-
-
-    // ✅ Pointsを生成していく
-    particles.material = this.setupMaterial();
-
-    particles.points = new Points(particles.geometry, particles.material);
-
-    particles.points.frustumCulled = false;
-    // world.js の addObj() で追加できるようにする
-    this.mesh = particles.points;
-
-    // ✅ モーフィング関数
-    particles.morph = (_index) => {
-      particles.geometry.setAttribute("position", particles.positions[particles.index]);
-      particles.geometry.setAttribute("aPositionTarget", particles.positions[_index]);
-
-      gsap.fromTo(
-        particles.material.uniforms.uProgress,
-        { value: 0 },
-        { value: 1, duration: 3, ease: "expo.out", }
-      );
-
-      particles.index = _index; 
-    };
-
+    return {
+      geometry,
+      positions: particles.positions,
+      maxCount: particles.maxCount,
+    }
   }
 
   setupVertex(){
@@ -190,17 +173,15 @@ export default class extends ObModel{
       uSize: new Uniform(0.4), // 全体的な粒子サイズをコントロールするスケール係数
       uResolution: new Uniform(
         new Vector2(
-          sizes.width * sizes.pixelRatio,
-          sizes.height * sizes.pixelRatio,
+          this.sizes.width * this.sizes.pixelRatio,
+          this.sizes.height * this.sizes.pixelRatio,
         ),
       ),
-      uColorA: new Uniform(new Color(particles.colorA)),
-      uColorB: new Uniform(new Color(particles.colorB)),
+      uColorA: new Uniform(new Color(this.colorA)),
+      uColorB: new Uniform(new Color(this.colorB)),
     }
   }
 
-  // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-  // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
   // 必要なものだけ継承する
   setupMaterial() {
     return new ShaderMaterial({

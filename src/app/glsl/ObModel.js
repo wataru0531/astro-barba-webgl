@@ -28,10 +28,6 @@
 // 　↓
 // world.scene に追加する
 
-// ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-// ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-// ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-
 // ✅ ポイント②
 // geometry → 編集する時、sceneの中にあるgeometryを取り出して子クラスで編集して親クラスの
 // 　　　　　　　Obモデルに返す
@@ -42,6 +38,11 @@
 // すべては親クラスで組み立ててメッシュにする・
 
 // ※ Groupを追加すれば、内部のMeshも描画対象になる
+
+// ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+// ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+// ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+// sizesをどうするか？
 
 import { PlaneGeometry, ShaderMaterial, Mesh, Vector2 } from "three";
 
@@ -102,21 +103,29 @@ class ObModel {
 
       // ✅ 3Dモデル(scene)のmaterialを使うかどうか
       //    独自のShaderMaterialを適用するか
+      //    マテリアルを保持する。
       if(this.useShaderMaterial()) {
         this.vertexShader = this.setupVertex();
         this.fragmentShader = this.setupFragment();
 
+        this.materials = [];
+
         for(const root of this.meshes) {
-          this.applyShaderMaterial(root); // ShaderMaterialを適用
+          const material = this.applyShaderMaterial(root); // ShaderMaterialを適用
+          this.materials.push(material);
         }
       }
 
       // ✅ 3Dモデル(scene)のgeometryを使うかどうか
-      //    独自のgeometryを適用するか
+      //    独自のgeometryを適用して取得する
       if(this.useCustomGeometry()) {
-        for(const root of this.meshes) {
-          this.applyCustomGeometry(root);
+        this.geometries = [];
+
+        for(const root of this.meshes) { // シーンをループ
+          const geometryData = this.applyCustomGeometry(root);
+          this.geometries.push(geometryData);
         }
+        console.log(this.geometries); // [_BufferGeometry]
       }
 
       this.disableOriginalElem(); // ドラッグ時の挙動の処理
@@ -135,6 +144,11 @@ class ObModel {
   }
 
   beforeCreateMesh() {}
+
+  // 独自のgeometryをあてる時は子クラスでtrueで上書き
+  useCustomGeometry() {
+    return false;
+  }
 
   // ✅ 独自のshaderMaterialを使うかどうか
   // → 3Dモデルの中を編集して使いたいなら、親クラスで上書きしてtrueに
