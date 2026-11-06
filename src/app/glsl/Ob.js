@@ -10,24 +10,25 @@ import { utils, viewport, INode } from "../helper";
 import gsap from "gsap";
 
 class Ob {
-  static async init({ el, type }) {
+  static async init({ el, type, viewport }) {
     const texes = await loader.getTexByElement(el); // キャッシュからテクスチャ取得
     // console.log(texes) // 0: {"tex1" => Texture} 1: {"tex2" => Texture}
 
     // new this ... 子クラスのインスタンス化
     // ※ new Obとした場合...Obクラスを直接インスタンス化となるため、vertexなどがオーバーライドされない
-    const o = new this({ texes, el, type });
+    const o = new this({ texes, el, type, viewport });
     // console.log(o); // default {$: {…}, texes: Map(3), rect: DOMRect, defines: {…}, uniforms: {…}, …}
     // → default{} ... export defaultされたクラスをインスタンスするとこの形になる
     return o;
   }
 
-  constructor({ texes, el, type }) {
+  constructor({ texes, el, type, viewport }) {
     // console.log(texes); // Map(2) {'tex1' => Texture, 'tex2' => Texture}
     // console.log(el)
 
     this.$ = { el };
     this.texes = texes ?? [];
+    this.viewport = viewport;
     this.scale = { width: 1, height: 1, depth: 1 };
     this.resizing = false;
     this.rect = this.originalRect = INode.getRect(el);

@@ -114,7 +114,7 @@ async function _initObj(_viewport, _container = document) {
       // console.log(d); // Module {Symbol(Symbol.toStringTag): 'Module'}
       // console.log(type)
 
-      return Ob.init({ el, type });
+      return Ob.init({ el, type, viewport: _viewport });
     });
   });
   // console.log(prms); //  [Promise, Promise]

@@ -158,6 +158,25 @@ export default class extends ObModel{
     }
   }
 
+  // Pointsを生成するための処理
+  createParticles(_root) {
+    // GLTFモデルからGeometryなどを取得
+    const { geometry, positions, maxCount } = this.applyCustomGeometry(_root);
+
+    // パーティクル用Materialを生成
+    const material = this.setupMaterial();
+
+    // Pointsを生成
+    const points = new Points(geometry, material);
+
+    // 必要に応じて保持しておく
+    this.particlePositions = positions;
+    this.particleMaxCount = maxCount;
+
+    // 最終的にシーンに追加するオブジェクト
+    this.meshes.push(points);
+  }
+
   setupVertex(){
     return vertexShader;
   }
@@ -168,13 +187,13 @@ export default class extends ObModel{
 
   setupUniforms() {
     return {
-      ...super.setupUniforms(), // ObModelの内容を継承
+      ...super.setupUniforms(), // ObModelの内容を継承。Obモデルのと同じuniforms
 
       uSize: new Uniform(0.4), // 全体的な粒子サイズをコントロールするスケール係数
       uResolution: new Uniform(
         new Vector2(
-          this.sizes.width * this.sizes.pixelRatio,
-          this.sizes.height * this.sizes.pixelRatio,
+          this.viewport.width * this.viewport.devicePixelRatio,
+          this.viewport.height * this.viewport.devicePixelRatio,
         ),
       ),
       uColorA: new Uniform(new Color(this.colorA)),
@@ -190,7 +209,15 @@ export default class extends ObModel{
       uniforms: this.uniforms,
       blending: AdditiveBlending, // 他のMeshや背景色と重なった場合は色を上書きせずに現実のように色を混ぜ合わせる。
       depthWrite: false,
+
+      transparent: true,
+      alphaTest: true,
+      onBeforeCompile: this.onBeforeCompile,
     });
+  }
+
+  setupMesh() {
+
   }
 }
 

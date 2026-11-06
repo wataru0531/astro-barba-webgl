@@ -42,7 +42,8 @@
 // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
 // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
 // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-// sizesをどうするか？
+// 子クラスでメッシュをつくり、親クラスのthis.meshesにめっしゅを入れてシーンに入れる方法を模索する。
+// https://chatgpt.com/c/6aedd714-3bdc-83e8-8331-8b0ec4648281
 
 import { PlaneGeometry, ShaderMaterial, Mesh, Vector2 } from "three";
 
@@ -52,22 +53,27 @@ import gsap from "gsap";
 
 
 class ObModel {
-  static async init({ el, type }) {
+  static async init({ el, type, viewport }) {
+    console.log(viewport); // {width: 850, init: ƒ, addResizeAction: ƒ, removeResizeAction: ƒ, isMobile: ƒ, …}
     const texes = await loader.getTexByElement(el);
     // console.log(texes); // Map(1) {'tex1' => _Texture}
     const models = await loader.getModelsByElement(el); // HTML要素に指定されたglTFモデルを取得
     // console.log(models); // Map(2) {'model1' => {…}, 'model2' => {…}}
 
     // ② ObModelをインスタンス化
-    const o = new this({ el, type, texes, models });
+    const o = new this({ el, type, texes, models, viewport });
     return o;
   }
 
-  constructor({ el, type, texes, models }) {
+  constructor({ el, type, texes, models, viewport }) {
     this.$ = { el };
+    this.viewport = viewport;
     this.texes = texes ?? [];
     this.models = models;
-    this.meshes = []; 
+    // console.log([...models.values()]);
+    this.modelMeshes = [...models.values()]; // GLTFのモデルの元データ
+    this.meshes = []; // ⭐️ 最終的に world.scene.add() するオブジェクト
+                      // → 子クラスで格納する
 
     this.scale = { width: 1, height: 1, depth: 1 };
     this.resizing = false;
