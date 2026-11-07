@@ -4,13 +4,16 @@ gray
 
 ***************************************************************/
 
-varying vec2 vUv;
+precision lowp float;
 
 uniform vec2 uMouse;
 uniform vec4 uResolution;
 uniform float uHover;
 uniform sampler2D tex1;
 uniform sampler2D tex2;
+
+varying vec2 vUv;
+varying vec3 vColor;
 
 // #pragma glslify: coverUv = require("../shader-util/coverUv");
 
@@ -30,16 +33,18 @@ vec2 coverUv(vec2 uv, vec4 resolution){
 }
 
 void main(){
-  // uMouseにはホバーした部分の値が渡る
-  // 第1パラメータを、第2パラメータの値が超えたら1を返す。
-  vec2 mouse = step(uMouse, vUv);
+  vec2 uv = gl_PointCoord;
 
-  vec2 uv = coverUv(vUv, uResolution);
+	// ✅ 今描画しているピクセルが、粒子の中心からどれだけ離れているかを計算
+	float distanceToCenter = length(uv - 0.5); // 中央からの距離。おおよそ0.0〜0.7
+																							// ⭐️ 実際には0ではなくかなり小さい数値らしい
+	float alpha = (0.05 / distanceToCenter) - 0.1; // 中心が明るく、端が暗く
+	// float alpha = clamp((0.05 / distanceToCenter) - 0.1, 0., 1.); // 0から1に丸める
 
-  vec4 tex1 = texture(tex1, uv);
-  vec4 tex2 = texture(tex2, uv);
+	gl_FragColor = vec4(vColor, alpha);
 
-  vec4 color = mix(tex1, tex2, step(.5, uv.x));
+	#include <tonemapping_fragment> // トーンマッピング。明るさの見え方を調整する。
+	#include <colorspace_fragment>  // 色空間を変換し、画面で適切に見えるようにする。
 
-  gl_FragColor = tex2;
+
 }

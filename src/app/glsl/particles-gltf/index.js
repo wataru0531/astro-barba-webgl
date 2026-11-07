@@ -158,23 +158,37 @@ export default class extends ObModel{
     }
   }
 
-  // Pointsを生成するための処理
+  // ✅ Pointsを生成するための処理
   createParticles(_root) {
     // GLTFモデルからGeometryなどを取得
     const { geometry, positions, maxCount } = this.applyCustomGeometry(_root);
+    // console.log(geometry);
 
     // パーティクル用Materialを生成
     const material = this.setupMaterial();
+    // console.log(material);
 
     // Pointsを生成
     const points = new Points(geometry, material);
+    // console.log(points); // Points {isObject3D: true, uuid: '3e8b743c-aee9-470a-9407-ddecd21832e4', name: '', type: 'Points', parent: null, …}
 
     // 必要に応じて保持しておく
     this.particlePositions = positions;
     this.particleMaxCount = maxCount;
 
-    // 最終的にシーンに追加するオブジェクト
+    // 最終的にシーンに追加
     this.meshes.push(points);
+  }
+
+  // ✅ メッシュを生成
+  createMeshes() {
+    for(const [key, gltf] of this.models) {
+      const root = gltf.scene;
+      root.__marker = this.type;
+      root.__modelKey = key;
+
+      this.createParticles(root);
+    }
   }
 
   setupVertex(){

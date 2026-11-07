@@ -54,7 +54,7 @@ import gsap from "gsap";
 
 class ObModel {
   static async init({ el, type, viewport }) {
-    console.log(viewport); // {width: 850, init: ƒ, addResizeAction: ƒ, removeResizeAction: ƒ, isMobile: ƒ, …}
+    // console.log(viewport); // {width: 850, init: ƒ, addResizeAction: ƒ, removeResizeAction: ƒ, isMobile: ƒ, …}
     const texes = await loader.getTexByElement(el);
     // console.log(texes); // Map(1) {'tex1' => _Texture}
     const models = await loader.getModelsByElement(el); // HTML要素に指定されたglTFモデルを取得
@@ -88,17 +88,13 @@ class ObModel {
     //   return {};
     // }
 
-    for(const [ key, gltf ] of this.models) {
-      const root = gltf.scene; // ⭐️ シーンをメッシュに格納する
-                                // →　gltf.sceneは単独のmeshではなくてGroupの可能性もあるためrootと名付ける
-      // console.log(key); // model1 model2
-      root.__marker = type;
-      root.__modelKey = key;
-
-      this.meshes.push(root);
-    }
-    // console.log(this.meshes); // (2) [Group, Group]
-    // → 複数のシーンが入る。
+    // for(const [ key, gltf ] of this.models) {
+    //   const root = gltf.scene; // ⭐️ シーンをメッシュに格納する
+    //                             // →　gltf.sceneは単独のmeshではなくてGroupの可能性もあるためrootと名付ける
+    //   // console.log(key); // model1 model2
+    //   root.__marker = type;
+    //   root.__modelKey = key;
+    // }
 
     try {
       this.beforeCreateMesh();
@@ -131,8 +127,10 @@ class ObModel {
           const geometryData = this.applyCustomGeometry(root);
           this.geometries.push(geometryData);
         }
-        console.log(this.geometries); // [_BufferGeometry]
+        // console.log(this.geometries); // [_BufferGeometry]
       }
+
+      this.createMeshes();
 
       this.disableOriginalElem(); // ドラッグ時の挙動の処理
       this.afterInit();
@@ -160,6 +158,12 @@ class ObModel {
   // → 3Dモデルの中を編集して使いたいなら、親クラスで上書きしてtrueに
   useShaderMaterial() {
     return false;
+  }
+
+  // メッシュを生成する
+  // TODO → カスタムしない場合と統合
+  createMeshes(){
+    throw new Error("子クラスでオーバーライドしてください");
   }
 
   setupDefines() {
@@ -225,6 +229,11 @@ class ObModel {
   setupFragment() {
     throw new Error("このメソッドはオーバーライドして使用してください。");
   }
+
+  // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+  // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+  // uResolutionが衝突してる
+  // どんなGLTFがきても動的に。再利用しやすくする
 
   // html要素とテクスチャのアスペクト比を比較して、、修正する値を返す
   // tex1のみ取得できればアスペクト比を計算できるためtex1のみ取得
