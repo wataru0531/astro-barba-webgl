@@ -45,6 +45,4 @@ void main(){
 
 	#include <tonemapping_fragment> // トーンマッピング。明るさの見え方を調整する。
 	#include <colorspace_fragment>  // 色空間を変換し、画面で適切に見えるようにする。
-
-
 }

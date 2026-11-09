@@ -174,7 +174,7 @@ function addObj(_o) {
   if(_o.meshes) {
     // console.log("in")
     for(const mesh of _o.meshes) {
-      // console.log(mesh); // Group {isObject3D: true, uuid: '61eb2eb4-5a68-4e91-8f00-93084e321048', name: 'Scene', type: 'Group', parent: null, …}
+      console.log(mesh); // Group {isObject3D: true, uuid: '61eb2eb4-5a68-4e91-8f00-93084e321048', name: 'Scene', type: 'Group', parent: null, …}
       world.scene.add(mesh); // Groupメッシュも通常のメッシュ同様にaddできる。
     }
   }

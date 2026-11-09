@@ -108,6 +108,7 @@ class ObModel {
       //    マテリアルを保持する。
       if(this.useShaderMaterial()) {
         this.vertexShader = this.setupVertex();
+        // console.log(this.vertexShader);
         this.fragmentShader = this.setupFragment();
 
         this.materials = [];
@@ -232,7 +233,6 @@ class ObModel {
 
   // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
   // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-  // uResolutionが衝突してる
   // どんなGLTFがきても動的に。再利用しやすくする
 
   // html要素とテクスチャのアスペクト比を比較して、、修正する値を返す

@@ -16,7 +16,7 @@ gray
 
 precision lowp float;
 
-uniform vec2 uResolution; // ビューポートの倍の大きさ 1800 2152
+uniform vec2 uPointResolution; // ビューポートの倍の大きさ 1800 2152
 uniform float uSize; // 0.4。全体的な粒子サイズをコントロールするスケール係数
 uniform float uProgress;
 uniform vec3 uColorA; // オレンジ
@@ -80,7 +80,7 @@ void main(){
 	gl_Position = projectedPosition;
 
 	// ✅ ポイントのサイズ → 画面の高さが高いほどポイントのサイズを大きくする
-	gl_PointSize = aSize * uSize * uResolution.y; // ランダムな0〜1 * 0.4 * ビューポートの2倍のサイズ
+	gl_PointSize = aSize * uSize * uPointResolution.y; // ランダムな0〜1 * 0.4 * ビューポートの2倍のサイズ
 	gl_PointSize *= (1.0 / - viewPosition.z); // camera.position → 24
 	// 																					// 視点座標から見たモデルなのでマイナス。マイナスをかけてプラスにする
 																						// 👉 遠ければ粒子が小さくなり、近ければ大きくなる

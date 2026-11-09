@@ -204,7 +204,7 @@ export default class extends ObModel{
       ...super.setupUniforms(), // ObModelの内容を継承。Obモデルのと同じuniforms
 
       uSize: new Uniform(0.4), // 全体的な粒子サイズをコントロールするスケール係数
-      uResolution: new Uniform(
+      uPointResolution: new Uniform(
         new Vector2(
           this.viewport.width * this.viewport.devicePixelRatio,
           this.viewport.height * this.viewport.devicePixelRatio,
@@ -230,8 +230,6 @@ export default class extends ObModel{
     });
   }
 
-  setupMesh() {
-
-  }
+  // setupMesh() {}
 }
 
