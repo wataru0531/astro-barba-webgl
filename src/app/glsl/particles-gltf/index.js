@@ -5,8 +5,7 @@
 // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
 // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
 
-// ライトをあてていく → なぜ灰色のメッシュなのか
-// Geometryの処理
+// メッシュの確認から
 
 ***************************************************************/
 import { 
@@ -80,7 +79,7 @@ export default class extends ObModel{
 
     // 拡大する
     // _root.scale.set(50, 50, 50);
-    _root.scale.multiplyScalar(50);
+    // _root.scale.multiplyScalar(50);
 
     // particlesの初期設定
     // this.particles = {}; // ✅ geometry、materialなどパーティクルのデータを格納していく
@@ -172,6 +171,8 @@ export default class extends ObModel{
     const points = new Points(geometry, material);
     // console.log(points); // Points {isObject3D: true, uuid: '3e8b743c-aee9-470a-9407-ddecd21832e4', name: '', type: 'Points', parent: null, …}
 
+    points.frustumCulled = false;
+
     // 必要に応じて保持しておく
     this.particlePositions = positions;
     this.particleMaxCount = maxCount;
@@ -203,7 +204,8 @@ export default class extends ObModel{
     return {
       ...super.setupUniforms(), // ObModelの内容を継承。Obモデルのと同じuniforms
 
-      uSize: new Uniform(0.4), // 全体的な粒子サイズをコントロールするスケール係数
+      uSize: new Uniform(25), // 全体的な粒子サイズをコントロールするスケール係数
+      // uSize: new Uniform(0.4), // 全体的な粒子サイズをコントロールするスケール係数
       uPointResolution: new Uniform(
         new Vector2(
           this.viewport.width * this.viewport.devicePixelRatio,
@@ -225,11 +227,20 @@ export default class extends ObModel{
       depthWrite: false,
 
       transparent: true,
-      alphaTest: true,
+      // alphaTest: true,
       onBeforeCompile: this.onBeforeCompile,
     });
   }
 
   // setupMesh() {}
+
+  // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+  // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+  // デバック関数を作成
+  // 元のコードの処理のコードを把握
+  // トップページ専用のJSからmorph関数を書く
+  debug(_foler) {
+
+  }
 }
 
