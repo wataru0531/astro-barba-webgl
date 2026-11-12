@@ -8,6 +8,10 @@
 // メッシュの確認から
 
 ***************************************************************/
+import gsap from "gsap";
+import { Uniform } from "three";
+import { AdditiveBlending } from "three";
+
 import { 
   BufferGeometry,
   Color,
@@ -19,12 +23,9 @@ import {
 } from "three";
 
 import { ObModel } from "../ObModel";
-
-//
 import vertexShader   from "./vertex.glsl";
 import fragmentShader from "./fragment.glsl";
-import { Uniform } from "three";
-import { AdditiveBlending } from "three";
+
 
 
 // ObModelクラスを継承したクラスを作成。
@@ -201,23 +202,23 @@ export default class extends ObModel{
   }
 
   setupUniforms() {
-    return {
-      ...super.setupUniforms(), // ObModelの内容を継承。Obモデルのと同じuniforms
+    const uniforms = super.setupUniforms();// ObModelの内容を継承。Obモデルのと同じuniforms
 
-      uSize: new Uniform(25), // 全体的な粒子サイズをコントロールするスケール係数
-      // uSize: new Uniform(0.4), // 全体的な粒子サイズをコントロールするスケール係数
-      uPointResolution: new Uniform(
-        new Vector2(
-          this.viewport.width * this.viewport.devicePixelRatio,
-          this.viewport.height * this.viewport.devicePixelRatio,
-        ),
+    uniforms.uSize = { value: 25 }, // 全体的な粒子サイズをコントロールするスケール係数
+    // uSize: new Uniform(0.4), // 全体的な粒子サイズをコントロールするスケール係数
+    uniforms.uPointResolution = new Uniform(
+      new Vector2(
+        this.viewport.width * this.viewport.devicePixelRatio,
+        this.viewport.height * this.viewport.devicePixelRatio,
       ),
-      uColorA: new Uniform(new Color(this.colorA)),
-      uColorB: new Uniform(new Color(this.colorB)),
-    }
+    );
+    uniforms.uColorA = new Uniform(new Color(this.colorA));
+    uniforms.uColorB = new Uniform(new Color(this.colorB));
+    console.log(uniforms);
+    return uniforms;
   }
 
-  // 必要なものだけ継承する
+  // ✅ 必要なものだけ継承する
   setupMaterial() {
     return new ShaderMaterial({
       vertexShader: this.vertexShader,
@@ -236,11 +237,28 @@ export default class extends ObModel{
 
   // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
   // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-  // デバック関数を作成
+  // morph関数の設定 → guiに入れる 
   // 元のコードの処理のコードを把握
-  // トップページ専用のJSからmorph関数を書く
-  debug(_foler) {
+  
+  debug(_folder) {
+    _folder.add(this.uniforms.uSize, "value", 0, 50, 0.1).name("uSize").listen();
+    _folder.addColor(this, "colorA").name("Color A").onChange(value => {
+      this.uniforms.uColorA.value.set(value);
+    });
+    _folder.addColor(this, "colorB").name("Color B").onChange(value => {
+      this.uniforms.uColorB.value.set(value);
+    });
 
+    _folder.add(this.uniforms.uProgress, "value", 0, 1, 0.001).name("uProgress").listen();
+    const datObj = { next: !!this.uniforms.uProgress.value };
+    // console.log(!this.uniforms.uProgress.value); // !で反転してtrue。
+    _folder.add(datObj, "next").name("Animate").onChange(() => {
+      gsap.to(this.uniforms.uProgress, {
+        value: +datObj.next, // + ... 単行プラス演算子。真偽地を数値に変換する
+        ease: "power2.out",
+        duration: 2,
+      });
+    });
   }
 }
 
