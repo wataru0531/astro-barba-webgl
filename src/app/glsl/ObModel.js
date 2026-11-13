@@ -12,39 +12,6 @@
 // リサイズ処理
 // スクロール処理
 
-// ✅ ポイント① モデルのsceneをそのまま常時か、頂点をとりだして再構築してsceneに追加するかで分ける
-// ① world.jsの_initObj
-// → data-webgl属性を読み取り、個別のクラスを動的にimport
-
-// ② 個別のModelクラス
-// → ObModelを継承し、vertex.glsl / fragment.glslを指定
-
-// ③ 共通のObModel
-// → GLTFを取得し、Group内のMeshを探索
-//   ShaderMaterialを作成して適用するか判断
-
-// ⭐️ 通常表示 → モデルのsceneをそのまま表示
-// ⭐️ Shader表示 → モデルのsceneから頂点などを取り出して、独自ShaderMaterialを作り表示
-// 　↓
-// world.scene に追加する
-
-// ✅ ポイント②
-// geometry → 編集する時、sceneの中にあるgeometryを取り出して子クラスで編集して親クラスの
-// 　　　　　　　Obモデルに返す
-// material → 編集する時、sceneの中にあるmaterialを取り出して子クラスで編集して親クラスの
-// 　　　　　　　Obモデルに返す
-// mesh → 親クラスの this.meshesに 複数のシーンが入っているので、これらをループさせて
-//        子クラスで作ったgeometry、materialをあてていく
-// すべては親クラスで組み立ててメッシュにする・
-
-// ※ Groupを追加すれば、内部のMeshも描画対象になる
-
-// ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-// ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-// ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-// 子クラスでメッシュをつくり、親クラスのthis.meshesにめっしゅを入れてシーンに入れる方法を模索する。
-// https://chatgpt.com/c/6aedd714-3bdc-83e8-8331-8b0ec4648281
-
 import { PlaneGeometry, ShaderMaterial, Mesh, Vector2 } from "three";
 
 import loader from "../components/loader";
@@ -74,6 +41,15 @@ class ObModel {
     this.modelMeshes = [...models.values()]; // GLTFのモデルの元データ
     this.meshes = []; // ⭐️ 最終的に world.scene.add() するオブジェクト
                       // → 子クラスで格納する
+    // GLTFのSceneをthis.meshesに格納
+    for (const [ key, gltf ] of this.models) {
+      const root = gltf.scene;
+
+      root.__marker = type;
+      root.__modelKey = key;
+
+      this.meshes.push(root);
+    }
 
     this.scale = { width: 1, height: 1, depth: 1 };
     this.resizing = false;
@@ -86,14 +62,6 @@ class ObModel {
     //     console.log("要素に幅と高さの設定がないため、meshの作成をスキップ", this.$.el);
     //   }
     //   return {};
-    // }
-
-    // for(const [ key, gltf ] of this.models) {
-    //   const root = gltf.scene; // ⭐️ シーンをメッシュに格納する
-    //                             // →　gltf.sceneは単独のmeshではなくてGroupの可能性もあるためrootと名付ける
-    //   // console.log(key); // model1 model2
-    //   root.__marker = type;
-    //   root.__modelKey = key;
     // }
 
     try {
@@ -112,8 +80,10 @@ class ObModel {
         this.fragmentShader = this.setupFragment();
 
         this.materials = [];
+        // console.log(this.materials);
 
         for(const root of this.meshes) {
+          // console.log(root); // Group {isObject3D: true, uuid: '1126997b-9958-4939-b68a-223f9ec67db6', name: 'Scene', type: 'Group', parent: null, …}
           const material = this.applyShaderMaterial(root); // ShaderMaterialを適用
           this.materials.push(material);
         }
@@ -283,7 +253,7 @@ class ObModel {
 
   // ✅ TODO リサイズ
   async resize(_duration = 1) {
-    console.log("ObModel resize");
+    // console.log("ObModel resize");
   }
 
   // async resize(_duration = 1) {

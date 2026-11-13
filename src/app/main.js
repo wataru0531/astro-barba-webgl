@@ -690,7 +690,7 @@ class App {
           if(!o.debug) return; // oがデバッグ関数をもったなかったら処理中断
 
           const type = INode.getDS(o.$.el, "webgl"); // type → フォルダ名
-          console.log(type)
+          // console.log(type)
           const folder = gui.addFolder(type); // フォルダ追加
           // console.log(folder)
           folder.close(); // 非表示。各ファイルで上書きできる

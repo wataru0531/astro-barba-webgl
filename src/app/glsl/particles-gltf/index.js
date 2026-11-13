@@ -176,18 +176,49 @@ export default class extends ObModel{
 
     // 必要に応じて保持しておく
     this.particlePositions = positions;
-    this.particleMaxCount = maxCount;
+    // console.log(this.particlePositions); // 4種類の頂点情報
+    this.particleMaxCount = maxCount; // 頂点の最大数を保持
+    this.particleIndex = 0; // 現在の形状の番号を保持
+    this.particlePoints = points; // Pointsを保持
 
     // 最終的にシーンに追加
     this.meshes.push(points);
+
+    // ⭐️確認用
+    // console.log("Points:", points);
+    // console.log("Geometry:", geometry);
+    // console.log("Material:", material);
+    // console.log("this.meshes:", this.meshes);
   }
+
+  // ✅ モーフ
+  morph (_index) {
+    // console.log(_index);
+    const points = this.particlePoints;
+    
+    // 現在の形状をpositionに設定
+    points.geometry.setAttribute("position", this.particlePositions[this.particleIndex]);
+
+    // 移動先の形状をaPositionTargetに設定
+    points.geometry.setAttribute("aPositionTarget", this.particlePositions[_index]);
+
+    gsap.killTweensOf(this.uniforms.uProgress); // 以前のアニメーションがあれば中止
+
+    gsap.fromTo(
+      this.uniforms.uProgress,
+      { value: 0 },
+      { value: 1, duration: 3, ease: "expo.out" },
+    );
+
+    this.particleIndex = _index; // インデックスの更新
+  };
 
   // ✅ メッシュを生成
   createMeshes() {
     for(const [key, gltf] of this.models) {
       const root = gltf.scene;
-      root.__marker = this.type;
-      root.__modelKey = key;
+      // root.__marker = this.type;
+      // root.__modelKey = key;
 
       this.createParticles(root);
     }
@@ -214,7 +245,7 @@ export default class extends ObModel{
     );
     uniforms.uColorA = new Uniform(new Color(this.colorA));
     uniforms.uColorB = new Uniform(new Color(this.colorB));
-    console.log(uniforms);
+    // console.log(uniforms);
     return uniforms;
   }
 
@@ -235,11 +266,6 @@ export default class extends ObModel{
 
   // setupMesh() {}
 
-  // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-  // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-  // morph関数の設定 → guiに入れる 
-  // 元のコードの処理のコードを把握
-  
   debug(_folder) {
     _folder.add(this.uniforms.uSize, "value", 0, 50, 0.1).name("uSize").listen();
     _folder.addColor(this, "colorA").name("Color A").onChange(value => {
@@ -249,8 +275,17 @@ export default class extends ObModel{
       this.uniforms.uColorB.value.set(value);
     });
 
+    const datObj = { 
+      next: !!this.uniforms.uProgress.value,
+
+      morph0: () => this.morph(0),
+      morph1: () => this.morph(1),
+      morph2: () => this.morph(2),
+      morph3: () => this.morph(3),
+    };
+
     _folder.add(this.uniforms.uProgress, "value", 0, 1, 0.001).name("uProgress").listen();
-    const datObj = { next: !!this.uniforms.uProgress.value };
+    
     // console.log(!this.uniforms.uProgress.value); // !で反転してtrue。
     _folder.add(datObj, "next").name("Animate").onChange(() => {
       gsap.to(this.uniforms.uProgress, {
@@ -259,6 +294,11 @@ export default class extends ObModel{
         duration: 2,
       });
     });
+
+    _folder.add(datObj, "morph0").name("Morph 0");
+    _folder.add(datObj, "morph1").name("Morph 1");
+    _folder.add(datObj, "morph2").name("Morph 2");
+    _folder.add(datObj, "morph3").name("Morph 3");
   }
 }
 
