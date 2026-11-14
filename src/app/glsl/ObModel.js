@@ -38,17 +38,18 @@ class ObModel {
     this.texes = texes ?? [];
     this.models = models;
     // console.log([...models.values()]);
-    this.modelMeshes = [...models.values()]; // GLTFのモデルの元データ
-    this.meshes = []; // ⭐️ 最終的に world.scene.add() するオブジェクト
-                      // → 子クラスで格納する
-    // GLTFのSceneをthis.meshesに格納
+
+    this.scenes = []; // ⭐️ 加工する前の3Dモデルのシーンオブジェクトを入れる
+    this.meshes = []; // ⭐️ world.scene.add()するオブジェクトを入れる。
+
+    // GLTFのSceneをthis.scenesに格納
     for (const [ key, gltf ] of this.models) {
-      const root = gltf.scene;
+      const scene = gltf.scene;
+      // console.log(scene);
+      scene.__marker = type;
+      scene.__modelKey = key;
 
-      root.__marker = type;
-      root.__modelKey = key;
-
-      this.meshes.push(root);
+      this.scenes.push(scene);
     }
 
     this.scale = { width: 1, height: 1, depth: 1 };
@@ -71,42 +72,16 @@ class ObModel {
       this.uniforms = this.setupTexes(this.uniforms);
       this.uniforms = this.setupResolution(this.uniforms);
 
-      // ✅ 3Dモデル(scene)のmaterialを使うかどうか
-      //    独自のShaderMaterialを適用するか
-      //    マテリアルを保持する。
-      if(this.useShaderMaterial()) {
-        this.vertexShader = this.setupVertex();
-        // console.log(this.vertexShader);
-        this.fragmentShader = this.setupFragment();
+      this.vertexShader = this.setupVertex();
+      this.fragmentShader = this.setupFragment();
 
-        this.materials = [];
-        // console.log(this.materials);
-
-        for(const root of this.meshes) {
-          // console.log(root); // Group {isObject3D: true, uuid: '1126997b-9958-4939-b68a-223f9ec67db6', name: 'Scene', type: 'Group', parent: null, …}
-          const material = this.applyShaderMaterial(root); // ShaderMaterialを適用
-          this.materials.push(material);
-        }
-      }
-
-      // ✅ 3Dモデル(scene)のgeometryを使うかどうか
-      //    独自のgeometryを適用して取得する
-      if(this.useCustomGeometry()) {
-        this.geometries = [];
-
-        for(const root of this.meshes) { // シーンをループ
-          const geometryData = this.applyCustomGeometry(root);
-          this.geometries.push(geometryData);
-        }
-        // console.log(this.geometries); // [_BufferGeometry]
-      }
-
-      this.createMeshes();
+      this.createMeshes(); // ⭐️ ここでシーンに追加するメッシュを作成する
 
       this.disableOriginalElem(); // ドラッグ時の挙動の処理
       this.afterInit();
 
-      // これらは、3Dモデルの中にgeometry、materialなどを持つために必要ない
+      // ↓↓3Dモデルのsceneの中にgeometry、materialなどを持つために必要ない
+      //   → 子クラスで頂点などをつくりシーンに格納していく
       // this.material = this.setupMaterial();
       // this.geometry = this.setupGeometry();
       // this.mesh = this.setupMesh();
@@ -175,8 +150,7 @@ class ObModel {
       uniforms: this.uniforms,
       transparent: true,
       alphaTest: .5, // 透明度をどれだけ厳密に見るか(.5以下の透明度は無視)
-      // onBeforeCompile
-      // → シェーダーのコンパイル直前に呼び出されるコールバック関数
+      // onBeforeCompile → シェーダーのコンパイル直前に呼び出されるコールバック関数
       //   引数のshaderはThreeが自動で付与。onAfterRenderなどのコールバックもある。
       onBeforeCompile: this.onBeforeCompile, // WebGL1.0への対応。
     });
@@ -200,10 +174,6 @@ class ObModel {
   setupFragment() {
     throw new Error("このメソッドはオーバーライドして使用してください。");
   }
-
-  // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-  // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-  // どんなGLTFがきても動的に。再利用しやすくする
 
   // html要素とテクスチャのアスペクト比を比較して、、修正する値を返す
   // tex1のみ取得できればアスペクト比を計算できるためtex1のみ取得

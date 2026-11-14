@@ -56,15 +56,15 @@ export default class extends ObModel{
   // SkinnedMesh → Boneによって変形するMeshのこと。
   //               たとえば、背骨のBoneが動いたとしたらきつねの形状が変化する・
   //               この仕組みを実現するのがSkinnedMesh。
-  applyShaderMaterial(_root) {
-    // console.log(_root); // Group {isObject3D: true, uuid: '8c3a6c4d-e9e1-441a-99ab-db44dfce7a37', name: '', type: 'Group', parent: null, …}
-    // → _rootは、gltf.scene のこと。
+  applyShaderMaterial(_scene) {
+    // console.log(_scene); // Group {isObject3D: true, uuid: '8c3a6c4d-e9e1-441a-99ab-db44dfce7a37', name: '', type: 'Group', parent: null, …}
+    // → _sceneは、gltf.scene のこと。
 
     // traverse → gltfオブジェクトモデルは階層構造になっていてさまざまなオブジェクトがある
     //            奥深くにメッシュがある可能性もある。
     // 　　　　　　その中からMeshだけを見つけて、独自のShaderMaterialに変更するために使う
     // 子・孫・ひ孫といった階層の深いところにあるオブジェクトまで再帰的に探索可能
-    _root.traverse((child) => {
+    _scene.traverse((child) => {
       // console.log(child);
       if (!child.isMesh) return; // ThreeのMesh以外はスキップ
       // console.log(child); // SkinnedMesh {isObject3D: true, uuid: 'c800e23c-545b-4296-9e2a-babfdbd942fe', name: 'fox', type: 'SkinnedMesh', parent: _Object3D, …}
@@ -75,12 +75,12 @@ export default class extends ObModel{
   }
 
   // ✅ glTFのgeometryに独自のカスタマイズする処理
-  applyCustomGeometry(_root){
-    // console.log(_root); // Group {isObject3D: true, uuid: '323cb6b5-1a1f-42a1-8e25-e816fbf75527', name: '', type: 'Group', parent: null, …}
+  applyCustomGeometry(_scene){
+    // console.log(_scene); // Group {isObject3D: true, uuid: '323cb6b5-1a1f-42a1-8e25-e816fbf75527', name: '', type: 'Group', parent: null, …}
 
     // 拡大する
-    // _root.scale.set(50, 50, 50);
-    // _root.scale.multiplyScalar(50);
+    // _scene.scale.set(50, 50, 50);
+    // _scene.scale.multiplyScalar(50);
 
     // particlesの初期設定
     // this.particles = {}; // ✅ geometry、materialなどパーティクルのデータを格納していく
@@ -90,7 +90,7 @@ export default class extends ObModel{
 
     //  glTFのMeshから頂点を取得
     const meshes = [];
-    _root.traverse(child => {
+    _scene.traverse(child => {
       if(!child.isMesh) return;
 
       meshes.push(child);
@@ -158,38 +158,31 @@ export default class extends ObModel{
     }
   }
 
-  // ✅ Pointsを生成するための処理
-  createParticles(_root) {
-    // GLTFモデルからGeometryなどを取得
-    const { geometry, positions, maxCount } = this.applyCustomGeometry(_root);
-    // console.log(geometry);
+  // ✅ Pointsを生成
+  // createParticles(_root) {
+  //   // GLTFモデルからGeometryなどを取得
+  //   const { geometry, positions, maxCount } = this.applyCustomGeometry(_root);
+  //   // console.log(geometry);
 
-    // パーティクル用Materialを生成
-    const material = this.setupMaterial();
-    // console.log(material);
+  //   // パーティクル用Materialを生成
+  //   const material = this.setupMaterial();
+  //   // console.log(material);
 
-    // Pointsを生成
-    const points = new Points(geometry, material);
-    // console.log(points); // Points {isObject3D: true, uuid: '3e8b743c-aee9-470a-9407-ddecd21832e4', name: '', type: 'Points', parent: null, …}
+  //   // Pointsを生成
+  //   const points = new Points(geometry, material);
+  //   // console.log(points); // Points {isObject3D: true, uuid: '3e8b743c-aee9-470a-9407-ddecd21832e4', name: '', type: 'Points', parent: null, …}
 
-    points.frustumCulled = false;
+  //   points.frustumCulled = false;
 
-    // 必要に応じて保持しておく
-    this.particlePositions = positions;
-    // console.log(this.particlePositions); // 4種類の頂点情報
-    this.particleMaxCount = maxCount; // 頂点の最大数を保持
-    this.particleIndex = 0; // 現在の形状の番号を保持
-    this.particlePoints = points; // Pointsを保持
+  //   // 必要に応じて保持しておく
+  //   this.particlePositions = positions;
+  //   // console.log(this.particlePositions); // 4種類の頂点情報
+  //   this.particleMaxCount = maxCount; // 頂点の最大数を保持
+  //   this.particleIndex = 0; // 現在の形状の番号を保持
+  //   this.particlePoints = points; // Pointsを保持
 
-    // 最終的にシーンに追加
-    this.meshes.push(points);
-
-    // ⭐️確認用
-    // console.log("Points:", points);
-    // console.log("Geometry:", geometry);
-    // console.log("Material:", material);
-    // console.log("this.meshes:", this.meshes);
-  }
+  //   this.meshes.push(points); // 最終的にシーンに追加
+  // }
 
   // ✅ モーフ
   morph (_index) {
@@ -213,23 +206,38 @@ export default class extends ObModel{
     this.particleIndex = _index; // インデックスの更新
   };
 
-  // ✅ メッシュを生成
-  createMeshes() {
-    for(const [key, gltf] of this.models) {
-      const root = gltf.scene;
-      // root.__marker = this.type;
-      // root.__modelKey = key;
-
-      this.createParticles(root);
-    }
-  }
-
   setupVertex(){
     return vertexShader;
   }
 
   setupFragment(){
     return fragmentShader;
+  }
+
+  // ✅ メッシュを生成
+  createMeshes() {
+    for(const [key, gltf] of this.models) {
+      const scene = gltf.scene;
+      // scene.__marker = type;
+      // scene.__modelKey = key;
+
+      // GLTFモデルからGeometryなどを取得
+      const { geometry, positions, maxCount } = this.applyCustomGeometry(scene);
+      // console.log(geometry);
+
+      // パーティクル用Materialを生成
+      const material = this.setupMaterial();
+      // console.log(material);
+// 
+      // Pointsを生成
+      const points = new Points(geometry, material);
+      // console.log(points); // Points {isObject3D: true, uuid: '3e8b743c-aee9-470a-9407-ddecd21832e4', name: '', type: 'Points', parent: null, …}
+
+      points.frustumCulled = false;
+
+      // this.meshes.push(points); // 最終的にシーンに追加
+      this.meshes.push(points);
+    }
   }
 
   setupUniforms() {
@@ -249,19 +257,16 @@ export default class extends ObModel{
     return uniforms;
   }
 
-  // ✅ 必要なものだけ継承する
+  // ✅ ShaderMaterialを上書き
   setupMaterial() {
-    return new ShaderMaterial({
-      vertexShader: this.vertexShader,
-      fragmentShader: this.fragmentShader,
-      uniforms: this.uniforms,
-      blending: AdditiveBlending, // 他のMeshや背景色と重なった場合は色を上書きせずに現実のように色を混ぜ合わせる。
-      depthWrite: false,
+    // console.log(this.vertexShader);
+    // console.log(this.fragmentShader);
+    const material = super.setupMaterial();
+    material.blending = AdditiveBlending;
+    material.depthWrite = false;
 
-      transparent: true,
-      // alphaTest: true,
-      onBeforeCompile: this.onBeforeCompile,
-    });
+    
+    return material;
   }
 
   // setupMesh() {}

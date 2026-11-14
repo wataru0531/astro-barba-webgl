@@ -164,7 +164,7 @@ function _bindEvents() {
 
 // ✅ メッシュをシーンとosに追加する関数
 function addObj(_o) {
-  // console.log(_o);
+  console.log(_o);
   // console.log(_o.mesh)
 
   // 通常のmesh
@@ -172,7 +172,6 @@ function addObj(_o) {
 
   // 3Dモデルのメッシュ
   if(_o.meshes) {
-    // console.log()
     // console.log("in")
     for(const mesh of _o.meshes) {
       console.log(mesh); // Group {isObject3D: true, uuid: '61eb2eb4-5a68-4e91-8f00-93084e321048', name: 'Scene', type: 'Group', parent: null, …}
