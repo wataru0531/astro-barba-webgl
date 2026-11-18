@@ -46,3 +46,7 @@ void main(){
 	#include <tonemapping_fragment> // トーンマッピング。明るさの見え方を調整する。
 	#include <colorspace_fragment>  // 色空間を変換し、画面で適切に見えるようにする。
 }
+
+// void main() {
+//     gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+// }

@@ -63,7 +63,6 @@ async function init(_canvas, _viewport, _background = "none") {
     debug: window.debug, // 本番環境では停止。bootstrap.jsのdebugと同期さsる
     // エフェクトで個別に設定する場合 → setupMaterial、glslファイル内で
     precision: utils.isTouchDevices ? "highp" : "mediump", // 全体の設定(個別ならglslファイルかindex.jsのShadermaterialに記述)
-  
   });
   world.renderer.setSize(_viewport.width, _viewport.height, false); // バッファに格納するサイズ(領域)を決定 false...styleタグをタグを挿入するかどうか
   world.renderer.setPixelRatio(_viewport.devicePixelRatio); // ピクセル密度を設定
@@ -71,7 +70,7 @@ async function init(_canvas, _viewport, _background = "none") {
   world.renderer.setClearColor(0x000000, 0);
   world.scene = new Scene(); // シーン
   world.scene.background =
-    _background === "none" ? "none" : new Color(_background);
+    _background === "none" ? null : new Color(_background);
   world.camera = _setupPerspectiveCamera(_viewport); // カメラの設定
 
   // ポストプロセスを考慮してレンダリング
@@ -85,8 +84,7 @@ async function init(_canvas, _viewport, _background = "none") {
 
   if (window.debug) {
     // デバックモードの時のみパフォーマンスを測定
-    // console.log("debug")
-
+    // console.log("debug");
     stats = new Stats();
     // stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom。設定しない場合はfpsが表示
     document.body.appendChild(stats.dom);
@@ -164,17 +162,13 @@ function _bindEvents() {
 
 // ✅ メッシュをシーンとosに追加する関数
 function addObj(_o) {
-  console.log(_o);
-  // console.log(_o.mesh)
+  // console.log(_o); // default {$: {…}, viewport: {…}, texes: Map(1), models: Map(1), scenes: Array(1), …}
+  if(_o.mesh) world.scene.add(_o.mesh); // 通常のmesh
 
-  // 通常のmesh
-  if(_o.mesh) world.scene.add(_o.mesh);
-
-  // 3Dモデルのメッシュ
-  if(_o.meshes) {
+  if(_o.meshes) { // 3Dモデルのメッシュ
     // console.log("in")
     for(const mesh of _o.meshes) {
-      console.log(mesh); // Group {isObject3D: true, uuid: '61eb2eb4-5a68-4e91-8f00-93084e321048', name: 'Scene', type: 'Group', parent: null, …}
+      console.log(mesh); // Points {isObject3D: true, uuid: '97a310df-2437-4ddf-b036-59b580c50157', name: '', type: 'Points', parent: null, …}
       world.scene.add(mesh); // Groupメッシュも通常のメッシュ同様にaddできる。
     }
   }

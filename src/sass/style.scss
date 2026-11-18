@@ -614,8 +614,12 @@ h1 {
 /////////////////////////////////
 /// gltf-text
 /////////////////////////////////
-.gltf-test{
-  width: 500px;
-  height: 300px;
+.particles-gltf{
+  width: 100vw;
+  height: 100svh;
   background-color: lightgreen;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
 }

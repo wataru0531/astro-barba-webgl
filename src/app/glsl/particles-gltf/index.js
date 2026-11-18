@@ -5,11 +5,12 @@
 // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
 // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから⭐️ここから
 
-// メッシュの確認から
+コードの確認、リファクタリング
+3Dモデルをそのまま表示する処理を追加
 
 ***************************************************************/
 import gsap from "gsap";
-import { Uniform } from "three";
+import { PointsMaterial, Uniform } from "three";
 import { AdditiveBlending } from "three";
 
 import { 
@@ -47,31 +48,6 @@ export default class extends ObModel{
   // → 使うなら、true
   useCustomGeometry() {
     return true;
-  }
-
-  // ✅ 3Dモデルのマテリアルに、独自のShaderMaterialを適用する。
-  // Group → 複数の3Dオブジェクトをまとめる親
-  // Object3D →	Three.jsの3Dオブジェクトの基本クラス
-  // Bone →	3Dモデルの骨格
-  // SkinnedMesh → Boneによって変形するMeshのこと。
-  //               たとえば、背骨のBoneが動いたとしたらきつねの形状が変化する・
-  //               この仕組みを実現するのがSkinnedMesh。
-  applyShaderMaterial(_scene) {
-    // console.log(_scene); // Group {isObject3D: true, uuid: '8c3a6c4d-e9e1-441a-99ab-db44dfce7a37', name: '', type: 'Group', parent: null, …}
-    // → _sceneは、gltf.scene のこと。
-
-    // traverse → gltfオブジェクトモデルは階層構造になっていてさまざまなオブジェクトがある
-    //            奥深くにメッシュがある可能性もある。
-    // 　　　　　　その中からMeshだけを見つけて、独自のShaderMaterialに変更するために使う
-    // 子・孫・ひ孫といった階層の深いところにあるオブジェクトまで再帰的に探索可能
-    _scene.traverse((child) => {
-      // console.log(child);
-      if (!child.isMesh) return; // ThreeのMesh以外はスキップ
-      // console.log(child); // SkinnedMesh {isObject3D: true, uuid: 'c800e23c-545b-4296-9e2a-babfdbd942fe', name: 'fox', type: 'SkinnedMesh', parent: _Object3D, …}
-
-      // 元のgeometryはそのまま使い、materialだけを独自のShaderMaterialに変更
-      child.material = this.setupMaterial();
-    });
   }
 
   // ✅ glTFのgeometryに独自のカスタマイズする処理
@@ -158,32 +134,6 @@ export default class extends ObModel{
     }
   }
 
-  // ✅ Pointsを生成
-  // createParticles(_root) {
-  //   // GLTFモデルからGeometryなどを取得
-  //   const { geometry, positions, maxCount } = this.applyCustomGeometry(_root);
-  //   // console.log(geometry);
-
-  //   // パーティクル用Materialを生成
-  //   const material = this.setupMaterial();
-  //   // console.log(material);
-
-  //   // Pointsを生成
-  //   const points = new Points(geometry, material);
-  //   // console.log(points); // Points {isObject3D: true, uuid: '3e8b743c-aee9-470a-9407-ddecd21832e4', name: '', type: 'Points', parent: null, …}
-
-  //   points.frustumCulled = false;
-
-  //   // 必要に応じて保持しておく
-  //   this.particlePositions = positions;
-  //   // console.log(this.particlePositions); // 4種類の頂点情報
-  //   this.particleMaxCount = maxCount; // 頂点の最大数を保持
-  //   this.particleIndex = 0; // 現在の形状の番号を保持
-  //   this.particlePoints = points; // Pointsを保持
-
-  //   this.meshes.push(points); // 最終的にシーンに追加
-  // }
-
   // ✅ モーフ
   morph (_index) {
     // console.log(_index);
@@ -216,29 +166,63 @@ export default class extends ObModel{
 
   // ✅ メッシュを生成
   createMeshes() {
-    for(const [key, gltf] of this.models) {
-      const scene = gltf.scene;
-      // scene.__marker = type;
-      // scene.__modelKey = key;
-
+    for(const scene of this.scenes) {
       // GLTFモデルからGeometryなどを取得
       const { geometry, positions, maxCount } = this.applyCustomGeometry(scene);
       // console.log(geometry);
 
+      // ⭐️ これだと表示される
+      // const material = new PointsMaterial({
+      //   color: 0xff0000,
+      //   size: 20,
+      //   sizeAttenuation: false,
+      //   depthTest: false,
+      // });
+
       // パーティクル用Materialを生成
       const material = this.setupMaterial();
       // console.log(material);
-// 
+
       // Pointsを生成
       const points = new Points(geometry, material);
       // console.log(points); // Points {isObject3D: true, uuid: '3e8b743c-aee9-470a-9407-ddecd21832e4', name: '', type: 'Points', parent: null, …}
 
       points.frustumCulled = false;
 
+      // morph()で使用するデータを保持する必要がある
+      this.particlePositions = positions;
+      this.particleMaxCount = maxCount;
+      this.particleIndex = 0;
+      this.particlePoints = points;
+
       // this.meshes.push(points); // 最終的にシーンに追加
       this.meshes.push(points);
     }
   }
+
+
+  // createMeshes() {
+  //   for (const scene of this.scenes) {
+  //     const { geometry } = this.applyCustomGeometry(scene);
+
+  //     // ShaderMaterialではなく、Three.js標準のマテリアルを使用
+  //     // const material = new PointsMaterial({
+  //     //   color: 0xff0000,
+  //     //   size: 20,
+  //     //   sizeAttenuation: false,
+  //     //   depthTest: false,
+  //     // });
+
+  //     const material = this.setupMaterial();
+
+  //     const points = new Points(geometry, material);
+
+  //     points.frustumCulled = false;
+  //     points.renderOrder = 999;
+
+  //     this.meshes.push(points);
+  //   }
+  // }
 
   setupUniforms() {
     const uniforms = super.setupUniforms();// ObModelの内容を継承。Obモデルのと同じuniforms
@@ -265,7 +249,6 @@ export default class extends ObModel{
     material.blending = AdditiveBlending;
     material.depthWrite = false;
 
-    
     return material;
   }
 
