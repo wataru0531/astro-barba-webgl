@@ -75,18 +75,17 @@ class ObModel {
       this.vertexShader = this.setupVertex();
       this.fragmentShader = this.setupFragment();
 
-      this.createMeshes(); // ⭐️ ここでシーンに追加するメッシュを作成する
-
-      this.disableOriginalElem(); // ドラッグ時の挙動の処理
-      this.afterInit();
-
       // ↓↓3Dモデルのsceneの中にgeometry、materialなどを持つために必要ない
       //   → 子クラスで頂点などをつくりシーンに格納していく
       // this.material = this.setupMaterial();
       // this.geometry = this.setupGeometry();
-      // this.mesh = this.setupMesh();
+      this.mesh = this.setupMesh();
+      // console.log(this.mesh)
       // this.mesh.__marker = type; // typeを渡せばどの位置でエラーとなったかが分かるようにtypeを渡す
       
+      this.disableOriginalElem(); // ドラッグ時の挙動の処理
+      this.afterInit();
+
     } catch(e) {
       if(window.debug) console.log(e);
       return {};

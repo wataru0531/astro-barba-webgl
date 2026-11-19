@@ -10,7 +10,7 @@
 
 ***************************************************************/
 import gsap from "gsap";
-import { PointsMaterial, Uniform } from "three";
+import { Group, PointsMaterial, Uniform } from "three";
 import { AdditiveBlending } from "three";
 
 import { 
@@ -163,67 +163,7 @@ export default class extends ObModel{
   setupFragment(){
     return fragmentShader;
   }
-
-  // ✅ メッシュを生成
-  createMeshes() {
-    for(const scene of this.scenes) {
-      // GLTFモデルからGeometryなどを取得
-      const { geometry, positions, maxCount } = this.applyCustomGeometry(scene);
-      // console.log(geometry);
-
-      // ⭐️ これだと表示される
-      // const material = new PointsMaterial({
-      //   color: 0xff0000,
-      //   size: 20,
-      //   sizeAttenuation: false,
-      //   depthTest: false,
-      // });
-
-      // パーティクル用Materialを生成
-      const material = this.setupMaterial();
-      // console.log(material);
-
-      // Pointsを生成
-      const points = new Points(geometry, material);
-      // console.log(points); // Points {isObject3D: true, uuid: '3e8b743c-aee9-470a-9407-ddecd21832e4', name: '', type: 'Points', parent: null, …}
-
-      points.frustumCulled = false;
-
-      // morph()で使用するデータを保持する必要がある
-      this.particlePositions = positions;
-      this.particleMaxCount = maxCount;
-      this.particleIndex = 0;
-      this.particlePoints = points;
-
-      // this.meshes.push(points); // 最終的にシーンに追加
-      this.meshes.push(points);
-    }
-  }
-
-
-  // createMeshes() {
-  //   for (const scene of this.scenes) {
-  //     const { geometry } = this.applyCustomGeometry(scene);
-
-  //     // ShaderMaterialではなく、Three.js標準のマテリアルを使用
-  //     // const material = new PointsMaterial({
-  //     //   color: 0xff0000,
-  //     //   size: 20,
-  //     //   sizeAttenuation: false,
-  //     //   depthTest: false,
-  //     // });
-
-  //     const material = this.setupMaterial();
-
-  //     const points = new Points(geometry, material);
-
-  //     points.frustumCulled = false;
-  //     points.renderOrder = 999;
-
-  //     this.meshes.push(points);
-  //   }
-  // }
-
+  
   setupUniforms() {
     const uniforms = super.setupUniforms();// ObModelの内容を継承。Obモデルのと同じuniforms
 
@@ -252,7 +192,45 @@ export default class extends ObModel{
     return material;
   }
 
-  // setupMesh() {}
+  // ✅ メッシュを生成
+  setupMesh() {
+    const group = new Group();
+
+    for(const scene of this.scenes) {
+      // GLTFモデルからGeometryなどを取得
+      const { geometry, positions, maxCount } = this.applyCustomGeometry(scene);
+      // console.log(geometry);
+
+      // ⭐️ これだと表示される
+      const material = new PointsMaterial({
+        color: 0xff0000,
+        size: 20,
+        sizeAttenuation: false,
+        depthTest: false,
+      });
+
+      // パーティクル用Materialを生成
+      // const material = this.setupMaterial();
+      // console.log(material);
+
+      // Pointsを生成
+      const points = new Points(geometry, material);
+      // console.log(points); // Points {isObject3D: true, uuid: '3e8b743c-aee9-470a-9407-ddecd21832e4', name: '', type: 'Points', parent: null, …}
+
+      points.frustumCulled = false;
+
+      // morph()で使用するデータを保持する必要がある
+      this.particlePositions = positions;
+      this.particleMaxCount = maxCount;
+      this.particleIndex = 0;
+      this.particlePoints = points;
+
+      // this.meshes.push(points);
+      group.add(points);
+    }
+
+    return group;
+  }
 
   debug(_folder) {
     _folder.add(this.uniforms.uSize, "value", 0, 50, 0.1).name("uSize").listen();

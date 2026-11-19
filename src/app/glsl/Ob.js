@@ -59,7 +59,7 @@ class Ob {
       this.mesh = this.setupMesh();
       this.disableOriginalElem(); // ドラッグ時の挙動の処理
       this.mesh.__marker = type; // typeを渡せばどの位置でエラーとなったかが分かるようにtypeを渡す
-      // this.afterInit();
+      this.afterInit();
     } catch (e) {
       if (window.debug) {
         console.log(e);

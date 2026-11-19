@@ -165,14 +165,6 @@ function addObj(_o) {
   // console.log(_o); // default {$: {…}, viewport: {…}, texes: Map(1), models: Map(1), scenes: Array(1), …}
   if(_o.mesh) world.scene.add(_o.mesh); // 通常のmesh
 
-  if(_o.meshes) { // 3Dモデルのメッシュ
-    // console.log("in")
-    for(const mesh of _o.meshes) {
-      console.log(mesh); // Points {isObject3D: true, uuid: '97a310df-2437-4ddf-b036-59b580c50157', name: '', type: 'Points', parent: null, …}
-      world.scene.add(mesh); // Groupメッシュも通常のメッシュ同様にaddできる。
-    }
-  }
-
   world.os.push(_o);
 }
 
