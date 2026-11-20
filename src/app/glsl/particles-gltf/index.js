@@ -31,23 +31,9 @@ import fragmentShader from "./fragment.glsl";
 
 // ObModelクラスを継承したクラスを作成。
 export default class extends ObModel{
-
   beforeCreateMesh() {
     this.colorA = "#ff7300";
     this.colorB = "#0091ff";
-  }
-
-  // ✅ モデル(scene)のmaterialをそのまま表示するかそうか。
-  // → そのまま表示ならfalse。
-  //   そのまま使わず、ShaderMaterialをあてて使うならtrue.
-  useShaderMaterial() {
-    return true;
-  }
-
-  // ✅ モデル(scene)が持つ独自のGeometryを使うかどうか。
-  // → 使うなら、true
-  useCustomGeometry() {
-    return true;
   }
 
   // ✅ glTFのgeometryに独自のカスタマイズする処理
@@ -189,8 +175,12 @@ export default class extends ObModel{
     material.blending = AdditiveBlending;
     material.depthWrite = false;
 
+    material.alphaTest = 0;
+    // console.log(material);
     return material;
   }
+
+  // setupGeometry() {}
 
   // ✅ メッシュを生成
   setupMesh() {
@@ -202,15 +192,15 @@ export default class extends ObModel{
       // console.log(geometry);
 
       // ⭐️ これだと表示される
-      const material = new PointsMaterial({
-        color: 0xff0000,
-        size: 20,
-        sizeAttenuation: false,
-        depthTest: false,
-      });
+      // const material = new PointsMaterial({
+      //   color: 0xff0000,
+      //   size: 20,
+      //   sizeAttenuation: false,
+      //   depthTest: false,
+      // });
 
       // パーティクル用Materialを生成
-      // const material = this.setupMaterial();
+      const material = this.setupMaterial();
       // console.log(material);
 
       // Pointsを生成
@@ -225,8 +215,11 @@ export default class extends ObModel{
       this.particleIndex = 0;
       this.particlePoints = points;
 
+      // scene.scale.setScalar(20);
+
       // this.meshes.push(points);
-      group.add(points);
+      group.add(scene);
+      // group.add(points);
     }
 
     return group;

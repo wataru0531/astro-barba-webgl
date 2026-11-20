@@ -1,18 +1,10 @@
 
-
 // ObModelクラス
 // → 3Dモデル用のクラス
 //   テクスチャも渡す
 
-// ✅ TODO
-// world.os.push(_o); をすることで、Barbaが破綻している。
-// 3Dモデルのシーン挿入までの確認
-// ObModelの確認
-// 各3Dモデルの各ファイルでの独自の実装
-// リサイズ処理
-// スクロール処理
 
-import { PlaneGeometry, ShaderMaterial, Mesh, Vector2 } from "three";
+import { PlaneGeometry, ShaderMaterial, Mesh, Vector2, Group } from "three";
 
 import loader from "../components/loader";
 import { utils, viewport, INode } from "../helper";
@@ -77,8 +69,8 @@ class ObModel {
 
       // ↓↓3Dモデルのsceneの中にgeometry、materialなどを持つために必要ない
       //   → 子クラスで頂点などをつくりシーンに格納していく
-      // this.material = this.setupMaterial();
-      // this.geometry = this.setupGeometry();
+      this.material = this.setupMaterial();
+      this.geometry = this.setupGeometry();
       this.mesh = this.setupMesh();
       // console.log(this.mesh)
       // this.mesh.__marker = type; // typeを渡せばどの位置でエラーとなったかが分かるようにtypeを渡す
@@ -135,9 +127,9 @@ class ObModel {
     return _uniforms;
   }
 
-  // setupGeometry() {
-  //   return new PlaneGeometry(this.rect.width, this.rect.height, 1, 1);
-  // }
+  setupGeometry() {
+    return new PlaneGeometry(this.rect.width, this.rect.height, 1, 1);
+  }
 
   // ✅ 3Dモデルのメッシュに適用する
   // → 適用するなら親クラスで
@@ -211,8 +203,20 @@ class ObModel {
     return uniforms;
   }
 
+  // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+  // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから
+  // 最低限の環境を構築していく
+  // applyCustomGeometry(){}
+
+  // ✅ シーンをthis.meshに渡すようにする。
+  // 子クラスではオーバーライドさせて、このシーンのgeometryなどを変更させたりする
   setupMesh() {
-    return new Mesh(this.geometry, this.material);
+    const group = new Group();
+    for(const scene of this.scenes) {
+      group.add(scene);
+    }
+
+    return group;
   }
 
   disableOriginalElem() {
