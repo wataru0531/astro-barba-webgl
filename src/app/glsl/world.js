@@ -163,6 +163,7 @@ function _bindEvents() {
 // ✅ メッシュをシーンとosに追加する関数
 function addObj(_o) {
   // console.log(_o); // default {$: {…}, viewport: {…}, texes: Map(1), models: Map(1), scenes: Array(1), …}
+  console.log(_o.material.type);
   if(_o.mesh) world.scene.add(_o.mesh); // 通常のmesh
 
   world.os.push(_o);

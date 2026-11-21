@@ -37,87 +37,130 @@ export default class extends ObModel{
   }
 
   // ✅ glTFのgeometryに独自のカスタマイズする処理
-  applyCustomGeometry(_scene){
-    // console.log(_scene); // Group {isObject3D: true, uuid: '323cb6b5-1a1f-42a1-8e25-e816fbf75527', name: '', type: 'Group', parent: null, …}
+  // applyCustomGeometry(_scene){
+  //   // console.log(_scene); // Group {isObject3D: true, uuid: '323cb6b5-1a1f-42a1-8e25-e816fbf75527', name: '', type: 'Group', parent: null, …}
 
-    // 拡大する
-    // _scene.scale.set(50, 50, 50);
-    // _scene.scale.multiplyScalar(50);
+  //   // 拡大する
+  //   // _scene.scale.set(50, 50, 50);
+  //   // _scene.scale.multiplyScalar(50);
 
-    // particlesの初期設定
-    // this.particles = {}; // ✅ geometry、materialなどパーティクルのデータを格納していく
-    // const particles = this.particles;
-    const particles = {};
-    particles.index = 0;
+  //   // particlesの初期設定
+  //   // this.particles = {}; // ✅ geometry、materialなどパーティクルのデータを格納していく
+  //   // const particles = this.particles;
+  //   const particles = {};
+  //   particles.index = 0;
 
-    //  glTFのMeshから頂点を取得
-    const meshes = [];
-    _scene.traverse(child => {
-      if(!child.isMesh) return;
+  //   //  glTFのMeshから頂点を取得
+  //   const meshes = [];
+  //   _scene.traverse(child => {
+  //     if(!child.isMesh) return;
 
-      meshes.push(child);
-    });
-    // console.log(meshes); // (4) [Mesh, Mesh, Mesh, Mesh]
+  //     meshes.push(child);
+  //   });
+  //   // console.log(meshes); // (4) [Mesh, Mesh, Mesh, Mesh]
 
-    const positions = meshes.map(child => child.geometry.attributes.position);
-    // console.log(positions); // (4) [BufferAttribute, BufferAttribute, BufferAttribute, BufferAttribute]
+  //   const positions = meshes.map(child => child.geometry.attributes.position);
+  //   // console.log(positions); // (4) [BufferAttribute, BufferAttribute, BufferAttribute, BufferAttribute]
 
-    // 最大超点数を取得　→ メッシュの携帯を変化させるには同じ超点数に合わせる必要があるため
-    particles.maxCount = 0;
+  //   // 最大超点数を取得　→ メッシュの携帯を変化させるには同じ超点数に合わせる必要があるため
+  //   particles.maxCount = 0;
 
-    for(const position of positions) {
-      if(position.count > particles.maxCount) {
-        particles.maxCount = position.count;
-      }
+  //   for(const position of positions) {
+  //     if(position.count > particles.maxCount) {
+  //       particles.maxCount = position.count;
+  //     }
+  //   }
+  //   // console.log(particles.maxCount); // 10242
+
+  //   // 超点数を統一していく
+  //   particles.positions = [];
+
+  //   for(const position of positions) {
+  //     const originalArray = position.array;
+  //     // console.log(originalArray); 
+  //     // Float32Array(29928), Float32Array(23874), Float32Array(30726), Float32Array(28566)
+
+  //     const newArray = new Float32Array(particles.maxCount * 3);
+  //     for(let i = 0; i < particles.maxCount; i++) {
+  //       const i3 = i * 3;
+
+  //       if(i < position.count) {
+  //         newArray[i3 + 0] = originalArray[i3 + 0];
+  //         newArray[i3 + 1] = originalArray[i3 + 1];
+  //         newArray[i3 + 2] = originalArray[i3 + 2];
+  //       } else {
+  //         const randomIndex = Math.floor(position.count * Math.random()) * 3;
+
+  //         newArray[i3 + 0] = originalArray[randomIndex + 0];
+  //         newArray[i3 + 1] = originalArray[randomIndex + 1];
+  //         newArray[i3 + 2] = originalArray[randomIndex + 2];
+  //       }
+  //     }
+
+  //     particles.positions.push(new Float32BufferAttribute(newArray, 3));
+  //   }
+  //   // console.log(particles.positions); // (4) [Float32BufferAttribute, Float32BufferAttribute, Float32BufferAttribute, Float32BufferAttribute]
+  //   // → すべての頂点が 30726 に統一される
+
+  //   // aSizeを生成していく → 0 〜 1 の範囲
+  //   const sizesArray = new Float32Array(particles.maxCount);
+  //   for(let i = 0; i < particles.maxCount; i++) {
+  //     sizesArray[i] = Math.random();
+  //   }
+
+  //   const geometry = new BufferGeometry();
+  //   geometry.setAttribute("position", particles.positions[particles.index]); // モーフィングの最初のインデックス
+  //   geometry.setAttribute("aPositionTarget", particles.positions[particles.positions.length - 1]); // ✅ 移動先の座標(ターゲット)。最後のモーフィングの頂点
+  //   geometry.setAttribute("aSize", new Float32BufferAttribute(sizesArray, 1)); // ランダムな 0 〜 1の少数
+
+  //   return {
+  //     geometry,
+  //     positions: particles.positions,
+  //     maxCount: particles.maxCount,
+  //   }
+  // }
+
+  // ✅ メッシュを生成
+  setupMesh() {
+    const group = new Group();
+
+    for(const scene of this.scenes) {
+      // GLTFモデルからGeometryなどを取得
+      // const { geometry, positions, maxCount } = this.applyCustomGeometry(scene);
+      // console.log(geometry);
+
+      // ⭐️ これだと表示される
+      // const material = new PointsMaterial({
+      //   color: 0xff0000,
+      //   size: 20,
+      //   sizeAttenuation: false,
+      //   depthTest: false,
+      // });
+
+      // パーティクル用Materialを生成
+      // const material = this.setupMaterial();
+      // console.log(material);
+
+      // Pointsを生成
+      // const points = new Points(geometry, material);
+      // console.log(points); // Points {isObject3D: true, uuid: '3e8b743c-aee9-470a-9407-ddecd21832e4', name: '', type: 'Points', parent: null, …}
+
+      // points.frustumCulled = false;
+
+      // morph()で使用するデータを保持する必要がある
+      // this.particlePositions = positions;
+      // this.particleMaxCount = maxCount;
+      // this.particleIndex = 0;
+      // this.particlePoints = points;
+
+      scene.scale.setScalar(20);
+
+      // this.meshes.push(points);
+      group.add(scene);
+      // group.add(points);
     }
-    // console.log(particles.maxCount); // 10242
 
-    // 超点数を統一していく
-    particles.positions = [];
-
-    for(const position of positions) {
-      const originalArray = position.array;
-      // console.log(originalArray); 
-      // Float32Array(29928), Float32Array(23874), Float32Array(30726), Float32Array(28566)
-
-      const newArray = new Float32Array(particles.maxCount * 3);
-      for(let i = 0; i < particles.maxCount; i++) {
-        const i3 = i * 3;
-
-        if(i < position.count) {
-          newArray[i3 + 0] = originalArray[i3 + 0];
-          newArray[i3 + 1] = originalArray[i3 + 1];
-          newArray[i3 + 2] = originalArray[i3 + 2];
-        } else {
-          const randomIndex = Math.floor(position.count * Math.random()) * 3;
-
-          newArray[i3 + 0] = originalArray[randomIndex + 0];
-          newArray[i3 + 1] = originalArray[randomIndex + 1];
-          newArray[i3 + 2] = originalArray[randomIndex + 2];
-        }
-      }
-
-      particles.positions.push(new Float32BufferAttribute(newArray, 3));
-    }
-    // console.log(particles.positions); // (4) [Float32BufferAttribute, Float32BufferAttribute, Float32BufferAttribute, Float32BufferAttribute]
-    // → すべての頂点が 30726 に統一される
-
-    // aSizeを生成していく → 0 〜 1 の範囲
-    const sizesArray = new Float32Array(particles.maxCount);
-    for(let i = 0; i < particles.maxCount; i++) {
-      sizesArray[i] = Math.random();
-    }
-
-    const geometry = new BufferGeometry();
-    geometry.setAttribute("position", particles.positions[particles.index]); // モーフィングの最初のインデックス
-    geometry.setAttribute("aPositionTarget", particles.positions[particles.positions.length - 1]); // ✅ 移動先の座標(ターゲット)。最後のモーフィングの頂点
-    geometry.setAttribute("aSize", new Float32BufferAttribute(sizesArray, 1)); // ランダムな 0 〜 1の少数
-
-    return {
-      geometry,
-      positions: particles.positions,
-      maxCount: particles.maxCount,
-    }
+    return group;
   }
 
   // ✅ モーフ
@@ -182,48 +225,6 @@ export default class extends ObModel{
 
   // setupGeometry() {}
 
-  // ✅ メッシュを生成
-  setupMesh() {
-    const group = new Group();
-
-    for(const scene of this.scenes) {
-      // GLTFモデルからGeometryなどを取得
-      const { geometry, positions, maxCount } = this.applyCustomGeometry(scene);
-      // console.log(geometry);
-
-      // ⭐️ これだと表示される
-      // const material = new PointsMaterial({
-      //   color: 0xff0000,
-      //   size: 20,
-      //   sizeAttenuation: false,
-      //   depthTest: false,
-      // });
-
-      // パーティクル用Materialを生成
-      const material = this.setupMaterial();
-      // console.log(material);
-
-      // Pointsを生成
-      const points = new Points(geometry, material);
-      // console.log(points); // Points {isObject3D: true, uuid: '3e8b743c-aee9-470a-9407-ddecd21832e4', name: '', type: 'Points', parent: null, …}
-
-      points.frustumCulled = false;
-
-      // morph()で使用するデータを保持する必要がある
-      this.particlePositions = positions;
-      this.particleMaxCount = maxCount;
-      this.particleIndex = 0;
-      this.particlePoints = points;
-
-      // scene.scale.setScalar(20);
-
-      // this.meshes.push(points);
-      group.add(scene);
-      // group.add(points);
-    }
-
-    return group;
-  }
 
   debug(_folder) {
     _folder.add(this.uniforms.uSize, "value", 0, 50, 0.1).name("uSize").listen();

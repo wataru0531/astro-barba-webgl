@@ -70,7 +70,7 @@ class ObModel {
       // ↓↓3Dモデルのsceneの中にgeometry、materialなどを持つために必要ない
       //   → 子クラスで頂点などをつくりシーンに格納していく
       this.material = this.setupMaterial();
-      this.geometry = this.setupGeometry();
+
       this.mesh = this.setupMesh();
       // console.log(this.mesh)
       // this.mesh.__marker = type; // typeを渡せばどの位置でエラーとなったかが分かるようにtypeを渡す
@@ -85,23 +85,6 @@ class ObModel {
   }
 
   beforeCreateMesh() {}
-
-  // 独自のgeometryをあてる時は子クラスでtrueで上書き
-  useCustomGeometry() {
-    return false;
-  }
-
-  // ✅ 独自のshaderMaterialを使うかどうか
-  // → 3Dモデルの中を編集して使いたいなら、親クラスで上書きしてtrueに
-  useShaderMaterial() {
-    return false;
-  }
-
-  // メッシュを生成する
-  // TODO → カスタムしない場合と統合
-  createMeshes(){
-    throw new Error("子クラスでオーバーライドしてください");
-  }
 
   setupDefines() {
     return {
@@ -125,26 +108,6 @@ class ObModel {
     });
 
     return _uniforms;
-  }
-
-  setupGeometry() {
-    return new PlaneGeometry(this.rect.width, this.rect.height, 1, 1);
-  }
-
-  // ✅ 3Dモデルのメッシュに適用する
-  // → 適用するなら親クラスで
-  setupMaterial() {
-    return new ShaderMaterial({
-      defines: this.defines,
-      vertexShader: this.vertexShader,
-      fragmentShader: this.fragmentShader,
-      uniforms: this.uniforms,
-      transparent: true,
-      alphaTest: .5, // 透明度をどれだけ厳密に見るか(.5以下の透明度は無視)
-      // onBeforeCompile → シェーダーのコンパイル直前に呼び出されるコールバック関数
-      //   引数のshaderはThreeが自動で付与。onAfterRenderなどのコールバックもある。
-      onBeforeCompile: this.onBeforeCompile, // WebGL1.0への対応。
-    });
   }
 
   // WebGL1.0への対応
@@ -203,19 +166,35 @@ class ObModel {
     return uniforms;
   }
 
-  // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-  // ⭐️ここから⭐️ここから⭐️ここから⭐️ここから
-  // 最低限の環境を構築していく
-  // applyCustomGeometry(){}
+  // ✅ 3Dモデルのメッシュに適用する
+  // → setupMesh内で、適用させる。
+  setupMaterial() {
+    return new ShaderMaterial({
+      defines: this.defines,
+      vertexShader: this.vertexShader,
+      fragmentShader: this.fragmentShader,
+      uniforms: this.uniforms,
+      transparent: true,
+      alphaTest: .5, // 透明度をどれだけ厳密に見るか(.5以下の透明度は無視)
+      // onBeforeCompile → シェーダーのコンパイル直前に呼び出されるコールバック関数
+      //   引数のshaderはThreeが自動で付与。onAfterRenderなどのコールバックもある。
+      onBeforeCompile: this.onBeforeCompile, // WebGL1.0への対応。
+    });
+  }
+
+  // ✅ オーバーライドさせて、シーンのgeometryをカスタムする
+  // → setupMeshでメッシュを加工するときに、geometryで返した頂点などを使う。
+  applyCustomGeometry(_scene){
+    return _scene;
+  }
 
   // ✅ シーンをthis.meshに渡すようにする。
-  // 子クラスではオーバーライドさせて、このシーンのgeometryなどを変更させたりする
+  // このシーンのgeometryなどを変更させたりするなら、子クラスではオーバーライドさせり
   setupMesh() {
     const group = new Group();
     for(const scene of this.scenes) {
       group.add(scene);
     }
-
     return group;
   }
 
@@ -307,8 +286,6 @@ class ObModel {
   }
 
   render(tick) {
-    if(!this.useShaderMaterial()) return;
-
     this.uniforms.uTick.value = tick;
   }
 
